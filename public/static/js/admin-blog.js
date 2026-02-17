@@ -14,7 +14,7 @@ async function loadPosts() {
     const tbody = document.getElementById('postsTableBody');
     
     try {
-        const response = await fetch('tables/blog_posts?sort=-created_at');
+        const response = await fetch('/api/tables/blog_posts?sort=-created_at');
         const result = await response.json();
         const posts = result.data || [];
         
@@ -71,7 +71,7 @@ function setupForm() {
                 });
             } else {
                 // 新規作成
-                response = await fetch('tables/blog_posts', {
+                response = await fetch('/api/tables/blog_posts', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(formData)

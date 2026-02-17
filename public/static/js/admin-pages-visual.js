@@ -503,7 +503,7 @@ function renderForm(sectionId) {
 // Load All Content from Database
 async function loadAllContent() {
     try {
-        const response = await fetch('tables/site_settings?limit=100');
+        const response = await fetch('/api/tables/site_settings?limit=100');
         const data = await response.json();
         
         if (data.data) {
@@ -665,7 +665,7 @@ async function updatePageContent(settingKey, settingValue) {
         } else {
             // Create new record
             const settingGroup = settingKey.split('_')[0];
-            const createResponse = await fetch('tables/site_settings', {
+            const createResponse = await fetch('/api/tables/site_settings', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

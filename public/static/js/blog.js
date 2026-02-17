@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadDynamicContent() {
     try {
         const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5));
-        const response = await fetch('tables/site_settings?limit=100&_=' + cacheTime);
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
         const result = await response.json();
         
         if (result.data) {
@@ -95,7 +95,7 @@ async function loadBlogPosts() {
     showLoading(blogGrid);
     
     try {
-        const response = await fetch('tables/blog_posts?sort=-publish_date&status=公開');
+        const response = await fetch('/api/tables/blog_posts?sort=-publish_date&status=公開');
         
         if (!response.ok) {
             throw new Error('データの取得に失敗しました');

@@ -15,10 +15,10 @@ async function loadDashboardStats() {
         const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         
         const [blogRes, newsletterRes, eventsRes, totalAccessRes, monthlyAccessRes] = await Promise.all([
-            fetch('tables/blog_posts'),
-            fetch('tables/newsletters'),
-            fetch('tables/events'),
-            fetch('tables/access_stats?stat_type=total&year_month=total&page_name=all&limit=1'),
+            fetch('/api/tables/blog_posts'),
+            fetch('/api/tables/newsletters'),
+            fetch('/api/tables/events'),
+            fetch('/api/tables/access_stats?stat_type=total&year_month=total&page_name=all&limit=1'),
             fetch(`tables/access_stats?stat_type=monthly&year_month=${currentMonth}&page_name=all&limit=1`)
         ]);
         
@@ -52,7 +52,7 @@ async function loadRecentPosts() {
     const container = document.getElementById('recentPosts');
     
     try {
-        const response = await fetch('tables/blog_posts?limit=5&sort=-created_at');
+        const response = await fetch('/api/tables/blog_posts?limit=5&sort=-created_at');
         const result = await response.json();
         const posts = result.data || [];
         

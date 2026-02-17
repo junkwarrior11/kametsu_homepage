@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadDynamicContent() {
     try {
         const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5));
-        const response = await fetch('tables/site_settings?limit=100&_=' + cacheTime);
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
         const result = await response.json();
         
         if (result.data) {
@@ -89,7 +89,7 @@ async function loadNewsletters() {
     showLoading(newsletterGrid);
     
     try {
-        const response = await fetch('tables/newsletters?sort=-issue_date');
+        const response = await fetch('/api/tables/newsletters?sort=-issue_date');
         
         if (!response.ok) {
             throw new Error('データの取得に失敗しました');

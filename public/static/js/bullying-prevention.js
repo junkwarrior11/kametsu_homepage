@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // サイト設定を読み込む（ヘッダー・フッター）
 async function loadSiteSettings() {
     try {
-        const response = await fetch('tables/site_settings');
+        const response = await fetch('/api/tables/site_settings');
         const result = await response.json();
         const settings = {};
         
@@ -67,7 +67,7 @@ function updateTextContent(elementId, text) {
 async function loadBullyingPreventionPDF() {
     try {
         // uploaded_pdfs テーブルから「いじめ防止」を含むPDFを検索
-        const response = await fetch('tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         

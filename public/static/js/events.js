@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadDynamicContent() {
     try {
         const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5));
-        const response = await fetch('tables/site_settings?limit=100&_=' + cacheTime);
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
         const result = await response.json();
         
         if (result.data) {
@@ -95,7 +95,7 @@ async function loadEventsPDF() {
     const noPDFMessage = document.getElementById('noPDFMessage');
     
     try {
-        const response = await fetch('tables/uploaded_pdfs?limit=1&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=1&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         

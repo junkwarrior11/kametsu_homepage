@@ -64,7 +64,7 @@ async function loadNewsletters() {
     const tbody = document.getElementById('newslettersTableBody');
     
     try {
-        const response = await fetch('tables/newsletters?sort=-issue_date');
+        const response = await fetch('/api/tables/newsletters?sort=-issue_date');
         const result = await response.json();
         const newsletters = result.data || [];
         
@@ -124,7 +124,7 @@ function setupForm() {
                     body: JSON.stringify(formData)
                 });
             } else {
-                response = await fetch('tables/newsletters', {
+                response = await fetch('/api/tables/newsletters', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(formData)

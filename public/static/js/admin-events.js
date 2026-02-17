@@ -14,7 +14,7 @@ async function loadEvents() {
     const tbody = document.getElementById('eventsTableBody');
     
     try {
-        const response = await fetch('tables/events?sort=event_date');
+        const response = await fetch('/api/tables/events?sort=event_date');
         const result = await response.json();
         const events = result.data || [];
         
@@ -67,7 +67,7 @@ function setupForm() {
                     body: JSON.stringify(formData)
                 });
             } else {
-                response = await fetch('tables/events', {
+                response = await fetch('/api/tables/events', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(formData)
@@ -162,7 +162,7 @@ async function loadCurrentPDF() {
     const display = document.getElementById('currentPDFDisplay');
     
     try {
-        const response = await fetch('tables/uploaded_pdfs?limit=1&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=1&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         

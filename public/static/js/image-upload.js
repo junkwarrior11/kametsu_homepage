@@ -41,7 +41,7 @@ async function uploadImage(file, description = '') {
             description: description || file.name
         };
         
-        const response = await fetch('tables/uploaded_images', {
+        const response = await fetch('/api/tables/uploaded_images', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

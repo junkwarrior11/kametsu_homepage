@@ -32,7 +32,7 @@ async function loadDynamicContent() {
     try {
         // キャッシュを活用（5分間有効）
         const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5)); // 5分ごとに更新
-        const response = await fetch('tables/site_settings?limit=100&_=' + cacheTime);
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
         const result = await response.json();
         
         if (result.data) {
@@ -187,7 +187,7 @@ async function loadRecentNews() {
     showLoading(newsGrid);
     
     try {
-        const response = await fetch('tables/blog_posts?limit=3&sort=-publish_date&status=公開');
+        const response = await fetch('/api/tables/blog_posts?limit=3&sort=-publish_date&status=公開');
         
         if (!response.ok) {
             throw new Error('データの取得に失敗しました');
@@ -254,7 +254,7 @@ async function loadUpcomingEvents() {
     showLoading(eventsContainer);
     
     try {
-        const response = await fetch('tables/events?limit=5&sort=event_date');
+        const response = await fetch('/api/tables/events?limit=5&sort=event_date');
         
         if (!response.ok) {
             throw new Error('データの取得に失敗しました');

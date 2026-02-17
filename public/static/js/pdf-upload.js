@@ -35,7 +35,7 @@ async function uploadPDF(file, metadata = {}) {
             month: metadata.month || (new Date().getMonth() + 1).toString()
         };
         
-        const response = await fetch('tables/uploaded_pdfs', {
+        const response = await fetch('/api/tables/uploaded_pdfs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

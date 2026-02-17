@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadDynamicContent() {
     try {
         const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5));
-        const response = await fetch('tables/site_settings?limit=100&_=' + cacheTime);
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
         const result = await response.json();
         
         if (result.data) {

@@ -32,7 +32,7 @@ async function recordAccess() {
             ip_hash: await getIpHash()
         };
         
-        await fetch('tables/access_logs', {
+        await fetch('/api/tables/access_logs', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(logData)
@@ -84,7 +84,7 @@ async function incrementStat(statType, yearMonth, pageName) {
             });
         } else {
             // 新規レコードを作成
-            await fetch('tables/access_stats', {
+            await fetch('/api/tables/access_stats', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -157,7 +157,7 @@ async function getIpHash() {
 async function getAccessStats() {
     try {
         // 総アクセス数を取得
-        const totalResponse = await fetch('tables/access_stats?stat_type=total&year_month=total&page_name=all&limit=1');
+        const totalResponse = await fetch('/api/tables/access_stats?stat_type=total&year_month=total&page_name=all&limit=1');
         const totalResult = await totalResponse.json();
         const totalCount = (totalResult.data && totalResult.data.length > 0) ? totalResult.data[0].count : 0;
         

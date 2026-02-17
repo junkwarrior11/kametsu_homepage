@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // サイト設定を読み込む（ヘッダー・フッター）
 async function loadSiteSettings() {
     try {
-        const response = await fetch('tables/site_settings');
+        const response = await fetch('/api/tables/site_settings');
         const result = await response.json();
         const settings = {};
         
@@ -70,7 +70,7 @@ async function loadGoodChildRulesPDF() {
     
     try {
         // uploaded_pdfs から「よいこの約束」を含むPDFを検索
-        const response = await fetch('tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         
@@ -105,7 +105,7 @@ async function loadStudyRulesPDF() {
     
     try {
         // uploaded_pdfs から「学習の約束」を含むPDFを検索
-        const response = await fetch('tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         

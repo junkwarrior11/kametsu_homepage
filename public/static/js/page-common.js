@@ -5,7 +5,7 @@
 // 共通ヘッダー・フッターを読み込む（全ページ共通）
 async function loadCommonHeaderFooter() {
     try {
-        const response = await fetch('tables/site_settings?limit=100&_=' + Date.now());
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + Date.now());
         const result = await response.json();
         
         if (result.data) {
@@ -38,7 +38,7 @@ async function loadCommonHeaderFooter() {
 // 動的コンテンツを読み込む（ページヘッダー用）
 async function loadPageDynamicContent(pagePrefix) {
     try {
-        const response = await fetch('tables/site_settings?limit=100&_=' + Date.now());
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + Date.now());
         const result = await response.json();
         
         if (result.data) {

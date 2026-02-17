@@ -22,7 +22,7 @@ async function loadCurrentPDF() {
     
     try {
         // description に "いじめ防止" を含むPDFを検索
-        const response = await fetch('tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         

@@ -23,7 +23,7 @@ async function loadGoodChildPDF() {
     if (!display) return;
     
     try {
-        const response = await fetch('tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         
@@ -71,7 +71,7 @@ async function loadStudyRulesPDF() {
     if (!display) return;
     
     try {
-        const response = await fetch('tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
         const result = await response.json();
         const pdfs = result.data || [];
         
