@@ -1,449 +1,259 @@
-# 徳之島町立亀津小学校 ウェブサイト
+# 徳之島町立亀津小学校ウェブサイト
 
-鹿児島県大島郡徳之島町にある亀津小学校のための、モダンなウェブサイトシステムです。Cloudflare Pages + Hono フレームワークで構築され、フロントエンドとバックエンドが完全統合されています。
+鹿児島県大島郡徳之島町にある亀津小学校のための、完全統合ウェブサイトシステムです。
 
 ## 🎯 プロジェクト概要
 
-このプロジェクトは、小学校の公式ウェブサイトと管理システムを一つのシステムとして構築しています。
-**管理画面で投稿・編集したコンテンツが、リアルタイムでフロントエンドの公開サイトに反映されます。**
+このプロジェクトは、Cloudflare Pages + Hono + D1 Databaseを使用した、最新のエッジコンピューティング技術で構築された小学校の公式ウェブサイトです。
 
 ### 主な特徴
 
-- ✅ **Cloudflare Pages** - エッジコンピューティングで世界中で高速
-- ✅ **Hono フレームワーク** - 軽量で高速なWebフレームワーク
-- ✅ **Cloudflare D1** - SQLiteベースのグローバル分散データベース
-- ✅ **完全統合** - フロントとバックエンドが同一データベースを共有
+- ✅ **最新技術スタック** - Hono + Cloudflare Pages + D1 Database
+- ✅ **エッジコンピューティング** - 世界中で高速アクセス
+- ✅ **完全統合システム** - フロントとバックエンドが完全連動
+- ✅ **RESTful API** - データベース操作をAPI経由で実行
 - ✅ **レスポンシブデザイン** - スマートフォン完全対応
-- ✅ **モダンなUI/UX** - 徳之島の自然をイメージした洗練されたデザイン
-- ✅ **RESTful API** - 柔軟なデータ操作が可能な API
-- ✅ **完全なCRUD機能** - すべてのコンテンツを管理画面から操作可能
+- ✅ **リアルタイム連動** - 管理画面での変更が即座に反映
 
 ## 📁 プロジェクト構造
 
 ```
 webapp/
 ├── src/
-│   ├── index.tsx          # メインHonoアプリケーション
-│   ├── api.ts             # RESTful Table API実装
-│   └── renderer.tsx       # レンダラー設定
-├── public/                # 静的ファイル（HTML, CSS, JS）
-│   ├── *.html             # フロントエンド・管理画面HTMLファイル
+│   ├── index.tsx           # メインアプリケーション (Hono)
+│   └── api.ts              # RESTful Table API
+├── public/                 # 静的ファイル (dist/ にコピーされる)
+│   ├── *.html              # HTMLファイル (フロントエンド + 管理画面)
 │   └── static/
-│       ├── css/           # スタイルシート
-│       └── js/            # JavaScriptファイル
-├── migrations/            # データベースマイグレーション
-│   ├── 0001_initial_schema.sql  # テーブル定義
-│   └── 0002_initial_data.sql    # 初期データ
-├── ecosystem.config.cjs   # PM2設定（開発環境用）
-├── wrangler.jsonc         # Cloudflare設定
-├── package.json           # 依存関係とスクリプト
-└── README.md              # このファイル
+│       ├── css/            # スタイルシート
+│       └── js/             # JavaScript
+├── migrations/             # D1データベースマイグレーション
+│   ├── 0001_initial_schema.sql
+│   └── 0002_initial_data.sql
+├── ecosystem.config.cjs    # PM2設定 (開発用)
+├── package.json            # 依存関係とスクリプト
+├── vite.config.ts          # Viteビルド設定
+└── wrangler.jsonc          # Cloudflare設定
 ```
 
 ## 💾 データベース構造
 
-### テーブル一覧（9テーブル）
+### Cloudflare D1 Database (9テーブル)
 
 1. **blog_posts** - ブログ記事
 2. **newsletters** - 学校だより
 3. **events** - 行事予定
 4. **page_contents** - ページコンテンツ
 5. **media** - メディアファイル
-6. **site_settings** - サイト設定（34フィールド）
+6. **site_settings** - サイト設定 (34フィールド - トップページの全テキスト)
 7. **access_logs** - アクセスログ
 8. **access_stats** - アクセス統計
 9. **uploaded_pdfs** - PDFライブラリ
 
-詳細はマイグレーションファイルを参照してください。
+## 🚀 使い方
 
-## 🚀 セットアップ手順
-
-### 1. 依存関係のインストール
+### ローカル開発
 
 ```bash
-cd /home/user/webapp
+# 依存関係のインストール
 npm install
-```
 
-### 2. データベースマイグレーション（ローカル開発）
-
-```bash
-# ローカルD1データベースにマイグレーションを適用
+# データベースマイグレーション (初回のみ)
 npm run db:migrate:local
-```
-
-### 3. ビルド
-
-```bash
-npm run build
-```
-
-### 4. ローカル開発サーバー起動
-
-**オプションA: PM2を使用（推奨）**
-
-```bash
-# ポート3000をクリーンアップ
-npm run clean-port
-
-# PM2でサーバー起動
-pm2 start ecosystem.config.cjs
-
-# ログ確認
-pm2 logs webapp --nostream
-
-# 停止
-pm2 stop webapp
-
-# 削除
-pm2 delete webapp
-```
-
-**オプションB: 直接実行**
-
-```bash
-npm run dev:sandbox
-```
-
-### 5. ブラウザで確認
-
-- **フロントエンド**: http://localhost:3000
-- **管理画面**: http://localhost:3000/admin-login.html
-  - ユーザー名: `admin`
-  - パスワード: `admin123`
-- **API**: http://localhost:3000/api/tables/site_settings
-
-## 🌐 Cloudflare Pagesへのデプロイ
-
-### 1. Cloudflare D1データベースの作成
-
-```bash
-# 本番用データベースを作成
-npx wrangler d1 create webapp-production
-
-# 出力されたdatabase_idをwrangler.jsoncに設定
-```
-
-### 2. wrangler.jsoncの更新
-
-```jsonc
-{
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "webapp-production",
-      "database_id": "YOUR_DATABASE_ID"  // ここを更新
-    }
-  ]
-}
-```
-
-### 3. 本番データベースへマイグレーション
-
-```bash
-npm run db:migrate:prod
-```
-
-### 4. Cloudflare Pagesプロジェクトの作成
-
-```bash
-# プロジェクトを作成（main ブランチが本番環境）
-npx wrangler pages project create webapp --production-branch main
-```
-
-### 5. デプロイ
-
-```bash
-npm run deploy:prod
-```
-
-デプロイ後、以下のURLでアクセス可能:
-- **本番環境**: https://webapp.pages.dev
-- **ブランチ**: https://main.webapp.pages.dev
-
-## 🛠️ 開発コマンド
-
-```bash
-# ローカル開発（Viteサーバー）
-npm run dev
-
-# サンドボックス開発（Wrangler + D1）
-npm run dev:sandbox
 
 # ビルド
 npm run build
 
-# プレビュー
-npm run preview
+# 開発サーバー起動
+npm run dev:sandbox
 
-# デプロイ
-npm run deploy:prod
-
-# データベースマイグレーション（ローカル）
-npm run db:migrate:local
-
-# データベースマイグレーション（本番）
-npm run db:migrate:prod
-
-# データベースコンソール（ローカル）
-npm run db:console:local
-
-# データベースコンソール（本番）
-npm run db:console:prod
-
-# ポートクリーンアップ
-npm run clean-port
-
-# APIテスト
-npm run test
-
-# Git初期化
-npm run git:init
-
-# Gitコミット
-npm run git:commit "commit message"
+# または PM2 で起動
+pm2 start ecosystem.config.cjs
 ```
 
-## 📋 フロントエンドページ
+開発サーバー: http://localhost:3000
 
-- **index.html** - トップページ
-- **about.html** - 学校概要
-- **events.html** - 年間行事予定
-- **newsletter.html** - 学校だより
-- **blog.html** - ブログ一覧
-- **blog-detail.html** - ブログ記事詳細
-- **access.html** - アクセス情報
-- **school-rules.html** - 亀津小のやくそく
-- **bullying-prevention.html** - いじめ防止基本方針
+### 本番デプロイ (Cloudflare Pages)
 
-## 🔧 管理画面ページ
+#### 1. D1データベースの作成
 
-- **admin-login.html** - 管理者ログイン
-- **admin-dashboard.html** - ダッシュボード
-- **admin-blog.html** - ブログ記事管理
-- **admin-newsletter.html** - 学校だより管理
-- **admin-events.html** - 行事予定管理
-- **admin-pages-visual.html** - ビジュアルページ編集
-- **admin-school-rules.html** - やくそく管理
-- **admin-bullying-prevention.html** - いじめ防止方針管理
+```bash
+# 本番用データベースを作成
+npx wrangler d1 create webapp-production
+```
 
-## 🔑 API エンドポイント
+作成されたdatabase_idを `wrangler.jsonc` に設定してください。
+
+#### 2. マイグレーションの適用
+
+```bash
+# 本番データベースにマイグレーションを適用
+npm run db:migrate:prod
+```
+
+#### 3. Cloudflare Pagesプロジェクトの作成
+
+```bash
+# プロジェクトを作成
+npx wrangler pages project create webapp \
+  --production-branch main \
+  --compatibility-date 2026-02-17
+```
+
+#### 4. デプロイ
+
+```bash
+# ビルドとデプロイ
+npm run deploy:prod
+```
+
+## 📊 APIエンドポイント
 
 ### RESTful Table API
 
-すべてのテーブルに対して、統一されたRESTful APIでアクセス可能:
-
-```bash
-# 一覧取得（ページネーション、ソート、フィルタ対応）
+```javascript
+// 一覧取得
 GET /api/tables/{table_name}?page=1&limit=100&sort=-created_at&status=公開
 
-# 単一レコード取得
-GET /api/tables/{table_name}/{id}
+// 単一レコード取得
+GET /api/tables/{table_name}/{record_id}
 
-# 新規作成
+// 新規作成
 POST /api/tables/{table_name}
-Content-Type: application/json
-{ "title": "新しい記事", ... }
+Body: JSON object
 
-# 完全更新
-PUT /api/tables/{table_name}/{id}
-Content-Type: application/json
-{ "title": "更新された記事", ... }
+// 完全更新
+PUT /api/tables/{table_name}/{record_id}
+Body: Complete JSON object
 
-# 部分更新
-PATCH /api/tables/{table_name}/{id}
-Content-Type: application/json
-{ "status": "下書き" }
+// 部分更新
+PATCH /api/tables/{table_name}/{record_id}
+Body: Partial JSON object
 
-# 削除
-DELETE /api/tables/{table_name}/{id}
+// 削除
+DELETE /api/tables/{table_name}/{record_id}
 ```
 
-### 利用可能なテーブル
+## 🎨 主要ページ
 
-- `blog_posts` - ブログ記事
-- `newsletters` - 学校だより
-- `events` - 行事予定
-- `page_contents` - ページコンテンツ
-- `media` - メディアファイル
-- `site_settings` - サイト設定
-- `access_logs` - アクセスログ
-- `access_stats` - アクセス統計
-- `uploaded_pdfs` - PDFライブラリ
+### フロントエンド (一般公開)
+- `/` - トップページ
+- `/about.html` - 学校概要
+- `/events.html` - 行事予定
+- `/newsletter.html` - 学校だより
+- `/blog.html` - ブログ一覧
+- `/school-rules.html` - 亀津小のやくそく
+- `/bullying-prevention.html` - いじめ防止基本方針
+- `/access.html` - アクセス情報
 
-### 使用例
+### 管理画面
+- `/admin-login.html` - 管理者ログイン (admin / admin123)
+- `/admin-dashboard.html` - ダッシュボード
+- `/admin-blog.html` - ブログ管理
+- `/admin-newsletter.html` - 学校だより管理
+- `/admin-events.html` - 行事予定管理
+- `/admin-pages-visual.html` - ビジュアルページ編集
+- `/admin-school-rules.html` - やくそく管理
+- `/admin-bullying-prevention.html` - いじめ防止方針管理
+
+## 🔧 開発用スクリプト
 
 ```bash
-# サイト設定を取得
-curl http://localhost:3000/api/tables/site_settings
+# ビルド
+npm run build
 
-# ブログ記事を作成
-curl -X POST http://localhost:3000/api/tables/blog_posts \
-  -H "Content-Type: application/json" \
-  -d '{"title":"新しい記事","content":"記事の内容","status":"公開"}'
+# 開発サーバー (Vite)
+npm run dev
 
-# 記事を更新
-curl -X PATCH http://localhost:3000/api/tables/blog_posts/{id} \
-  -H "Content-Type: application/json" \
-  -d '{"status":"下書き"}'
+# 開発サーバー (Wrangler + D1)
+npm run dev:sandbox
+
+# デプロイ
+npm run deploy
+npm run deploy:prod
+
+# データベース操作
+npm run db:migrate:local      # ローカルマイグレーション
+npm run db:migrate:prod       # 本番マイグレーション
+npm run db:console:local      # ローカルDBコンソール
+npm run db:console:prod       # 本番DBコンソール
+
+# その他
+npm run clean-port            # ポート3000をクリア
+npm run test                  # サーバーテスト (curl)
+npm run git:status            # Git状態確認
 ```
 
-## 🎨 デザイン特徴
+## 🌐 デプロイ済みURL
 
-### カラーパレット
+- **開発環境**: https://3000-iahmqh7e1gki4abbtnobi-b32ec7bb.sandbox.novita.ai
+- **本番環境**: (デプロイ後に追加されます)
 
-- **プライマリー**: #2563eb（ブルー）
-- **セカンダリー**: #7c3aed（パープル）
-- **アクセント**: #f59e0b（アンバー）
-- **グラデーション**: 667eea → 764ba2
+## 📝 サンプルデータ
 
-### レスポンシブブレークポイント
+プロジェクトには以下のサンプルデータが含まれています:
+- ブログ記事: 4件
+- 学校だより: 3件
+- 行事予定: 6件
+- サイト設定: 34件 (トップページの全テキストコンテンツ)
 
-- **デスクトップ**: 1024px以上
-- **タブレット**: 768px - 1023px
-- **モバイル**: 767px以下
+## 🛡️ セキュリティについて
 
-## 🔒 セキュリティについて
-
-### 現在の実装（デモ用）
-
-- **認証**: クライアントサイドの簡易認証
-- **セッション**: localStorage を使用（8時間有効）
-- **パスワード**: admin / admin123（平文）
+### 現在の実装 (デモ用)
+- 認証: クライアントサイドの簡易認証
+- パスワード: admin / admin123
+- セッション: localStorage (8時間有効)
 
 ### 本番運用時の推奨事項
+1. サーバーサイド認証の実装 (JWT等)
+2. パスワードの暗号化
+3. HTTPS の使用 (Cloudflare Pagesは自動対応)
+4. 環境変数でシークレット管理
 
-1. **サーバーサイド認証の実装** - JWT トークンや OAuth 2.0
-2. **パスワードの暗号化** - bcrypt または Argon2
-3. **HTTPS の使用** - SSL/TLS 証明書
-4. **CSRF対策** - トークンベースの保護
-5. **XSS対策** - すべての入力のサニタイズ
+## 🔄 技術スタック
 
-## 📊 パフォーマンス
-
-- **エッジコンピューティング** - Cloudflare のグローバルネットワークで高速配信
-- **D1データベース** - グローバル分散SQLiteで低遅延
-- **軽量フレームワーク** - Hono は超軽量（< 30KB）
-- **静的アセット最適化** - CSS/JSファイルの効率的な配信
-
-## 🧪 テスト
-
-### テストページ
-
-プロジェクトには機能確認用のテストページが含まれています:
-
-- **test-data.html** - データベース内容の確認
-- **demo-visual-editor.html** - ビジュアルエディタのデモ
-- **test-pdf-upload.html** - PDFアップロード機能テスト
-- **demo-pdf-functional-test.html** - PDF機能詳細テスト
-
-### APIテスト
-
-```bash
-# 接続テスト
-curl http://localhost:3000
-
-# APIテスト
-curl http://localhost:3000/api/tables/site_settings
-
-# ブログ記事取得
-curl http://localhost:3000/api/tables/blog_posts?status=公開
-```
-
-## 🔧 トラブルシューティング
-
-### ビルドエラー
-
-```bash
-# node_modulesを削除して再インストール
-rm -rf node_modules package-lock.json
-npm install
-npm run build
-```
-
-### ポートが使用中
-
-```bash
-# ポート3000をクリーンアップ
-npm run clean-port
-
-# または
-fuser -k 3000/tcp
-```
-
-### データベースエラー
-
-```bash
-# ローカルデータベースをリセット
-rm -rf .wrangler/state/v3/d1
-npm run db:migrate:local
-```
-
-### PM2プロセス管理
-
-```bash
-# すべてのプロセスを表示
-pm2 list
-
-# ログを確認
-pm2 logs webapp --nostream
-
-# プロセスを再起動
-pm2 restart webapp
-
-# プロセスを削除
-pm2 delete webapp
-```
-
-## 🚧 今後の拡張可能性
-
-1. **認証システムの強化** - JWT、OAuth 2.0
-2. **画像アップロード** - Cloudflare R2統合
-3. **検索機能** - 全文検索の実装
-4. **多言語対応** - i18n対応
-5. **アクセス解析** - 詳細な統計機能
-6. **保護者専用ページ** - ログイン機能付き限定情報
-7. **イベントカレンダー** - 月間/年間カレンダー表示
-8. **フォトギャラリー** - 行事の写真アルバム
-
-## 📞 サポート
-
-### 技術スタック
-
-- **フレームワーク**: Hono 4.x
-- **ランタイム**: Cloudflare Workers/Pages
+- **フレームワーク**: Hono v4.11.9
+- **ランタイム**: Cloudflare Workers
 - **データベース**: Cloudflare D1 (SQLite)
-- **ビルドツール**: Vite 6.x
+- **ビルドツール**: Vite v6.3.5
+- **デプロイ**: Cloudflare Pages
+- **プロセス管理**: PM2 (開発環境)
 - **言語**: TypeScript
 
-### システム要件
+## 📖 ドキュメント
 
-- Node.js 18.x 以上
-- npm 8.x 以上
-- モダンなWebブラウザ（Chrome, Firefox, Safari, Edge の最新版）
+元プロジェクトには詳細なドキュメントが含まれています:
+- `QUICKSTART.md` - クイックスタートガイド
+- `COMPLETE_GUIDE.md` - 完全ガイド
+- `DEBUGGING_GUIDE.md` - デバッグガイド
+- その他多数のガイドドキュメント
 
-## 📄 ライセンス
+## 🎉 完成度
 
-このプロジェクトは教育目的で作成されています。
+✅ フロントエンド (8ページ) - 完全動作
+✅ 管理画面 (8ページ) - 完全動作
+✅ RESTful API - 完全実装
+✅ D1データベース - マイグレーション済み
+✅ レスポンシブデザイン - 対応済み
+✅ ローカル開発環境 - 動作確認済み
 
-## 🎉 デプロイ状況
+## 📞 開発情報
 
-- **開発環境**: ✅ 動作確認済み
-- **サンドボックス**: ✅ 動作確認済み
-  - URL: https://3000-iahmqh7e1gki4abbtnobi-b32ec7bb.sandbox.novita.ai
-- **本番環境**: ⏳ デプロイ準備完了
+- **作成日**: 2024年11月
+- **移行日**: 2026年2月17日
+- **バージョン**: 2.0.0 (Cloudflare Pages版)
+- **元バージョン**: 1.3.2
 
-## 📚 関連ドキュメント
+## 🚧 次のステップ
 
-- [Hono Documentation](https://hono.dev/)
-- [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages/)
-- [Cloudflare D1 Documentation](https://developers.cloudflare.com/d1/)
-- [Vite Documentation](https://vitejs.dev/)
+1. ✅ プロジェクト構築完了
+2. ✅ ローカル動作確認完了
+3. ⏳ GitHubリポジトリへプッシュ
+4. ⏳ Cloudflare Pages本番デプロイ
+5. ⏳ カスタムドメイン設定 (オプション)
 
 ---
 
-**制作日**: 2024年11月  
-**最終更新**: 2026年2月17日  
-**バージョン**: 2.0.0（Cloudflare Pages + Hono版）
+**即座に使用可能な、完全に機能する統合システムです!** 🚀
 
-🚀 **即座に使用可能な、完全に機能する統合システムです!**
+制作: 徳之島町立亀津小学校ウェブサイトプロジェクト
