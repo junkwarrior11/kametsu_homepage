@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFアップロードテスト</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/pdf-upload.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .test-section {
+            margin-bottom: 30px;
+        }
+        .test-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .pdf-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            display: none;
+        }
+        .pdf-result.show {
+            display: block;
+        }
+        .pdf-result pre {
+            background: #333;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><i class="fas fa-file-pdf"></i> PDFアップロード機能テスト</h1>
+        
+        <div class="test-section">
+            <h2>1. PDFピッカーモーダルのテスト</h2>
+            <p>下のボタンをクリックして、PDFピッカーモーダルが正しく表示されることを確認してください。</p>
+            <button class="btn-primary" onclick="testPDFPicker()">
+                <i class="fas fa-upload"></i> PDFピッカーを開く
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h2>2. 選択されたPDFデータ</h2>
+            <div id="pdfResult" class="pdf-result">
+                <p><strong>ファイル名:</strong> <span id="resultFileName"></span></p>
+                <p><strong>ファイルサイズ:</strong> <span id="resultFileSize"></span></p>
+                <p><strong>PDF ID:</strong> <span id="resultPDFId"></span></p>
+                <p><strong>Base64データ（最初の100文字）:</strong></p>
+                <pre id="resultBase64"></pre>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. アップロード済みPDFライブラリ</h2>
+            <button class="btn-primary" onclick="loadPDFLibrary()">
+                <i class="fas fa-folder-open"></i> ライブラリを確認
+            </button>
+            <div id="libraryResult" class="pdf-result">
+                <pre id="libraryData"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/pdf-upload.js"></script>
+    <script>
+        function testPDFPicker() {
+            console.log('PDFピッカーを開きます...');
+            showPDFPickerModal(function(pdfData) {
+                console.log('PDF選択完了:', pdfData);
+                
+                // 結果を表示
+                document.getElementById('resultFileName').textContent = pdfData.file_name || 'N/A';
+                document.getElementById('resultFileSize').textContent = formatFileSize(pdfData.file_size || 0);
+                document.getElementById('resultPDFId').textContent = pdfData.id || 'N/A';
+                
+                const base64Preview = pdfData.pdf_data ? pdfData.pdf_data.substring(0, 100) + '...' : 'なし';
+                document.getElementById('resultBase64').textContent = base64Preview;
+                
+                document.getElementById('pdfResult').classList.add('show');
+                
+                showNotification('PDFが正常に選択されました！', 'success');
+            });
+        }
+
+        async function loadPDFLibrary() {
+            const resultDiv = document.getElementById('libraryResult');
+            const dataDiv = document.getElementById('libraryData');
+            
+            try {
+                const pdfs = await getUploadedPDFs(10);
+                dataDiv.textContent = JSON.stringify(pdfs, null, 2);
+                resultDiv.classList.add('show');
+            } catch (error) {
+                dataDiv.textContent = 'エラー: ' + error.message;
+                resultDiv.classList.add('show');
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        console.log('テストページ読み込み完了');
+        console.log('pdf-upload.js functions:', {
+            showPDFPickerModal: typeof showPDFPickerModal,
+            uploadPDF: typeof uploadPDF,
+            getUploadedPDFs: typeof getUploadedPDFs
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>いじめ防止管理画面 - 動作テスト</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/pdf-upload.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .test-header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .debug-log {
+            background: #1a202c;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .debug-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #2d3748;
+        }
+        .timestamp {
+            color: #90cdf4;
+            margin-right: 10px;
+        }
+        .success { color: #68d391; }
+        .error { color: #fc8181; }
+        .warning { color: #f6ad55; }
+        .info { color: #63b3ed; }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1><i class="fas fa-shield-alt"></i> いじめ防止管理画面 - 動作テスト</h1>
+        <p>PDFアップロード機能の動作を詳細に確認します</p>
+    </div>
+
+    <div class="test-section">
+        <h2>1. 環境チェック</h2>
+        <button class="btn-primary" onclick="checkEnvironment()">
+            <i class="fas fa-check-circle"></i> 環境をチェック
+        </button>
+        <div id="envResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. PDF選択機能テスト</h2>
+        <p>実際の管理画面と同じ方法でPDF選択ボタンをテストします</p>
+        
+        <div class="form-group">
+            <label for="pdf_url">PDFファイル <span class="required">*</span></label>
+            <div class="pdf-upload-field">
+                <input type="text" id="pdf_url" required placeholder="PDFをアップロードしてください" readonly>
+                <button type="button" class="btn-upload" onclick="openPDFPicker()">
+                    <i class="fas fa-upload"></i> PDFを選択
+                </button>
+            </div>
+            <input type="hidden" id="pdf_name">
+            <input type="hidden" id="pdf_id">
+            <small style="color: #666; display: block; margin-top: 8px;">PCからPDFファイルを選択してアップロードできます（最大10MB）</small>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3>選択された値:</h3>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                <p><strong>pdf_url:</strong> <span id="display_pdf_url" style="color: #666;">未選択</span></p>
+                <p><strong>pdf_name:</strong> <span id="display_pdf_name" style="color: #666;">未選択</span></p>
+                <p><strong>pdf_id:</strong> <span id="display_pdf_id" style="color: #666;">未選択</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. デバッグログ</h2>
+        <div id="debugLog" class="debug-log">
+            <div class="debug-item">
+                <span class="timestamp">[起動]</span>
+                <span>テストページを初期化中...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/pdf-upload.js"></script>
+    <script src="/static/js/admin-bullying-prevention.js"></script>
+    <script>
+        // currentPDFDataはadmin-bullying-prevention.jsで定義されているので削除
+
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('debugLog');
+            const item = document.createElement('div');
+            item.className = 'debug-item';
+            
+            const now = new Date();
+            const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(now.getMilliseconds()).padStart(3, '0')}`;
+            
+            let className = 'info';
+            if (type === 'success') className = 'success';
+            if (type === 'error') className = 'error';
+            if (type === 'warning') className = 'warning';
+            
+            item.innerHTML = `
+                <span class="timestamp">[${time}]</span>
+                <span class="${className}">${message}</span>
+            `;
+            log.appendChild(item);
+            log.scrollTop = log.scrollHeight;
+            
+            console.log(`[${time}] ${message}`);
+        }
+
+        function checkEnvironment() {
+            addLog('=== 環境チェック開始 ===');
+            
+            const checks = {
+                'window.openPDFPicker': typeof window.openPDFPicker,
+                'showPDFPickerModal': typeof showPDFPickerModal,
+                'uploadPDF': typeof uploadPDF,
+                'getUploadedPDFs': typeof getUploadedPDFs,
+                'fileToBase64': typeof fileToBase64,
+                'showNotification': typeof showNotification,
+                'currentPDFData': typeof currentPDFData
+            };
+            
+            let html = '<div style="margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 6px;">';
+            let allOk = true;
+            
+            for (const [name, type] of Object.entries(checks)) {
+                const isOk = type === 'function' || type === 'object';
+                allOk = allOk && isOk;
+                const status = isOk ? '✅' : '❌';
+                const color = isOk ? 'green' : 'red';
+                html += `<p style="margin: 5px 0;"><strong>${name}:</strong> <span style="color: ${color}">${status} ${type}</span></p>`;
+                addLog(`${name}: ${type}`, isOk ? 'success' : 'error');
+            }
+            
+            html += '</div>';
+            document.getElementById('envResult').innerHTML = html;
+            
+            if (allOk) {
+                addLog('✅ すべての関数が正常にロードされています', 'success');
+            } else {
+                addLog('❌ 一部の関数がロードされていません', 'error');
+            }
+        }
+
+        // openPDFPicker関数をラップ（デバッグ用）
+        const originalOpenPDFPicker = window.openPDFPicker;
+        if (originalOpenPDFPicker) {
+            window.openPDFPicker = function() {
+            addLog('📤 openPDFPicker() が呼び出されました', 'info');
+            
+            if (typeof showPDFPickerModal === 'undefined') {
+                addLog('❌ showPDFPickerModal が定義されていません', 'error');
+                alert('エラー: showPDFPickerModal が定義されていません');
+                return;
+            }
+            
+            addLog('📋 showPDFPickerModal() を呼び出します...', 'info');
+            
+            try {
+                showPDFPickerModal(function(pdfData) {
+                    addLog('✅ コールバックが実行されました', 'success');
+                    addLog('📄 PDFデータを受信: ' + pdfData.file_name, 'success');
+                    
+                    currentPDFData = pdfData;
+                    
+                    if (pdfData.pdf_data) {
+                        document.getElementById('pdf_url').value = pdfData.pdf_data;
+                        document.getElementById('pdf_name').value = pdfData.file_name;
+                        document.getElementById('pdf_id').value = pdfData.id;
+                        
+                        // 表示を更新
+                        document.getElementById('display_pdf_url').textContent = pdfData.pdf_data.substring(0, 50) + '...';
+                        document.getElementById('display_pdf_name').textContent = pdfData.file_name;
+                        document.getElementById('display_pdf_id').textContent = pdfData.id;
+                        
+                        addLog('✅ フォームフィールドに値を設定しました', 'success');
+                    }
+                    
+                    if (typeof showNotification === 'function') {
+                        showNotification('PDFを選択しました', 'success');
+                        addLog('✅ 通知を表示しました', 'success');
+                    } else {
+                        addLog('⚠️ showNotification が定義されていません', 'warning');
+                    }
+                });
+                
+                addLog('✅ showPDFPickerModal() の呼び出し成功', 'success');
+                
+                // モーダルが表示されたか確認
+                setTimeout(() => {
+                    const modal = document.querySelector('.pdf-picker-modal');
+                    if (modal) {
+                        addLog('✅ PDFピッカーモーダルが表示されました', 'success');
+                    } else {
+                        addLog('⚠️ モーダル要素が見つかりません', 'warning');
+                    }
+                }, 100);
+                
+            } catch (error) {
+                addLog('❌ エラーが発生: ' + error.message, 'error');
+                console.error('Error in openPDFPicker:', error);
+            }
+            };
+        } else {
+            addLog('❌ openPDFPicker が定義されていません', 'error');
+        }
+
+        // ページ読み込み時
+        window.addEventListener('DOMContentLoaded', function() {
+            addLog('✅ DOMContentLoaded イベント発火', 'success');
+            
+            setTimeout(() => {
+                checkEnvironment();
+            }, 500);
+        });
+
+        // input要素の変更を監視
+        ['pdf_url', 'pdf_name', 'pdf_id'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', function() {
+                    addLog(`📝 ${id} の値が変更されました: ${this.value.substring(0, 50)}...`, 'info');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

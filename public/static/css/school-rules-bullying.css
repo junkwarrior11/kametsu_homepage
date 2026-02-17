@@ -1,0 +1,366 @@
+/* ========================================
+   いじめ防止基本方針・亀津小のやくそく
+======================================== */
+
+/* いじめ防止基本方針 */
+.bullying-prevention-content {
+    margin: 60px 0;
+}
+
+.section-intro {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto 60px;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+}
+
+.section-intro p {
+    color: var(--text-light);
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.pdf-section {
+    margin-bottom: 60px;
+}
+
+.pdf-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.pdf-card-header {
+    background: var(--gradient-1);
+    color: white;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.pdf-card-header i {
+    font-size: 3rem;
+}
+
+.pdf-card-header h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.pdf-card-body {
+    padding: 40px;
+}
+
+.pdf-publish-date {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pdf-description {
+    color: var(--text-dark);
+    line-height: 1.8;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--bg-light);
+    border-radius: 8px;
+}
+
+.pdf-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.pdf-actions .btn {
+    flex: 1;
+    min-width: 200px;
+}
+
+.no-pdf-message {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.policy-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 60px;
+}
+
+.overview-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.overview-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.overview-card h3 {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.overview-card h3 i {
+    color: var(--primary-color);
+    font-size: 1.75rem;
+}
+
+.overview-card p {
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: 15px;
+}
+
+.overview-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.overview-card ul li {
+    padding: 12px 0;
+    padding-left: 25px;
+    position: relative;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+.overview-card ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.overview-card strong {
+    color: var(--text-dark);
+}
+
+/* 亀津小のやくそく */
+.school-rules-content {
+    margin: 60px 0;
+}
+
+.rules-section {
+    margin-bottom: 80px;
+}
+
+.rules-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.rules-header h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.rules-header h2 i {
+    color: var(--primary-color);
+}
+
+.rules-header p {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+.rules-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+}
+
+.rule-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    padding: 30px;
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+}
+
+.rule-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.rule-number {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-1);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.rule-content {
+    flex: 1;
+}
+
+.rule-content h3 {
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.rule-text {
+    color: var(--text-light);
+    line-height: 1.8;
+}
+
+.rule-text p {
+    margin-bottom: 10px;
+}
+
+.rule-text ul,
+.rule-text ol {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.rule-text li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+/* メッセージ表示 */
+.no-data-message,
+.error-message {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+}
+
+.no-data-message i,
+.error-message i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.no-data-message i {
+    color: var(--text-light);
+}
+
+.error-message i {
+    color: var(--error-color);
+}
+
+.no-data-message p,
+.error-message p {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .pdf-card-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+    }
+
+    .pdf-card-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .pdf-card-body {
+        padding: 30px 20px;
+    }
+
+    .pdf-actions {
+        flex-direction: column;
+    }
+
+    .pdf-actions .btn {
+        width: 100%;
+    }
+
+    .policy-overview {
+        grid-template-columns: 1fr;
+    }
+
+    .rules-list {
+        grid-template-columns: 1fr;
+    }
+
+    .rules-header h2 {
+        font-size: 2rem;
+        flex-direction: column;
+    }
+
+    .rule-card {
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .rule-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-intro {
+        padding: 20px;
+    }
+
+    .pdf-card-header {
+        padding: 20px 15px;
+    }
+
+    .pdf-card-header i {
+        font-size: 2rem;
+    }
+
+    .pdf-card-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .overview-card {
+        padding: 25px 20px;
+    }
+
+    .rules-header h2 {
+        font-size: 1.75rem;
+    }
+}

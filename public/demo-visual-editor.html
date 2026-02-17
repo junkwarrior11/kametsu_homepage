@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビジュアルエディター デモ（認証なし）</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/visual-editor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* デモ用のスタイル追加 */
+        .demo-notice {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .demo-notice i {
+            font-size: 24px;
+            color: #f59e0b;
+        }
+        .demo-notice div {
+            flex: 1;
+        }
+        .demo-notice h4 {
+            margin: 0 0 5px 0;
+            color: #92400e;
+            font-size: 16px;
+        }
+        .demo-notice p {
+            margin: 0;
+            color: #78350f;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-notice">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <h4>🎨 デモモード</h4>
+            <p>これは認証なしでビジュアルエディターの動作を確認するためのデモページです。実際の使用は <strong>admin-login.html</strong> からログインしてください。</p>
+        </div>
+    </div>
+
+    <div class="visual-editor-container">
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h2>プレビュー</h2>
+                <div class="preview-controls">
+                    <div class="page-selector">
+                        <label>ページ:</label>
+                        <select id="page-select">
+                            <option value="index.html">ホーム</option>
+                        </select>
+                    </div>
+                    <div class="device-toggle">
+                        <button class="device-btn active" data-device="desktop">
+                            <i class="fas fa-desktop"></i>
+                        </button>
+                        <button class="device-btn" data-device="tablet">
+                            <i class="fas fa-tablet-alt"></i>
+                        </button>
+                        <button class="device-btn" data-device="mobile">
+                            <i class="fas fa-mobile-alt"></i>
+                        </button>
+                    </div>
+                    <button id="refresh-btn" class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i> 更新
+                    </button>
+                </div>
+            </div>
+            <div class="preview-container">
+                <div class="preview-wrapper desktop">
+                    <iframe id="preview-iframe"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Panel -->
+        <div class="edit-panel">
+            <div class="edit-header">
+                <h2>編集パネル</h2>
+                <p>編集したい要素を下から選択してください</p>
+            </div>
+            <div class="edit-content">
+                <!-- Element Selector -->
+                <div class="element-selector">
+                    <div class="element-selector-title">編集可能な要素</div>
+                    <div class="element-list">
+                        <div class="element-item" data-edit-element="hero-section">
+                            <i class="fas fa-star"></i>
+                            ヒーローセクション
+                        </div>
+                        <div class="element-item" data-edit-element="about-section">
+                            <i class="fas fa-info-circle"></i>
+                            学校紹介セクション
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Placeholder -->
+                <div class="edit-placeholder" id="edit-placeholder">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>上記の要素を選択するか、<br>プレビュー画面で編集したい箇所を<br>クリックしてください</p>
+                </div>
+
+                <!-- Hero Section Form -->
+                <form class="edit-form" id="form-hero-section">
+                    <div class="form-section">
+                        <div class="form-section-title">ヒーローセクション</div>
+                        
+                        <div class="form-group">
+                            <label>メインタイトル</label>
+                            <input type="text" name="title" placeholder="学校名を入力">
+                            <small>ホームページのメインタイトルです</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>サブタイトル</label>
+                            <input type="text" name="subtitle" placeholder="キャッチフレーズを入力">
+                            <small>学校の理念やキャッチフレーズ</small>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- About Section Form -->
+                <form class="edit-form" id="form-about-section">
+                    <div class="form-section">
+                        <div class="form-section-title">学校紹介セクション</div>
+                        
+                        <div class="form-group">
+                            <label>セクションタイトル</label>
+                            <input type="text" name="title" placeholder="タイトルを入力">
+                        </div>
+
+                        <div class="form-group">
+                            <label>紹介文</label>
+                            <textarea name="text" rows="6" placeholder="学校の紹介文を入力"></textarea>
+                            <small>ホームページに表示される学校の紹介文です</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="edit-actions">
+                <button type="button" id="cancel-btn" class="btn-cancel">キャンセル</button>
+                <button type="button" id="save-btn" class="btn-save">保存する</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/admin-pages-visual.js"></script>
+</body>
+</html>

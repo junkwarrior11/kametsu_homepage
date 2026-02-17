@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブログ記事管理 - 管理システム</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-page">
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-school"></i>
+                <h2>管理システム</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> ダッシュボード
+                </a>
+                <a href="admin-blog.html" class="nav-item active">
+                    <i class="fas fa-blog"></i> ブログ記事
+                </a>
+                <a href="admin-newsletter.html" class="nav-item">
+                    <i class="fas fa-newspaper"></i> 学校だより
+                </a>
+                <a href="admin-events.html" class="nav-item">
+                    <i class="fas fa-calendar"></i> 行事予定
+                </a>
+                <a href="admin-school-rules.html" class="nav-item">
+                    <i class="fas fa-hands-helping"></i> 亀津小のやくそく
+                </a>
+                <a href="admin-bullying-prevention.html" class="nav-item">
+                    <i class="fas fa-shield-alt"></i> いじめ防止方針
+                </a>
+                <a href="admin-pages-visual.html" class="nav-item">
+                    <i class="fas fa-edit"></i> ビジュアル編集
+                </a>
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-external-link-alt"></i> サイトを見る
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><i class="fas fa-blog"></i> ブログ記事管理</h1>
+                <button class="btn-primary" onclick="showPostForm()">
+                    <i class="fas fa-plus"></i> 新規投稿
+                </button>
+            </header>
+
+            <div class="admin-content">
+                <div id="postForm" class="form-modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 id="formTitle">新規投稿</h2>
+                            <button class="btn-close" onclick="hidePostForm()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="blogForm">
+                            <input type="hidden" id="postId">
+                            <div class="form-group">
+                                <label for="title">タイトル *</label>
+                                <input type="text" id="title" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category">カテゴリー *</label>
+                                    <select id="category" required>
+                                        <option value="行事">行事</option>
+                                        <option value="お知らせ">お知らせ</option>
+                                        <option value="活動報告">活動報告</option>
+                                        <option value="その他">その他</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="status">公開状態 *</label>
+                                    <select id="status" required>
+                                        <option value="公開">公開</option>
+                                        <option value="下書き">下書き</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="author">投稿者 *</label>
+                                    <input type="text" id="author" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="publish_date">公開日時 *</label>
+                                    <input type="datetime-local" id="publish_date" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="featured_image">アイキャッチ画像</label>
+                                <input type="text" id="featured_image" placeholder="画像URLまたはアップロードしてください">
+                                <button type="button" class="image-upload-btn" onclick="openBlogImagePicker()">
+                                    <i class="fas fa-upload"></i> 画像をアップロード
+                                </button>
+                                <div class="image-preview-container" id="blog-preview-container" style="display: none;">
+                                    <img src="" alt="プレビュー" id="blog-preview-img">
+                                    <div class="image-preview-actions">
+                                        <button type="button" class="btn-change-image" onclick="openBlogImagePicker()">
+                                            <i class="fas fa-exchange-alt"></i> 変更
+                                        </button>
+                                        <button type="button" class="btn-remove-image" onclick="removeBlogImage()">
+                                            <i class="fas fa-trash"></i> 削除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="content">本文 *</label>
+                                <textarea id="content" rows="10" required></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="hidePostForm()">キャンセル</button>
+                                <button type="submit" class="btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <table id="postsTable">
+                        <thead>
+                            <tr>
+                                <th>タイトル</th>
+                                <th>カテゴリー</th>
+                                <th>投稿者</th>
+                                <th>公開日</th>
+                                <th>状態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postsTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/admin-auth.js"></script>
+    <script src="/static/js/image-upload.js"></script>
+    <script src="/static/js/admin-blog.js"></script>
+</body>
+</html>

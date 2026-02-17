@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>徳之島町立亀津小学校 - 心豊かに、たくましく</title>
+    <meta name="description" content="鹿児島県大島郡徳之島町の亀津小学校。心豊かに、たくましく育つ子どもたちを支えます。">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="loading">
+    <!-- Loading Screen -->
+    <div class="page-loading" id="pageLoading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper" id="contentWrapper">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                <div class="header-info">
+                    <span><i class="fas fa-phone"></i> <span id="header-top-phone">0997-82-0142</span></span>
+                    <span><i class="fas fa-envelope"></i> <span id="header-top-email">kametu-es@town.tokunoshima.lg.jp</span></span>
+                </div>
+                <div class="header-links">
+                    <a href="admin-login.html" class="admin-link"><i class="fas fa-lock"></i> 管理者ログイン</a>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1 id="header-school-name">徳之島町立亀津小学校</h1>
+                    <p class="subtitle" id="header-motto">心豊かに、たくましく</p>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html" class="active">ホーム</a></li>
+                    <li><a href="about.html">学校概要</a></li>
+                    <li><a href="events.html">行事予定</a></li>
+                    <li><a href="newsletter.html">学校だより</a></li>
+                    <li><a href="blog.html">ブログ</a></li>
+                    <li><a href="school-rules.html">亀津小のやくそく</a></li>
+                    <li><a href="bullying-prevention.html">いじめ防止</a></li>
+                    <li><a href="access.html">アクセス</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h2 class="hero-title" id="hero-title">徳之島町立亀津小学校</h2>
+            <p class="hero-subtitle" id="hero-subtitle">心豊かに、たくましく</p>
+            <div class="hero-buttons">
+                <a href="about.html" class="btn btn-primary" id="hero-btn1">学校について</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="section news-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" id="news-title">お知らせ・ブログ</h2>
+                <a href="blog.html" class="view-all"><span id="news-link">すべて見る</span> <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="news-grid" id="newsGrid">
+                <!-- Dynamic content loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section about-section" id="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 class="section-title" id="about-title">徳之島町立亀津小学校について</h2>
+                    <p class="lead" id="about-lead">心豊かに、たくましく</p>
+                    <p id="about-description">徳之島町立亀津小学校は、鹿児島県大島郡徳之島町にある公立小学校です。「心豊かに、たくましく」を教育目標に、子どもたちの健やかな成長を支援しています。</p>
+                    <p id="about-description2">地域との連携を大切にし、島の文化や伝統を学びながら、未来を切り拓く力を育む教育を実践しています。</p>
+                    <a href="about.html" class="btn btn-outline" id="about-btn">詳しく見る</a>
+                </div>
+                <div class="about-image">
+                    <img id="about-image" src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600" alt="学校の様子">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section features-section">
+        <div class="container">
+            <h2 class="section-title text-center" id="features-title">教育の特色</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i id="feature1-icon" class="fas fa-book-open"></i>
+                    </div>
+                    <h3 id="feature1-title">確かな学力</h3>
+                    <p id="feature1-description">主体的・対話的で深い学びを通じて、思考力・判断力・表現力を育成します。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i id="feature2-icon" class="fas fa-island-tropical"></i>
+                    </div>
+                    <h3 id="feature2-title">郷土教育</h3>
+                    <p id="feature2-description">徳之島の自然・歴史・文化を学び、郷土愛を育みます。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i id="feature3-icon" class="fas fa-water"></i>
+                    </div>
+                    <h3 id="feature3-title">海洋教育</h3>
+                    <p id="feature3-description">島の豊かな海を活かした体験学習で、環境保護の意識を高めます。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i id="feature4-icon" class="fas fa-users"></i>
+                    </div>
+                    <h3 id="feature4-title">地域との連携</h3>
+                    <p id="feature4-description">保護者や地域の方々と協力し、子どもたちの成長を支えます。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section class="section events-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" id="events-title">今後の行事予定</h2>
+                <a href="events.html" class="view-all"><span id="events-link">年間行事を見る</span> <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="events-list" id="upcomingEvents">
+                <!-- Dynamic content loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 id="footer-school-name">徳之島町立亀津小学校</h3>
+                    <p id="footer-address">〒891-7101<br>
+                    鹿児島県大島郡徳之島町亀津2918番地</p>
+                    <p><i class="fas fa-phone"></i> <span id="footer-phone">0997-82-0142</span></p>
+                    <p><i class="fas fa-envelope"></i> <span id="footer-email">kametu-es@town.tokunoshima.lg.jp</span></p>
+                </div>
+                <div class="footer-section">
+                    <h3>リンク</h3>
+                    <ul>
+                        <li><a href="about.html">学校概要</a></li>
+                        <li><a href="events.html">行事予定</a></li>
+                        <li><a href="newsletter.html">学校だより</a></li>
+                        <li><a href="blog.html">ブログ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 id="footer-access-title">アクセス</h3>
+                    <ul>
+                        <li id="footer-access1">徳之島空港より車で約15分</li>
+                        <li id="footer-access2">亀徳港より車で約10分</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footer-copyright">&copy; 2024 徳之島町立亀津小学校. All rights reserved.</p>
+                <div class="access-counter">
+                    <p>
+                        <i class="fas fa-eye"></i> 
+                        総アクセス数: <span id="total-access">-</span> | 
+                        今月: <span id="monthly-access">-</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    </div>
+    <!-- End Content Wrapper -->
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/home.js"></script>
+    <script src="/static/js/access-counter.js"></script>
+</body>
+</html>

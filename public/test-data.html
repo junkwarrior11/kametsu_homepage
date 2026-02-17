@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>データベーステスト</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f0f0f0; }
+        .hero { background: #fff3cd; }
+    </style>
+</head>
+<body>
+    <h1>site_settings データベース内容確認</h1>
+    <button onclick="loadData()">データ読み込み</button>
+    <div id="result"></div>
+
+    <script>
+        async function loadData() {
+            const response = await fetch('tables/site_settings?limit=100');
+            const data = await response.json();
+            
+            let html = '<table>';
+            html += '<tr><th>#</th><th>setting_key</th><th>setting_value</th><th>setting_group</th></tr>';
+            
+            data.data.forEach((item, index) => {
+                const isHero = item.setting_group === 'hero' ? ' class="hero"' : '';
+                html += `<tr${isHero}>`;
+                html += `<td>${index + 1}</td>`;
+                html += `<td><strong>${item.setting_key}</strong></td>`;
+                html += `<td>${item.setting_value}</td>`;
+                html += `<td>${item.setting_group}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            html += `<p>合計: ${data.data.length} 件</p>`;
+            
+            document.getElementById('result').innerHTML = html;
+            
+            // ヒーローセクションのデータを抽出
+            const heroData = data.data.filter(i => i.setting_group === 'hero');
+            console.log('Hero section data:');
+            heroData.forEach(item => {
+                console.log(`${item.setting_key} = "${item.setting_value}"`);
+            });
+        }
+        
+        // 自動読み込み
+        window.onload = loadData;
+    </script>
+</body>
+</html>

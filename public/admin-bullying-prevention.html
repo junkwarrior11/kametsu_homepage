@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>いじめ防止基本方針管理 - 管理システム</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/pdf-upload.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-page">
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-school"></i>
+                <h2>管理システム</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> ダッシュボード
+                </a>
+                <a href="admin-blog.html" class="nav-item">
+                    <i class="fas fa-blog"></i> ブログ記事
+                </a>
+                <a href="admin-newsletter.html" class="nav-item">
+                    <i class="fas fa-newspaper"></i> 学校だより
+                </a>
+                <a href="admin-events.html" class="nav-item">
+                    <i class="fas fa-calendar"></i> 行事予定
+                </a>
+                <a href="admin-school-rules.html" class="nav-item">
+                    <i class="fas fa-hands-helping"></i> 亀津小のやくそく
+                </a>
+                <a href="admin-bullying-prevention.html" class="nav-item active">
+                    <i class="fas fa-shield-alt"></i> いじめ防止方針
+                </a>
+                <a href="admin-pages-visual.html" class="nav-item">
+                    <i class="fas fa-edit"></i> ビジュアル編集
+                </a>
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-external-link-alt"></i> サイトを見る
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><i class="fas fa-shield-alt"></i> いじめ防止基本方針管理</h1>
+            </header>
+
+            <div class="admin-content">
+                <!-- PDF Upload Section -->
+                <div class="pdf-upload-section">
+                    <h3><i class="fas fa-file-pdf"></i> いじめ防止基本方針PDF</h3>
+                    <p style="color: #666; margin-bottom: 16px;">いじめ防止基本方針のPDFをアップロードすると、いじめ防止ページに表示されます。</p>
+                    <button class="pdf-upload-btn" onclick="openBullyingPreventionPDFPicker()">
+                        <i class="fas fa-upload"></i> PDFをアップロード
+                    </button>
+                    <div id="currentPDFDisplay" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/admin-auth.js"></script>
+    <script src="/static/js/pdf-upload.js"></script>
+    <script src="/static/js/admin-bullying-prevention.js"></script>
+</body>
+</html>

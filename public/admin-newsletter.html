@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学校だより管理 - 管理システム</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/pdf-upload.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-page">
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-school"></i>
+                <h2>管理システム</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> ダッシュボード
+                </a>
+                <a href="admin-blog.html" class="nav-item">
+                    <i class="fas fa-blog"></i> ブログ記事
+                </a>
+                <a href="admin-newsletter.html" class="nav-item active">
+                    <i class="fas fa-newspaper"></i> 学校だより
+                </a>
+                <a href="admin-events.html" class="nav-item">
+                    <i class="fas fa-calendar"></i> 行事予定
+                </a>
+                <a href="admin-school-rules.html" class="nav-item">
+                    <i class="fas fa-hands-helping"></i> 亀津小のやくそく
+                </a>
+                <a href="admin-bullying-prevention.html" class="nav-item">
+                    <i class="fas fa-shield-alt"></i> いじめ防止方針
+                </a>
+                <a href="admin-pages-visual.html" class="nav-item">
+                    <i class="fas fa-edit"></i> ビジュアル編集
+                </a>
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-external-link-alt"></i> サイトを見る
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><i class="fas fa-newspaper"></i> 学校だより管理</h1>
+                <button class="btn-primary" onclick="showNewsletterForm()">
+                    <i class="fas fa-plus"></i> 新規追加
+                </button>
+            </header>
+
+            <div class="admin-content">
+                <div id="newsletterForm" class="form-modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 id="formTitle">新規追加</h2>
+                            <button class="btn-close" onclick="hideNewsletterForm()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="newsletterFormElement">
+                            <input type="hidden" id="newsletterId">
+                            <div class="form-group">
+                                <label for="title">タイトル *</label>
+                                <input type="text" id="title" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="issue_number">号数 *</label>
+                                    <input type="number" id="issue_number" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="issue_date">発行日 *</label>
+                                    <input type="date" id="issue_date" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="file_url">PDFファイル *</label>
+                                <div class="pdf-upload-field">
+                                    <input type="text" id="file_url" required placeholder="PDFをアップロードしてください" readonly>
+                                    <button type="button" class="btn-upload" onclick="openNewsletterPDFPicker()">
+                                        <i class="fas fa-upload"></i> PDFを選択
+                                    </button>
+                                </div>
+                                <input type="hidden" id="file_name">
+                                <input type="hidden" id="pdf_id">
+                                <small style="color: #666; display: block; margin-top: 8px;">PCからPDFファイルを選択してアップロードできます（最大10MB）</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">概要</label>
+                                <textarea id="description" rows="4"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="hideNewsletterForm()">キャンセル</button>
+                                <button type="submit" class="btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>タイトル</th>
+                                <th>号数</th>
+                                <th>発行日</th>
+                                <th>ファイル名</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newslettersTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/admin-auth.js"></script>
+    <script src="/static/js/pdf-upload.js"></script>
+    <script src="/static/js/admin-newsletter.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行事予定管理 - 管理システム</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/pdf-upload.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-page">
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-school"></i>
+                <h2>管理システム</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> ダッシュボード
+                </a>
+                <a href="admin-blog.html" class="nav-item">
+                    <i class="fas fa-blog"></i> ブログ記事
+                </a>
+                <a href="admin-newsletter.html" class="nav-item">
+                    <i class="fas fa-newspaper"></i> 学校だより
+                </a>
+                <a href="admin-events.html" class="nav-item active">
+                    <i class="fas fa-calendar"></i> 行事予定
+                </a>
+                <a href="admin-school-rules.html" class="nav-item">
+                    <i class="fas fa-hands-helping"></i> 亀津小のやくそく
+                </a>
+                <a href="admin-bullying-prevention.html" class="nav-item">
+                    <i class="fas fa-shield-alt"></i> いじめ防止方針
+                </a>
+                <a href="admin-pages-visual.html" class="nav-item">
+                    <i class="fas fa-edit"></i> ビジュアル編集
+                </a>
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-external-link-alt"></i> サイトを見る
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1><i class="fas fa-calendar"></i> 行事予定管理</h1>
+                <button class="btn-primary" onclick="showEventForm()">
+                    <i class="fas fa-plus"></i> 新規追加
+                </button>
+            </header>
+
+            <div class="admin-content">
+                <!-- PDF Upload Section -->
+                <div class="pdf-upload-section">
+                    <h3><i class="fas fa-file-pdf"></i> 年間行事予定PDF</h3>
+                    <p style="color: #666; margin-bottom: 16px;">年間行事予定表のPDFをアップロードすると、行事予定ページに表示されます。</p>
+                    <button class="pdf-upload-btn" onclick="openEventsPDFPicker()">
+                        <i class="fas fa-upload"></i> PDFをアップロード
+                    </button>
+                    <div id="currentPDFDisplay" style="margin-top: 20px;"></div>
+                </div>
+                
+                <div id="eventForm" class="form-modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 id="formTitle">新規追加</h2>
+                            <button class="btn-close" onclick="hideEventForm()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <form id="eventFormElement">
+                            <input type="hidden" id="eventId">
+                            <div class="form-group">
+                                <label for="title">行事名 *</label>
+                                <input type="text" id="title" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="event_date">開催日 *</label>
+                                    <input type="datetime-local" id="event_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="category">カテゴリー *</label>
+                                    <select id="category" required>
+                                        <option value="春の行事">春の行事</option>
+                                        <option value="夏の行事">夏の行事</option>
+                                        <option value="秋の行事">秋の行事</option>
+                                        <option value="冬の行事">冬の行事</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="location">場所 *</label>
+                                    <input type="text" id="location" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="target_grade">対象学年 *</label>
+                                    <input type="text" id="target_grade" required placeholder="例: 全学年">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">詳細説明</label>
+                                <textarea id="description" rows="4"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="hideEventForm()">キャンセル</button>
+                                <button type="submit" class="btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>行事名</th>
+                                <th>開催日</th>
+                                <th>カテゴリー</th>
+                                <th>場所</th>
+                                <th>対象</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/admin-auth.js"></script>
+    <script src="/static/js/image-upload.js"></script>
+    <script src="/static/js/pdf-upload.js"></script>
+    <script src="/static/js/admin-events.js"></script>
+</body>
+</html>

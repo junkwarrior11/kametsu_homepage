@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年間行事予定 - 徳之島町立亀津小学校</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/pdf-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="loading">
+    <!-- Loading Screen -->
+    <div class="page-loading" id="pageLoading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper" id="contentWrapper">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                <div class="header-info">
+                    <span><i class="fas fa-phone"></i> <span id="header-top-phone">0997-82-0142</span></span>
+                    <span><i class="fas fa-envelope"></i> <span id="header-top-email">kametu-es@town.tokunoshima.lg.jp</span></span>
+                </div>
+                <div class="header-links">
+                    <a href="admin-login.html" class="admin-link"><i class="fas fa-lock"></i> 管理者ログイン</a>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1 id="header-school-name">徳之島町立亀津小学校</h1>
+                    <p class="subtitle" id="header-motto">心豊かに、たくましく</p>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">ホーム</a></li>
+                    <li><a href="about.html">学校概要</a></li>
+                    <li><a href="events.html" class="active">行事予定</a></li>
+                    <li><a href="newsletter.html">学校だより</a></li>
+                    <li><a href="blog.html">ブログ</a></li>
+                    <li><a href="school-rules.html">亀津小のやくそく</a></li>
+                    <li><a href="bullying-prevention.html">いじめ防止</a></li>
+                    <li><a href="access.html">アクセス</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 id="events-page-title">年間行事予定</h1>
+            <p id="events-page-subtitle">Annual Events</p>
+        </div>
+    </section>
+
+    <!-- Events Content -->
+    <section class="section">
+        <div class="container">
+            <!-- PDF Display Section -->
+            <div id="pdfDisplaySection">
+                <div style="text-align: center; padding: 60px 20px; color: #999;">
+                    <i class="fas fa-file-pdf" style="font-size: 64px; margin-bottom: 20px; display: block;"></i>
+                    <p style="font-size: 18px;">年間行事予定表を読み込んでいます...</p>
+                </div>
+            </div>
+            
+            <!-- No PDF Message -->
+            <div id="noPDFMessage" style="display: none; text-align: center; padding: 60px 20px;">
+                <i class="fas fa-info-circle" style="font-size: 48px; color: #2196F3; margin-bottom: 20px; display: block;"></i>
+                <h3 style="color: #333; margin-bottom: 12px;">年間行事予定表</h3>
+                <p style="color: #666;">現在、年間行事予定表のPDFは準備中です。</p>
+                <p style="color: #666;">しばらくお待ちください。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 id="footer-school-name">徳之島町立亀津小学校</h3>
+                    <p id="footer-address">〒891-7101<br>
+                    鹿児島県大島郡徳之島町亀津2918番地</p>
+                    <p><i class="fas fa-phone"></i> <span id="footer-phone">0997-82-0142</span></p>
+                    <p><i class="fas fa-envelope"></i> <span id="footer-email">kametu-es@town.tokunoshima.lg.jp</span></p>
+                </div>
+                <div class="footer-section">
+                    <h3>リンク</h3>
+                    <ul>
+                        <li><a href="about.html">学校概要</a></li>
+                        <li><a href="events.html">行事予定</a></li>
+                        <li><a href="newsletter.html">学校だより</a></li>
+                        <li><a href="blog.html">ブログ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 id="footer-access-title">アクセス</h3>
+                    <ul>
+                        <li id="footer-access1">徳之島空港より車で約15分</li>
+                        <li id="footer-access2">亀徳港より車で約10分</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footer-copyright">&copy; 2024 徳之島町立亀津小学校. All rights reserved.</p>
+                <div class="access-counter">
+                    <p>
+                        <i class="fas fa-eye"></i> 
+                        総アクセス数: <span id="total-access">-</span> | 
+                        今月: <span id="monthly-access">-</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    </div>
+    <!-- End Content Wrapper -->
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/events.js"></script>
+    <script src="/static/js/access-counter.js"></script>
+</body>
+</html>

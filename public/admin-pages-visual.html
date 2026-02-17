@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビジュアルページ編集 - 管理システム</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/visual-editor.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-page">
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-school"></i>
+                <h2>管理システム</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> ダッシュボード
+                </a>
+                <a href="admin-blog.html" class="nav-item">
+                    <i class="fas fa-blog"></i> ブログ記事
+                </a>
+                <a href="admin-newsletter.html" class="nav-item">
+                    <i class="fas fa-newspaper"></i> 学校だより
+                </a>
+                <a href="admin-events.html" class="nav-item">
+                    <i class="fas fa-calendar"></i> 行事予定
+                </a>
+                <a href="admin-school-rules.html" class="nav-item">
+                    <i class="fas fa-hands-helping"></i> 亀津小のやくそく
+                </a>
+                <a href="admin-bullying-prevention.html" class="nav-item">
+                    <i class="fas fa-shield-alt"></i> いじめ防止方針
+                </a>
+                <a href="admin-pages-visual.html" class="nav-item active">
+                    <i class="fas fa-edit"></i> ビジュアル編集
+                </a>
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-external-link-alt"></i> サイトを見る
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <div class="visual-editor-container">
+                <!-- Preview Panel -->
+                <div class="preview-panel">
+                    <div class="preview-header">
+                        <h2>プレビュー</h2>
+                        <div class="preview-controls">
+                            <div class="page-selector">
+                                <label>ページ:</label>
+                                <select id="page-select">
+                                    <option value="index.html">ホーム</option>
+                                    <option value="about.html">学校概要</option>
+                                    <option value="events.html">行事予定</option>
+                                    <option value="newsletter.html">学校だより</option>
+                                    <option value="blog.html">ブログ</option>
+                                    <option value="access.html">アクセス</option>
+                                    <option value="contact.html">お問い合わせ</option>
+                                </select>
+                            </div>
+                            <div class="device-toggle">
+                                <button class="device-btn active" data-device="desktop">
+                                    <i class="fas fa-desktop"></i>
+                                </button>
+                                <button class="device-btn" data-device="tablet">
+                                    <i class="fas fa-tablet-alt"></i>
+                                </button>
+                                <button class="device-btn" data-device="mobile">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </button>
+                            </div>
+                            <button id="refresh-btn" class="btn-refresh">
+                                <i class="fas fa-sync-alt"></i> 更新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-container">
+                        <div class="preview-wrapper desktop">
+                            <iframe id="preview-iframe"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Panel -->
+                <div class="edit-panel">
+                    <div class="edit-header">
+                        <h2>編集パネル</h2>
+                        <p>編集したい要素を下から選択してください</p>
+                    </div>
+                    <div class="edit-content" id="edit-content">
+                        <!-- Element Selector -->
+                        <div class="element-selector">
+                            <div class="element-selector-title">編集可能な要素（クリックして選択）</div>
+                            <div class="element-list">
+                                <div class="element-item" data-edit-element="header">
+                                    <i class="fas fa-heading"></i> ヘッダーロゴ
+                                </div>
+                                <div class="element-item" data-edit-element="hero">
+                                    <i class="fas fa-star"></i> ヒーローセクション
+                                </div>
+                                <div class="element-item" data-edit-element="news">
+                                    <i class="fas fa-newspaper"></i> ニュースセクション
+                                </div>
+                                <div class="element-item" data-edit-element="about">
+                                    <i class="fas fa-info-circle"></i> 学校紹介セクション
+                                </div>
+                                <div class="element-item" data-edit-element="features">
+                                    <i class="fas fa-th"></i> 教育の特色セクション
+                                </div>
+                                <div class="element-item" data-edit-element="events">
+                                    <i class="fas fa-calendar"></i> 行事予定セクション
+                                </div>
+                                <div class="element-item" data-edit-element="footer">
+                                    <i class="fas fa-shoe-prints"></i> フッター
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Placeholder -->
+                        <div class="edit-placeholder" id="edit-placeholder">
+                            <i class="fas fa-mouse-pointer"></i>
+                            <p>上記の要素を選択してください</p>
+                        </div>
+
+                        <!-- Forms for each section will be inserted here by JavaScript -->
+                        <div id="dynamic-forms"></div>
+                    </div>
+                    <div class="edit-actions">
+                        <button type="button" id="cancel-btn" class="btn-cancel">キャンセル</button>
+                        <button type="button" id="save-btn" class="btn-save">保存する</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/admin-auth.js"></script>
+    <script src="/static/js/image-upload.js"></script>
+    <script src="/static/js/admin-pages-visual.js"></script>
+</body>
+</html>

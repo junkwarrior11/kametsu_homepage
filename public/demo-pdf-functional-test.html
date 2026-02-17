@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF機能 実動作テスト</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/pdf-upload.css">
+    <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .test-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .test-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .test-content {
+            padding: 40px;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .test-section h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-section h2 i {
+            color: #667eea;
+        }
+        
+        .test-section p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        
+        .test-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+        
+        .btn-info {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            display: none;
+        }
+        
+        .result-box.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .result-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #4a5568;
+            display: inline-block;
+            width: 150px;
+        }
+        
+        .result-value {
+            color: #2d3748;
+        }
+        
+        .result-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #2d3748;
+            max-height: 200px;
+            overflow-y: auto;
+            word-break: break-all;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status-info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        
+        .console-log {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a202c;
+            color: #68d391;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .console-log-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #2d3748;
+        }
+        
+        .console-log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .timestamp {
+            color: #90cdf4;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1><i class="fas fa-vial"></i> PDF機能 実動作テスト</h1>
+            <p>PDFアップロード機能の各コンポーネントを個別にテストします</p>
+        </div>
+        
+        <div class="test-content">
+            <!-- テスト1: 関数ロード確認 -->
+            <div class="test-section">
+                <h2><i class="fas fa-check-circle"></i> 1. pdf-upload.js のロード確認</h2>
+                <p>必要な関数がグローバルスコープに正しく読み込まれているかを確認します。</p>
+                <div class="test-actions">
+                    <button class="btn btn-primary" onclick="testFunctionLoad()">
+                        <i class="fas fa-code"></i> 関数チェック実行
+                    </button>
+                </div>
+                <div id="functionLoadResult" class="result-box"></div>
+            </div>
+
+            <!-- テスト2: PDFピッカーモーダル表示 -->
+            <div class="test-section">
+                <h2><i class="fas fa-window-maximize"></i> 2. PDFピッカーモーダル表示テスト</h2>
+                <p>PDFピッカーモーダルが正しく表示され、動的DOMが生成されることを確認します。</p>
+                <div class="test-actions">
+                    <button class="btn btn-success" onclick="testModalDisplay()">
+                        <i class="fas fa-eye"></i> モーダルを開く
+                    </button>
+                </div>
+                <div id="modalDisplayResult" class="result-box"></div>
+            </div>
+
+            <!-- テスト3: PDFコールバック -->
+            <div class="test-section">
+                <h2><i class="fas fa-arrow-right"></i> 3. コールバック関数テスト</h2>
+                <p>PDF選択時のコールバック関数が正しく動作することを確認します。</p>
+                <div class="test-actions">
+                    <button class="btn btn-info" onclick="testCallback()">
+                        <i class="fas fa-play"></i> コールバックテスト
+                    </button>
+                </div>
+                <div id="callbackResult" class="result-box"></div>
+            </div>
+
+            <!-- テスト4: Base64変換 -->
+            <div class="test-section">
+                <h2><i class="fas fa-exchange-alt"></i> 4. Base64変換テスト</h2>
+                <p>ファイルをBase64エンコードする機能をテストします。</p>
+                <div class="test-actions">
+                    <input type="file" id="testFileInput" accept=".pdf" style="display: none;" onchange="testBase64Conversion()">
+                    <button class="btn btn-primary" onclick="document.getElementById('testFileInput').click()">
+                        <i class="fas fa-file-pdf"></i> PDFファイルを選択
+                    </button>
+                </div>
+                <div id="base64Result" class="result-box"></div>
+            </div>
+
+            <!-- コンソールログ -->
+            <div class="test-section">
+                <h2><i class="fas fa-terminal"></i> コンソールログ</h2>
+                <div id="consoleLog" class="console-log">
+                    <div class="console-log-item">
+                        <span class="timestamp">[起動]</span>
+                        <span>テストページを読み込みました</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/pdf-upload.js"></script>
+    <script>
+        let logCounter = 0;
+
+        function addLog(message, type = 'info') {
+            logCounter++;
+            const log = document.getElementById('consoleLog');
+            const item = document.createElement('div');
+            item.className = 'console-log-item';
+            
+            const now = new Date();
+            const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            item.innerHTML = `
+                <span class="timestamp">[${time}]</span>
+                <span>${message}</span>
+            `;
+            log.appendChild(item);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // テスト1: 関数ロード確認
+        function testFunctionLoad() {
+            addLog('関数ロードテスト開始');
+            const resultDiv = document.getElementById('functionLoadResult');
+            
+            const functions = {
+                'showPDFPickerModal': typeof showPDFPickerModal,
+                'uploadPDF': typeof uploadPDF,
+                'getUploadedPDFs': typeof getUploadedPDFs,
+                'fileToBase64': typeof fileToBase64,
+                'formatFileSize': typeof formatFileSize,
+                'escapeHtml': typeof escapeHtml,
+                'showNotification': typeof showNotification
+            };
+            
+            let html = '<h3>関数ロード状況</h3>';
+            let allLoaded = true;
+            
+            for (const [name, type] of Object.entries(functions)) {
+                const isLoaded = type === 'function';
+                allLoaded = allLoaded && isLoaded;
+                html += `
+                    <div class="result-item">
+                        <span class="result-label">${name}:</span>
+                        <span class="status-badge ${isLoaded ? 'status-success' : 'status-error'}">
+                            ${isLoaded ? '✓ 読み込み成功' : '✗ 未定義'}
+                        </span>
+                    </div>
+                `;
+                addLog(`${name}: ${type}`);
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.classList.add('show');
+            
+            addLog(allLoaded ? '✓ すべての関数が正常にロードされました' : '✗ 一部の関数がロードされていません', allLoaded ? 'success' : 'error');
+        }
+
+        // テスト2: モーダル表示
+        function testModalDisplay() {
+            addLog('モーダル表示テスト開始');
+            const resultDiv = document.getElementById('modalDisplayResult');
+            
+            try {
+                showPDFPickerModal(function(pdfData) {
+                    addLog('✓ コールバックが実行されました');
+                    addLog('選択されたPDF: ' + pdfData.file_name);
+                });
+                
+                // モーダルが生成されたか確認
+                setTimeout(() => {
+                    const modal = document.querySelector('.pdf-picker-modal');
+                    if (modal) {
+                        resultDiv.innerHTML = `
+                            <h3>モーダル表示テスト結果</h3>
+                            <div class="result-item">
+                                <span class="status-badge status-success">✓ モーダルが正常に表示されました</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">モーダル要素:</span>
+                                <span class="result-value">検出されました</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">z-index:</span>
+                                <span class="result-value">${window.getComputedStyle(modal).zIndex}</span>
+                            </div>
+                        `;
+                        resultDiv.classList.add('show');
+                        addLog('✓ モーダルが正常に生成されました');
+                    } else {
+                        resultDiv.innerHTML = `
+                            <h3>モーダル表示テスト結果</h3>
+                            <div class="result-item">
+                                <span class="status-badge status-error">✗ モーダルが見つかりません</span>
+                            </div>
+                        `;
+                        resultDiv.classList.add('show');
+                        addLog('✗ モーダルが生成されませんでした', 'error');
+                    }
+                }, 100);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>モーダル表示テスト結果</h3>
+                    <div class="result-item">
+                        <span class="status-badge status-error">✗ エラーが発生しました</span>
+                    </div>
+                    <div class="result-preview">${error.message}</div>
+                `;
+                resultDiv.classList.add('show');
+                addLog('✗ エラー: ' + error.message, 'error');
+            }
+        }
+
+        // テスト3: コールバック
+        function testCallback() {
+            addLog('コールバックテスト開始');
+            const resultDiv = document.getElementById('callbackResult');
+            
+            const mockPDFData = {
+                id: 'test-mock-id-12345',
+                file_name: 'test-document.pdf',
+                file_size: 1234567,
+                pdf_data: 'data:application/pdf;base64,JVBERi0xLjQKJeLjz9MK...',
+                description: 'テストPDFドキュメント',
+                year: '2024',
+                month: '11'
+            };
+            
+            addLog('モックPDFデータを作成');
+            
+            showPDFPickerModal(function(pdfData) {
+                addLog('✓ コールバックが正常に実行されました');
+                
+                resultDiv.innerHTML = `
+                    <h3>コールバックテスト結果</h3>
+                    <div class="result-item">
+                        <span class="status-badge status-success">✓ コールバック実行成功</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">ファイル名:</span>
+                        <span class="result-value">${pdfData.file_name}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">ファイルサイズ:</span>
+                        <span class="result-value">${formatFileSize(pdfData.file_size)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">PDF ID:</span>
+                        <span class="result-value">${pdfData.id}</span>
+                    </div>
+                    <div class="result-preview">
+                        Base64データ: ${pdfData.pdf_data.substring(0, 100)}...
+                    </div>
+                `;
+                resultDiv.classList.add('show');
+                
+                showNotification('コールバックテスト成功！', 'success');
+            });
+            
+            addLog('モーダルを開きました - PDFを選択してコールバックをテストしてください');
+        }
+
+        // テスト4: Base64変換
+        async function testBase64Conversion() {
+            addLog('Base64変換テスト開始');
+            const resultDiv = document.getElementById('base64Result');
+            const file = document.getElementById('testFileInput').files[0];
+            
+            if (!file) {
+                addLog('✗ ファイルが選択されていません', 'error');
+                return;
+            }
+            
+            addLog('ファイル: ' + file.name + ' (' + formatFileSize(file.size) + ')');
+            
+            try {
+                const base64 = await fileToBase64(file);
+                addLog('✓ Base64変換成功');
+                
+                resultDiv.innerHTML = `
+                    <h3>Base64変換テスト結果</h3>
+                    <div class="result-item">
+                        <span class="status-badge status-success">✓ 変換成功</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">ファイル名:</span>
+                        <span class="result-value">${file.name}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">元のサイズ:</span>
+                        <span class="result-value">${formatFileSize(file.size)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Base64長:</span>
+                        <span class="result-value">${base64.length.toLocaleString()} 文字</span>
+                    </div>
+                    <div class="result-preview">
+                        ${base64.substring(0, 200)}...
+                    </div>
+                `;
+                resultDiv.classList.add('show');
+                
+                showNotification('Base64変換完了！', 'success');
+            } catch (error) {
+                addLog('✗ エラー: ' + error.message, 'error');
+                resultDiv.innerHTML = `
+                    <h3>Base64変換テスト結果</h3>
+                    <div class="result-item">
+                        <span class="status-badge status-error">✗ 変換失敗</span>
+                    </div>
+                    <div class="result-preview">${error.message}</div>
+                `;
+                resultDiv.classList.add('show');
+            }
+        }
+
+        // 初期化
+        window.addEventListener('DOMContentLoaded', function() {
+            addLog('DOMContentLoaded イベント発火');
+            addLog('pdf-upload.js の関数を確認中...');
+            
+            setTimeout(() => {
+                testFunctionLoad();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

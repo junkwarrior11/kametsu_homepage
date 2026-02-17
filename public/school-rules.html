@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亀津小のやくそく - 徳之島町立亀津小学校</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/school-rules-bullying.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="loading">
+    <!-- Loading Screen -->
+    <div class="page-loading" id="pageLoading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="content-wrapper">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                <div class="header-info">
+                    <span><i class="fas fa-phone"></i> <span id="header-top-phone">0997-82-0142</span></span>
+                    <span><i class="fas fa-envelope"></i> <span id="header-top-email">kametu-es@town.tokunoshima.lg.jp</span></span>
+                </div>
+                <div class="header-links">
+                    <a href="admin-login.html" class="admin-link"><i class="fas fa-lock"></i> 管理者ログイン</a>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1 id="header-school-name">徳之島町立亀津小学校</h1>
+                    <p class="subtitle" id="header-motto">心豊かに、たくましく</p>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">ホーム</a></li>
+                    <li><a href="about.html">学校概要</a></li>
+                    <li><a href="events.html">行事予定</a></li>
+                    <li><a href="newsletter.html">学校だより</a></li>
+                    <li><a href="blog.html">ブログ</a></li>
+                    <li><a href="school-rules.html" class="active">亀津小のやくそく</a></li>
+                    <li><a href="bullying-prevention.html">いじめ防止</a></li>
+                    <li><a href="access.html">アクセス</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+        <!-- ページヘッダー -->
+        <section class="page-header">
+            <div class="container">
+                <h1><i class="fas fa-hands-helping"></i> 亀津小のやくそく</h1>
+                <p>みんなで守ろう！楽しい学校生活のために</p>
+            </div>
+        </section>
+
+        <!-- メインコンテンツ -->
+        <main class="container" style="padding: 60px 0;">
+            <div class="school-rules-content">
+                <!-- よいこの約束 -->
+                <section class="rules-section">
+                    <div class="rules-header">
+                        <h2><i class="fas fa-heart"></i> よいこの約束</h2>
+                        <p>みんなが気持ちよく過ごせる学校をつくるための約束です</p>
+                    </div>
+                    <div id="goodChildRules" class="rules-list">
+                        <!-- JavaScriptで動的に生成 -->
+                    </div>
+                </section>
+
+                <!-- 学習の約束 -->
+                <section class="rules-section">
+                    <div class="rules-header">
+                        <h2><i class="fas fa-book-reader"></i> 学習の約束</h2>
+                        <p>より良い学習環境をつくるための約束です</p>
+                    </div>
+                    <div id="studyRules" class="rules-list">
+                        <!-- JavaScriptで動的に生成 -->
+                    </div>
+                </section>
+            </div>
+        </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 id="footer-school-name">徳之島町立亀津小学校</h3>
+                    <p id="footer-address">〒891-7101<br>
+                    鹿児島県大島郡徳之島町亀津2918番地</p>
+                    <p><i class="fas fa-phone"></i> <span id="footer-phone">0997-82-0142</span></p>
+                    <p><i class="fas fa-envelope"></i> <span id="footer-email">kametu-es@town.tokunoshima.lg.jp</span></p>
+                </div>
+                <div class="footer-section">
+                    <h3>リンク</h3>
+                    <ul>
+                        <li><a href="about.html">学校概要</a></li>
+                        <li><a href="events.html">行事予定</a></li>
+                        <li><a href="newsletter.html">学校だより</a></li>
+                        <li><a href="blog.html">ブログ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 id="footer-access-title">アクセス</h3>
+                    <ul>
+                        <li id="footer-access1">徳之島空港より車で約15分</li>
+                        <li id="footer-access2">亀徳港より車で約10分</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footer-copyright">&copy; 2024 徳之島町立亀津小学校. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    </div>
+
+    <!-- アクセスカウンター -->
+    <div id="access-counter-container"></div>
+
+    <script src="/static/js/access-counter.js"></script>
+    <script src="/static/js/school-rules.js"></script>
+</body>
+</html>
