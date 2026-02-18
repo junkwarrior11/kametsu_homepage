@@ -1,0 +1,455 @@
+/* ========================================
+   Phase 3: 高度な管理機能スタイル
+   - ドラッグ&ドロップ並び替え
+   - 一括操作
+   - 自動保存インジケーター
+======================================== */
+
+/* ========================================
+   ドラッグ&ドロップ並び替え
+======================================== */
+.drag-handle-cell {
+    width: 50px;
+    text-align: center;
+    cursor: grab;
+    user-select: none;
+}
+
+.drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--text-light);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.drag-handle:hover {
+    background: var(--admin-bg);
+    color: var(--primary-color);
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+tr[draggable="true"] {
+    transition: all 0.2s ease;
+}
+
+tr.dragging {
+    opacity: 0.5;
+    background: var(--primary-color);
+    color: white;
+}
+
+tr.dragging td {
+    border-color: var(--primary-color);
+}
+
+tbody tr {
+    position: relative;
+}
+
+tbody tr::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-color);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+tbody tr.drag-over::before {
+    opacity: 1;
+}
+
+/* ========================================
+   一括操作バー
+======================================== */
+.bulk-action-bar {
+    background: white;
+    border-radius: 12px 12px 0 0;
+    padding: 0;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: -1px;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.bulk-action-bar.active {
+    padding: 15px 20px;
+    max-height: 80px;
+    opacity: 1;
+}
+
+.bulk-action-bar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bulk-action-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    color: var(--text-dark);
+    font-size: 1rem;
+}
+
+.bulk-action-info i {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+.bulk-action-info #selected-count {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.bulk-action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.bulk-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.bulk-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.bulk-btn-publish {
+    background: var(--success);
+    color: white;
+}
+
+.bulk-btn-publish:hover {
+    background: #059669;
+}
+
+.bulk-btn-draft {
+    background: var(--warning);
+    color: white;
+}
+
+.bulk-btn-draft:hover {
+    background: #d97706;
+}
+
+.bulk-btn-delete {
+    background: var(--danger);
+    color: white;
+}
+
+.bulk-btn-delete:hover {
+    background: #dc2626;
+}
+
+.bulk-btn-cancel {
+    background: var(--border-color);
+    color: var(--text-dark);
+}
+
+.bulk-btn-cancel:hover {
+    background: var(--text-light);
+    color: white;
+}
+
+/* チェックボックスセル */
+.bulk-checkbox-cell {
+    width: 50px;
+    text-align: center;
+}
+
+.bulk-checkbox-cell input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+/* 選択された行 */
+tr.row-selected {
+    background: rgba(102, 126, 234, 0.08);
+}
+
+tr.row-selected:hover {
+    background: rgba(102, 126, 234, 0.12);
+}
+
+/* ========================================
+   CSVエクスポートボタン
+======================================== */
+.export-csv-btn {
+    padding: 12px 24px;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-csv-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   自動保存インジケーター
+======================================== */
+.autosave-indicator {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--success);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    z-index: 9999;
+    animation: slideInUp 0.3s ease;
+}
+
+.autosave-indicator.fade-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+.autosave-indicator i {
+    font-size: 1.1rem;
+}
+
+/* ========================================
+   画像エディタモーダル（準備）
+======================================== */
+.image-editor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-editor-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-editor-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 1200px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+.image-editor-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.image-editor-body {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.image-editor-canvas {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--admin-bg);
+    border-radius: 8px;
+    min-height: 400px;
+}
+
+.image-editor-controls {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.editor-control-group {
+    background: var(--admin-bg);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.editor-control-group h4 {
+    margin-bottom: 15px;
+    color: var(--text-dark);
+    font-size: 1rem;
+}
+
+.editor-control-item {
+    margin-bottom: 15px;
+}
+
+.editor-control-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+.editor-control-item input[type="range"] {
+    width: 100%;
+}
+
+.image-editor-footer {
+    padding: 20px 30px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* ========================================
+   アニメーション
+======================================== */
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* ========================================
+   レスポンシブ対応
+======================================== */
+@media (max-width: 768px) {
+    .bulk-action-bar-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .bulk-action-buttons {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .bulk-btn {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .drag-handle-cell,
+    .bulk-checkbox-cell {
+        width: 40px;
+    }
+
+    .autosave-indicator {
+        bottom: 15px;
+        right: 15px;
+        font-size: 0.875rem;
+        padding: 10px 15px;
+    }
+
+    .image-editor-body {
+        flex-direction: column;
+    }
+
+    .image-editor-controls {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   ダークモード対応
+======================================== */
+[data-theme="dark"] .bulk-action-bar {
+    background: var(--dark-surface);
+}
+
+[data-theme="dark"] .bulk-action-info {
+    color: var(--dark-text);
+}
+
+[data-theme="dark"] .drag-handle:hover {
+    background: var(--dark-bg);
+}
+
+[data-theme="dark"] tr.row-selected {
+    background: rgba(102, 126, 234, 0.15);
+}
+
+[data-theme="dark"] tr.row-selected:hover {
+    background: rgba(102, 126, 234, 0.20);
+}
+
+[data-theme="dark"] .image-editor-content {
+    background: var(--dark-surface);
+}
+
+[data-theme="dark"] .image-editor-header,
+[data-theme="dark"] .image-editor-footer {
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .image-editor-canvas,
+[data-theme="dark"] .editor-control-group {
+    background: var(--dark-bg);
+}

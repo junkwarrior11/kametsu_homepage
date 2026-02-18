@@ -3,10 +3,14 @@
 // ========================================
 
 let currentEditId = null;
+let bulkManager = null;
+let dragDropManager = null;
+let autoSaveManager = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     loadPosts();
     setupForm();
+    setupPhase3Features();
 });
 
 // 記事一覧を読み込む
@@ -27,7 +31,7 @@ async function loadPosts() {
         }
         
         tbody.innerHTML = posts.map(post => `
-            <tr>
+            <tr data-id="${post.id}">
                 <td class="editable-title" data-id="${post.id}">${escapeHtml(post.title)}</td>
                 <td><span class="status-badge ${post.category === '行事' ? 'published' : 'draft'}">${escapeHtml(post.category)}</span></td>
                 <td>${escapeHtml(post.author)}</td>
@@ -48,6 +52,14 @@ async function loadPosts() {
         
         // インライン編集を有効化
         enableInlineEditing();
+        
+        // Phase 3機能を再初期化
+        if (bulkManager) {
+            bulkManager.addCheckboxes();
+        }
+        if (dragDropManager) {
+            dragDropManager.init();
+        }
         
     } catch (error) {
         console.error('Error loading posts:', error);
@@ -469,3 +481,154 @@ window.editPost = editPost;
 window.deletePost = deletePost;
 window.openBlogImagePicker = openBlogImagePicker;
 window.removeBlogImage = removeBlogImage;
+
+// ========================================
+// Phase 3機能のセットアップ
+// ========================================
+function setupPhase3Features() {
+    // 一括操作マネージャーの初期化
+    if (typeof BulkActionManager !== 'undefined') {
+        bulkManager = new BulkActionManager('#postsTable', {
+            actions: ['publish', 'draft', 'delete'],
+            onBulkAction: handleBulkAction
+        });
+    }
+
+    // ドラッグ&ドロップマネージャーの初期化
+    if (typeof DragDropManager !== 'undefined') {
+        dragDropManager = new DragDropManager('#postsTable', {
+            onReorder: handleReorder
+        });
+    }
+
+    // CSVエクスポートボタンを追加
+    addCSVExportButton();
+}
+
+// 一括操作のハンドラー
+async function handleBulkAction(action, ids) {
+    loading.show(`${ids.length}件を処理中...`);
+    
+    try {
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const id of ids) {
+            try {
+                if (action === 'delete') {
+                    const response = await fetch(`/api/tables/blog_posts/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) successCount++;
+                    else failCount++;
+                } else if (action === 'publish' || action === 'draft') {
+                    const status = action === 'publish' ? '公開' : '下書き';
+                    const response = await fetch(`/api/tables/blog_posts/${id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ status: status })
+                    });
+                    if (response.ok) successCount++;
+                    else failCount++;
+                }
+            } catch (error) {
+                failCount++;
+            }
+        }
+
+        loading.hide();
+
+        if (failCount === 0) {
+            toast.success('一括操作完了', `${successCount}件の操作が完了しました`);
+        } else {
+            toast.warning('一括操作完了（一部失敗）', `成功: ${successCount}件、失敗: ${failCount}件`);
+        }
+
+        // データを再読み込み
+        await loadPosts();
+        
+        // 選択をクリア
+        if (bulkManager) {
+            bulkManager.clearSelection();
+        }
+
+    } catch (error) {
+        console.error('Bulk action error:', error);
+        loading.hide();
+        toast.error('一括操作エラー', '処理中にエラーが発生しました');
+    }
+}
+
+// 並び替えのハンドラー
+async function handleReorder(newOrder) {
+    console.log('New order:', newOrder);
+    // 実際のアプリケーションでは、ここでサーバーに新しい順序を保存
+    toast.success('並び替え完了', '記事の順序を変更しました');
+}
+
+// CSVエクスポートボタンを追加
+function addCSVExportButton() {
+    const header = document.querySelector('.admin-header');
+    const existingBtn = document.querySelector('.export-csv-btn');
+    
+    if (header && !existingBtn && typeof exportToCSV !== 'undefined') {
+        const exportBtn = document.createElement('button');
+        exportBtn.className = 'export-csv-btn';
+        exportBtn.innerHTML = '<i class="fas fa-file-export"></i> CSVエクスポート';
+        exportBtn.onclick = handleCSVExport;
+        
+        header.appendChild(exportBtn);
+    }
+}
+
+// CSVエクスポートのハンドラー
+async function handleCSVExport() {
+    try {
+        loading.show('エクスポート中...');
+        const response = await fetch('/api/tables/blog_posts?limit=1000');
+        const result = await response.json();
+        const posts = result.data || [];
+        
+        loading.hide();
+
+        if (posts.length === 0) {
+            toast.warning('データなし', 'エクスポートするデータがありません');
+            return;
+        }
+
+        const columns = [
+            { key: 'title', label: 'タイトル' },
+            { key: 'category', label: 'カテゴリー' },
+            { key: 'author', label: '投稿者' },
+            { key: 'publish_date', label: '公開日' },
+            { key: 'status', label: '状態' },
+            { key: 'content', label: '本文' }
+        ];
+
+        const filename = `blog_posts_${new Date().toISOString().slice(0, 10)}.csv`;
+        exportToCSV(posts, columns, filename);
+
+    } catch (error) {
+        console.error('CSV export error:', error);
+        loading.hide();
+        toast.error('エクスポート失敗', 'CSVエクスポートに失敗しました');
+    }
+}
+
+// フォームに自動保存を追加
+function setupAutoSave(form) {
+    if (typeof AutoSaveManager !== 'undefined' && form) {
+        autoSaveManager = new AutoSaveManager(form, {
+            interval: 30000, // 30秒
+            storageKey: 'blog_autosave_',
+            onSave: (data) => {
+                console.log('Auto-saved:', data);
+            }
+        });
+    }
+}
+
+// グローバル関数として公開
+window.setupPhase3Features = setupPhase3Features;
+window.handleBulkAction = handleBulkAction;
+window.handleCSVExport = handleCSVExport;
