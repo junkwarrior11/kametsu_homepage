@@ -5,9 +5,11 @@
     "dev": "vite",
     "dev:sandbox": "wrangler pages dev dist --d1=webapp-production --local --ip 0.0.0.0 --port 3000",
     "build": "vite build",
+    "build:netlify": "echo 'Build complete - Netlify will handle static files'",
     "preview": "wrangler pages dev dist",
     "deploy": "npm run build && wrangler pages deploy dist --project-name kametsu-homepage",
     "deploy:prod": "npm run build && wrangler pages deploy dist --project-name kametsu-homepage --branch main",
+    "deploy:netlify": "netlify deploy --prod",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "db:migrate:local": "wrangler d1 migrations apply webapp-production --local",
     "db:migrate:prod": "wrangler d1 migrations apply webapp-production",
@@ -21,6 +23,8 @@
     "git:log": "git log --oneline"
   },
   "dependencies": {
+    "@netlify/functions": "^5.1.2",
+    "@supabase/supabase-js": "^2.96.0",
     "hono": "^4.11.9"
   },
   "devDependencies": {

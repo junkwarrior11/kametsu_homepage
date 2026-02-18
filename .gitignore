@@ -29,3 +29,13 @@ logs/
 *.bak
 *.tar.gz
 *.zip
+
+# Netlify
+.netlify
+
+# Local Netlify folder
+.netlify/
+
+# Environment variables
+.env
+.env.local
