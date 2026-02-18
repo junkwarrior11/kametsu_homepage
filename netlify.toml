@@ -4,8 +4,8 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  from = "/api/tables/*"
+  to = "/.netlify/functions/tables/:splat"
   status = 200
 
 [build.environment]
