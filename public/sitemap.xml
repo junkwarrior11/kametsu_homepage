@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- トップページ（最重要） -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- 学校概要 -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/about.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- 行事予定 -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/events.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- 学校だより -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/newsletter.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- ブログ -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/blog.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- 亀津小のやくそく -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/school-rules.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- いじめ防止基本方針 -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/bullying-prevention.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- アクセス -->
+  <url>
+    <loc>https://kametsu-homepage.netlify.app/access.html</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>

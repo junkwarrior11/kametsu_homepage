@@ -1,0 +1,13 @@
+# robots.txt - 検索エンジン向けクロール設定
+
+# すべてのクローラーを許可
+User-agent: *
+Allow: /
+
+# 管理画面は非公開
+Disallow: /admin-*
+Disallow: /test-*
+Disallow: /demo-*
+
+# サイトマップの場所
+Sitemap: https://kametsu-homepage.netlify.app/sitemap.xml
