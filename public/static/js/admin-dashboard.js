@@ -14,34 +14,26 @@ async function loadDashboardStats() {
         const now = new Date();
         const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         
-        const [blogRes, newsletterRes, eventsRes, totalAccessRes, monthlyAccessRes] = await Promise.all([
+        // アクセス統計は一時的にスキップ（access_statsテーブル未作成のため）
+        const [blogRes, newsletterRes, eventsRes] = await Promise.all([
             fetch('/api/tables/blog_posts'),
             fetch('/api/tables/newsletters'),
-            fetch('/api/tables/events'),
-            fetch('/api/tables/access_stats?stat_type=total&year_month=total&page_name=all&limit=1'),
-            fetch(`/api/tables/access_stats?stat_type=monthly&year_month=${currentMonth}&page_name=all&limit=1`)
+            fetch('/api/tables/events')
         ]);
         
         const blogData = await blogRes.json();
         const newsletterData = await newsletterRes.json();
         const eventsData = await eventsRes.json();
-        const totalAccessData = await totalAccessRes.json();
-        const monthlyAccessData = await monthlyAccessRes.json();
         
         document.getElementById('blogCount').textContent = blogData.total || 0;
         document.getElementById('newsletterCount').textContent = newsletterData.total || 0;
         document.getElementById('eventCount').textContent = eventsData.total || 0;
         
-        // アクセス統計の表示
-        const totalAccessCount = (totalAccessData.data && totalAccessData.data.length > 0) 
-            ? totalAccessData.data[0].count 
-            : 0;
-        const monthlyAccessCount = (monthlyAccessData.data && monthlyAccessData.data.length > 0) 
-            ? monthlyAccessData.data[0].count 
-            : 0;
+        // アクセス統計は一時的に0を表示
+        document.getElementById('totalAccessCount').textContent = '0';
+        document.getElementById('monthlyAccessCount').textContent = '0';
         
-        document.getElementById('totalAccessCount').textContent = totalAccessCount.toLocaleString();
-        document.getElementById('monthlyAccessCount').textContent = monthlyAccessCount.toLocaleString();
+        console.log('⚠️ Access stats temporarily disabled. Create access_stats table in Supabase to enable.');
     } catch (error) {
         console.error('Error loading stats:', error);
     }

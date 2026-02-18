@@ -1,9 +1,15 @@
 // ========================================
-// アクセスカウンター
+// アクセスカウンター（一時的に無効化中）
 // ========================================
+
+// TODO: access_stats テーブルを作成後に有効化する
+console.log('⚠️ Access counter is temporarily disabled. Please create access_stats table in Supabase.');
 
 // ページ読み込み時にアクセスを記録
 (function() {
+    // 一時的に無効化
+    return;
+    
     // 管理画面は除外
     if (window.location.pathname.includes('admin-')) {
         return;
