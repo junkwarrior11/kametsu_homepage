@@ -71,13 +71,13 @@ async function incrementStat(statType, yearMonth, pageName) {
     try {
         // 既存の統計を取得
         const query = `stat_type=${statType}&year_month=${yearMonth}&page_name=${pageName}`;
-        const response = await fetch(`tables/access_stats?${query}&limit=1`);
+        const response = await fetch(`/api/tables/access_stats?${query}&limit=1`);
         const result = await response.json();
         
         if (result.data && result.data.length > 0) {
             // 既存レコードを更新
             const stat = result.data[0];
-            await fetch(`tables/access_stats/${stat.id}`, {
+            await fetch(`/api/tables/access_stats/${stat.id}`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ count: stat.count + 1 })

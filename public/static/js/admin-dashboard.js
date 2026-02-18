@@ -19,7 +19,7 @@ async function loadDashboardStats() {
             fetch('/api/tables/newsletters'),
             fetch('/api/tables/events'),
             fetch('/api/tables/access_stats?stat_type=total&year_month=total&page_name=all&limit=1'),
-            fetch(`tables/access_stats?stat_type=monthly&year_month=${currentMonth}&page_name=all&limit=1`)
+            fetch(`/api/tables/access_stats?stat_type=monthly&year_month=${currentMonth}&page_name=all&limit=1`)
         ]);
         
         const blogData = await blogRes.json();
