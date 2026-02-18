@@ -558,11 +558,11 @@ async function loadAllContent() {
 // Load Preview - 高速化版
 function loadPreview(softRefresh = false) {
     const iframe = document.getElementById('preview-iframe');
+    const loadingOverlay = document.getElementById('preview-loading');
     
     // ローディング表示を追加
-    const previewWrapper = document.querySelector('.preview-wrapper');
-    if (previewWrapper) {
-        previewWrapper.classList.add('loading');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'flex';
         console.log('🔄 Loading preview...');
     }
     
@@ -577,8 +577,8 @@ function loadPreview(softRefresh = false) {
                 homeScript();
                 
                 // ソフトリフレッシュ完了
-                if (previewWrapper) {
-                    previewWrapper.classList.remove('loading');
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'none';
                     console.log('✅ Soft refresh complete');
                 }
                 return;
@@ -588,26 +588,37 @@ function loadPreview(softRefresh = false) {
         }
     }
     
+    // タイムアウトを設定（10秒）
+    const loadTimeout = setTimeout(() => {
+        console.warn('⚠️ Preview load timeout (10s)');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
+        showError('プレビューの読み込みがタイムアウトしました。ページが存在しない可能性があります。');
+    }, 10000);
+    
     // フルリロード
     iframe.src = currentPage + '?_=' + Date.now(); // Cache busting
 
     // Wait for iframe to load
     iframe.onload = () => {
+        clearTimeout(loadTimeout);
         console.log('✅ Preview loaded successfully');
         
         // ローディング表示を解除
-        if (previewWrapper) {
-            previewWrapper.classList.remove('loading');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
         }
     };
 
     iframe.onerror = () => {
+        clearTimeout(loadTimeout);
         console.error('❌ Preview load failed');
         showError('ページの読み込みに失敗しました');
         
         // ローディング表示を解除
-        if (previewWrapper) {
-            previewWrapper.classList.remove('loading');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
         }
     };
 }
