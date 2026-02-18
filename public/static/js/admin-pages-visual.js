@@ -1,12 +1,18 @@
-// Visual Editor JavaScript - 完全版
+// Visual Editor JavaScript - 完全再実装版（シンプル・確実）
+// 2026-02-18: ローディング無限ループ問題を根本解決
 
-// State Management
+// ========================================
+// 1. State Management
+// ========================================
 let currentPage = 'index.html';
 let currentDevice = 'desktop';
 let currentEditSection = null;
 let contentData = {};
+let isInitialized = false;
 
-// 利用可能なアイコンリスト（Font Awesome）
+// ========================================
+// 2. Icon Definitions
+// ========================================
 const availableIcons = [
     {value: 'fa-book-open', label: '本（開いた本）', category: '学習'},
     {value: 'fa-graduation-cap', label: '卒業帽', category: '学習'},
@@ -57,7 +63,9 @@ const availableIcons = [
     {value: 'fa-bullseye', label: '的', category: 'その他'}
 ];
 
-// フォーム定義
+// ========================================
+// 3. Form Definitions
+// ========================================
 const formDefinitions = {
     header: {
         title: 'ヘッダー（ロゴ・連絡先）',
@@ -134,138 +142,48 @@ const formDefinitions = {
             {key: 'footer_copyright', label: 'コピーライト', type: 'text', placeholder: 'コピーライトを入力'}
         ]
     }
-}
+};
 
 // ページごとのフォーム定義マッピング
 const pageFormMappings = {
     'index.html': ['header', 'hero', 'news', 'about', 'features', 'events', 'footer'],
-    'about.html': ['about-page'],
-    'events.html': ['events-page'],
-    'newsletter.html': ['newsletter-page'],
-    'blog.html': ['blog-page'],
-    'access.html': ['access-page'],
-    'contact.html': ['contact-page']
+    'about.html': ['header', 'footer'],
+    'events.html': ['header', 'footer'],
+    'newsletter.html': ['header', 'footer'],
+    'blog.html': ['header', 'footer'],
+    'access.html': ['header', 'footer'],
+    'contact.html': ['header', 'footer']
 };
 
-// 他ページ用のフォーム定義
-const otherPageForms = {
-    'about-page': {
-        title: '学校概要ページ',
-        fields: [
-            {key: 'about_page_title', label: 'ページタイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_page_subtitle', label: 'サブタイトル', type: 'text', placeholder: 'サブタイトルを入力'},
-            
-            // 学校の歴史セクション
-            {key: 'about_history_title', label: '歴史セクションタイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_history_text1', label: '歴史テキスト（第1段落）', type: 'textarea', placeholder: '説明文を入力', rows: 4},
-            {key: 'about_history_text2', label: '歴史テキスト（第2段落）', type: 'textarea', placeholder: '説明文を入力', rows: 3},
-            
-            // 校長挨拶セクション
-            {key: 'about_principal_title', label: '校長挨拶タイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_principal_photo', label: '校長写真URL', type: 'text', placeholder: '画像URLを入力'},
-            {key: 'about_principal_text1', label: '校長挨拶（第1段落）', type: 'textarea', placeholder: '挨拶文を入力', rows: 4},
-            {key: 'about_principal_text2', label: '校長挨拶（第2段落）', type: 'textarea', placeholder: '挨拶文を入力', rows: 3},
-            {key: 'about_principal_signature', label: '校長署名', type: 'text', placeholder: '署名を入力（例：校長）'},
-            
-            // 教育理念セクション
-            {key: 'about_philosophy_title', label: '教育理念タイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_philosophy_motto', label: '教育モットー', type: 'text', placeholder: 'モットーを入力'},
-            {key: 'about_philosophy_text', label: '教育理念説明', type: 'textarea', placeholder: '説明文を入力', rows: 4},
-            
-            // 教育目標カード
-            {key: 'about_goal1_icon', label: '目標1 - アイコン', type: 'icon', placeholder: 'アイコンを選択'},
-            {key: 'about_goal1_title', label: '目標1 - タイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_goal1_text', label: '目標1 - 説明', type: 'textarea', placeholder: '説明文を入力', rows: 2},
-            {key: 'about_goal2_icon', label: '目標2 - アイコン', type: 'icon', placeholder: 'アイコンを選択'},
-            {key: 'about_goal2_title', label: '目標2 - タイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_goal2_text', label: '目標2 - 説明', type: 'textarea', placeholder: '説明文を入力', rows: 2},
-            {key: 'about_goal3_icon', label: '目標3 - アイコン', type: 'icon', placeholder: 'アイコンを選択'},
-            {key: 'about_goal3_title', label: '目標3 - タイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_goal3_text', label: '目標3 - 説明', type: 'textarea', placeholder: '説明文を入力', rows: 2},
-            {key: 'about_goal4_icon', label: '目標4 - アイコン', type: 'icon', placeholder: 'アイコンを選択'},
-            {key: 'about_goal4_title', label: '目標4 - タイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_goal4_text', label: '目標4 - 説明', type: 'textarea', placeholder: '説明文を入力', rows: 2},
-            {key: 'about_goal5_icon', label: '目標5 - アイコン（オプション）', type: 'icon', placeholder: 'アイコンを選択'},
-            {key: 'about_goal5_title', label: '目標5 - タイトル（オプション）', type: 'text', placeholder: 'タイトルを入力（空欄で非表示）'},
-            {key: 'about_goal5_text', label: '目標5 - 説明（オプション）', type: 'textarea', placeholder: '説明文を入力', rows: 2},
-            {key: 'about_goal6_icon', label: '目標6 - アイコン（オプション）', type: 'icon', placeholder: 'アイコンを選択'},
-            {key: 'about_goal6_title', label: '目標6 - タイトル（オプション）', type: 'text', placeholder: 'タイトルを入力（空欄で非表示）'},
-            {key: 'about_goal6_text', label: '目標6 - 説明（オプション）', type: 'textarea', placeholder: '説明文を入力', rows: 2},
-            
-            // 学校情報セクション
-            {key: 'about_info_title', label: '学校情報タイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'about_info_name', label: '学校名', type: 'text', placeholder: '学校名を入力'},
-            {key: 'about_info_address', label: '所在地', type: 'text', placeholder: '住所を入力'},
-            {key: 'about_info_phone', label: '電話番号', type: 'text', placeholder: '電話番号を入力'},
-            {key: 'about_info_fax', label: 'FAX番号', type: 'text', placeholder: 'FAX番号を入力'},
-            {key: 'about_info_founded', label: '創立年', type: 'text', placeholder: '創立年を入力'},
-            {key: 'about_info_students', label: '児童数', type: 'text', placeholder: '児童数を入力'},
-            {key: 'about_info_classes', label: '学級数', type: 'text', placeholder: '学級数を入力'}
-        ]
-    },
-    'events-page': {
-        title: '行事予定ページ',
-        fields: [
-            {key: 'events_page_title', label: 'ページタイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'events_page_subtitle', label: 'サブタイトル', type: 'text', placeholder: 'サブタイトルを入力'}
-        ]
-    },
-    'newsletter-page': {
-        title: '学校だよりページ',
-        fields: [
-            {key: 'newsletter_page_title', label: 'ページタイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'newsletter_page_subtitle', label: 'サブタイトル', type: 'text', placeholder: 'サブタイトルを入力'}
-        ]
-    },
-    'blog-page': {
-        title: 'ブログページ',
-        fields: [
-            {key: 'blog_page_title', label: 'ページタイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'blog_page_subtitle', label: 'サブタイトル', type: 'text', placeholder: 'サブタイトルを入力'}
-        ]
-    },
-    'access-page': {
-        title: 'アクセスページ',
-        fields: [
-            {key: 'access_page_title', label: 'ページタイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'access_page_subtitle', label: 'サブタイトル', type: 'text', placeholder: 'サブタイトルを入力'},
-            {key: 'access_school_name', label: '学校名', type: 'text', placeholder: '学校名を入力'},
-            {key: 'access_address', label: '住所', type: 'textarea', placeholder: '住所を入力（改行可）', rows: 2},
-            {key: 'access_phone', label: '電話番号', type: 'text', placeholder: '電話番号を入力'},
-            {key: 'access_fax', label: 'FAX番号', type: 'text', placeholder: 'FAX番号を入力'},
-            {key: 'access_email', label: 'メールアドレス', type: 'text', placeholder: 'メールアドレスを入力'},
-            {key: 'access_map_text', label: '地図テキスト', type: 'text', placeholder: '地図に表示するテキストを入力'},
-            {key: 'access_map_note', label: '地図の注釈', type: 'text', placeholder: '地図の注釈を入力'}
-        ]
-    },
-    'contact-page': {
-        title: 'お問い合わせページ',
-        fields: [
-            {key: 'contact_page_title', label: 'ページタイトル', type: 'text', placeholder: 'タイトルを入力'},
-            {key: 'contact_page_subtitle', label: 'サブタイトル', type: 'text', placeholder: 'サブタイトルを入力'}
-        ]
-    }
-};
-
-// フォーム定義をマージ
-Object.assign(formDefinitions, otherPageForms);
-
-// Initialize
+// ========================================
+// 4. Initialization
+// ========================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // 二重初期化を防止
+    if (isInitialized) {
+        console.warn('⚠️ Visual Editor: Already initialized');
+        return;
+    }
+    isInitialized = true;
+    
     console.log('🚀 Visual Editor: Initializing...');
     
     try {
+        // イベントリスナーをセットアップ
         setupEventListeners();
         console.log('✅ Event listeners set up');
         
+        // コンテンツをロード
         await loadAllContent();
-        console.log('✅ Content loaded');
+        console.log('✅ Content loaded:', Object.keys(contentData).length, 'settings');
         
-        updateEditableSections(currentPage); // 初期ページのセクションを表示
+        // 編集可能セクションを更新
+        updateEditableSections(currentPage);
         console.log('✅ Editable sections updated');
         
-        loadPreview();
-        console.log('✅ Preview loading started');
+        // プレビューをロード
+        await loadPreview();
+        console.log('✅ Preview loaded');
         
         console.log('🎉 Visual Editor: Initialization complete!');
     } catch (error) {
@@ -274,61 +192,165 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Setup Event Listeners
+// ========================================
+// 5. Event Listeners
+// ========================================
 function setupEventListeners() {
-    // Page Selector
-    document.getElementById('page-select').addEventListener('change', (e) => {
-        currentPage = e.target.value;
-        updateEditableSections(currentPage);
-        loadPreview();
-    });
+    // ページ選択
+    const pageSelect = document.getElementById('page-select');
+    if (pageSelect) {
+        pageSelect.addEventListener('change', (e) => {
+            currentPage = e.target.value;
+            console.log('Page changed:', currentPage);
+            updateEditableSections(currentPage);
+            loadPreview();
+        });
+    }
 
-    // Device Toggle
+    // デバイス切り替え
     document.querySelectorAll('.device-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
             e.currentTarget.classList.add('active');
             currentDevice = e.currentTarget.dataset.device;
+            console.log('Device changed:', currentDevice);
             updatePreviewDevice();
         });
     });
 
-    // Refresh Preview
-    document.getElementById('refresh-btn').addEventListener('click', (e) => {
-        const btn = e.currentTarget;
-        const icon = btn.querySelector('i');
-        
-        // 視覚的フィードバック
-        icon.classList.add('fa-spin');
-        btn.disabled = true;
-        
-        loadPreview(true); // ソフトリフレッシュ使用
-        
-        setTimeout(() => {
-            icon.classList.remove('fa-spin');
-            btn.disabled = false;
-        }, 500);
-    });
-
-    // Element Selection
-    document.querySelectorAll('[data-edit-element]').forEach(element => {
-        element.addEventListener('click', () => {
-            const sectionId = element.dataset.editElement;
-            selectSection(sectionId);
+    // プレビュー更新ボタン
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            const icon = btn.querySelector('i');
+            
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+            
+            loadPreview().finally(() => {
+                setTimeout(() => {
+                    icon.classList.remove('fa-spin');
+                    btn.disabled = false;
+                }, 500);
+            });
         });
-    });
+    }
 
-    // Form Actions
-    document.getElementById('save-btn').addEventListener('click', saveChanges);
-    document.getElementById('cancel-btn').addEventListener('click', cancelEdit);
+    // フォームアクション
+    const saveBtn = document.getElementById('save-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    
+    if (saveBtn) saveBtn.addEventListener('click', saveChanges);
+    if (cancelBtn) cancelBtn.addEventListener('click', cancelEdit);
 }
 
-// Update Editable Sections based on selected page
+// ========================================
+// 6. Content Loading
+// ========================================
+async function loadAllContent() {
+    console.log('📥 Loading site settings from API...');
+    
+    try {
+        // 🔥 API パスを修正 - /api/ プレフィックスを確実に付与
+        const response = await fetch('/api/tables/site_settings?limit=100');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ API response:', data);
+        
+        if (data.data && Array.isArray(data.data)) {
+            contentData = {};
+            data.data.forEach(item => {
+                contentData[item.setting_key] = item.setting_value;
+            });
+            console.log('✅ Content data loaded:', Object.keys(contentData).length, 'settings');
+        } else {
+            console.warn('⚠️ No site settings found in response');
+            contentData = {};
+        }
+    } catch (error) {
+        console.error('❌ Failed to load content:', error);
+        showError(`コンテンツの読み込みに失敗しました: ${error.message}`);
+        contentData = {};
+    }
+}
+
+// ========================================
+// 7. Preview Loading (シンプル版)
+// ========================================
+function loadPreview() {
+    return new Promise((resolve, reject) => {
+        const iframe = document.getElementById('preview-iframe');
+        const loadingOverlay = document.getElementById('preview-loading');
+        
+        if (!iframe) {
+            console.error('❌ Iframe element not found');
+            reject(new Error('Iframe element not found'));
+            return;
+        }
+        
+        // ローディング表示
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+            console.log('🔄 Loading preview:', currentPage);
+        }
+        
+        // タイムアウト設定（10秒）
+        const loadTimeout = setTimeout(() => {
+            console.warn('⚠️ Preview load timeout (10s)');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            showError('プレビューの読み込みがタイムアウトしました。ページが存在しない可能性があります。');
+            reject(new Error('Load timeout'));
+        }, 10000);
+        
+        // onload イベントハンドラ
+        iframe.onload = () => {
+            clearTimeout(loadTimeout);
+            console.log('✅ Preview loaded successfully:', currentPage);
+            
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            
+            resolve();
+        };
+        
+        // onerror イベントハンドラ
+        iframe.onerror = (error) => {
+            clearTimeout(loadTimeout);
+            console.error('❌ Preview load failed:', error);
+            
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            
+            showError('ページの読み込みに失敗しました');
+            reject(error);
+        };
+        
+        // iframe の src を設定（キャッシュバスティング付き）
+        const cacheBuster = Date.now();
+        iframe.src = `${currentPage}?_=${cacheBuster}`;
+        console.log('📄 Loading iframe:', iframe.src);
+    });
+}
+
+// ========================================
+// 8. Editable Sections Management
+// ========================================
 function updateEditableSections(pageName) {
     const elementList = document.querySelector('.element-list');
-    const sections = pageFormMappings[pageName] || [];
+    if (!elementList) return;
     
-    // セクションアイコンマッピング
+    const sections = pageFormMappings[pageName] || [];
+    console.log('Updating editable sections for:', pageName, sections);
+    
     const sectionIcons = {
         'header': 'fa-heading',
         'hero': 'fa-star',
@@ -336,16 +358,9 @@ function updateEditableSections(pageName) {
         'about': 'fa-info-circle',
         'features': 'fa-lightbulb',
         'events': 'fa-calendar',
-        'footer': 'fa-shoe-prints',
-        'about-page': 'fa-file-alt',
-        'events-page': 'fa-file-alt',
-        'newsletter-page': 'fa-file-alt',
-        'blog-page': 'fa-file-alt',
-        'access-page': 'fa-file-alt',
-        'contact-page': 'fa-file-alt'
+        'footer': 'fa-shoe-prints'
     };
     
-    // 編集可能セクションリストを再生成
     let html = '';
     sections.forEach(sectionId => {
         const formDef = formDefinitions[sectionId];
@@ -373,45 +388,51 @@ function updateEditableSections(pageName) {
     cancelEdit();
 }
 
-// Select Section for Editing
+// ========================================
+// 9. Section Selection
+// ========================================
 function selectSection(sectionId) {
-    // Remove active class from all elements
-    document.querySelectorAll('.element-item').forEach(el => el.classList.remove('active'));
+    console.log('Selecting section:', sectionId);
     
-    // Add active class to selected element
+    // アクティブクラスを更新
+    document.querySelectorAll('.element-item').forEach(el => el.classList.remove('active'));
     const selectedElement = document.querySelector(`[data-edit-element="${sectionId}"]`);
     if (selectedElement) {
         selectedElement.classList.add('active');
     }
 
-    // Hide placeholder
-    document.getElementById('edit-placeholder').style.display = 'none';
+    // プレースホルダーを非表示
+    const placeholder = document.getElementById('edit-placeholder');
+    if (placeholder) {
+        placeholder.style.display = 'none';
+    }
 
-    // Show form
+    // フォームを表示
     currentEditSection = sectionId;
     renderForm(sectionId);
 }
 
-// Render Form
+// ========================================
+// 10. Form Rendering
+// ========================================
 function renderForm(sectionId) {
     const formContainer = document.getElementById('dynamic-forms');
     const formDef = formDefinitions[sectionId];
     
-    if (!formDef) {
-        console.error('Unknown section:', sectionId);
+    if (!formDef || !formContainer) {
+        console.error('Form definition or container not found:', sectionId);
         return;
     }
 
-    // Generate form HTML
     let formHTML = `
         <form class="edit-form active" id="form-${sectionId}">
             <div class="form-section">
                 <div class="form-section-title">${formDef.title}</div>
     `;
 
-    formDef.fields.forEach((field, index) => {
+    formDef.fields.forEach(field => {
         const value = contentData[field.key] || '';
-        console.log(`Field ${index}: ${field.label} (${field.key}) = "${value}"`);
+        
         formHTML += `
             <div class="form-group">
                 <label>${field.label}</label>
@@ -422,26 +443,22 @@ function renderForm(sectionId) {
                 <textarea 
                     name="${field.key}" 
                     id="field-${field.key}"
-                    data-key="${field.key}"
                     rows="${field.rows || 4}" 
                     placeholder="${field.placeholder}"
                 >${escapeHtml(value)}</textarea>
             `;
         } else if (field.type === 'icon') {
-            // アイコン選択フィールド
             formHTML += `
                 <div class="icon-selector">
                     <select 
                         name="${field.key}" 
                         id="field-${field.key}"
-                        data-key="${field.key}"
                         class="icon-select"
                         onchange="updateIconPreview('${field.key}')"
                     >
                         <option value="">アイコンを選択...</option>
             `;
             
-            // カテゴリごとにグループ化
             const categories = [...new Set(availableIcons.map(icon => icon.category))];
             categories.forEach(category => {
                 formHTML += `<optgroup label="${category}">`;
@@ -460,7 +477,6 @@ function renderForm(sectionId) {
                 </div>
             `;
         } else {
-            // 画像URLフィールドの場合、アップロードボタンを追加
             const isImageField = field.key.includes('_image') || field.key.includes('_photo');
             
             formHTML += `
@@ -468,7 +484,6 @@ function renderForm(sectionId) {
                     type="text" 
                     name="${field.key}" 
                     id="field-${field.key}"
-                    data-key="${field.key}"
                     value="${escapeHtml(value)}" 
                     placeholder="${field.placeholder}"
                 >
@@ -493,15 +508,8 @@ function renderForm(sectionId) {
                 `;
             }
         }
-        
-        // デバッグ情報を追加
-        formHTML += `
-            <small style="color: #999; font-size: 11px;">データベースキー: ${field.key}</small>
-        `;
 
-        formHTML += `
-            </div>
-        `;
+        formHTML += `</div>`;
     });
 
     formHTML += `
@@ -510,126 +518,12 @@ function renderForm(sectionId) {
     `;
 
     formContainer.innerHTML = formHTML;
-    
-    // デバッグ: 生成されたフォームを確認
-    console.log(`Form rendered for section: ${sectionId}`);
-    console.log('Fields:', formDef.fields.map(f => f.key).join(', '));
+    console.log('✅ Form rendered:', sectionId);
 }
 
-// Load All Content from Database
-async function loadAllContent() {
-    console.log('📥 Loading site settings...');
-    try {
-        const response = await fetch('/api/tables/site_settings?limit=100');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('✅ Site settings loaded:', data);
-        
-        if (data.data) {
-            contentData = {};
-            data.data.forEach(item => {
-                contentData[item.setting_key] = item.setting_value;
-            });
-            
-            // 🚀 キャッシュも初期化
-            settingsCache = data.data;
-            cacheTime = Date.now();
-            
-            console.log('✅ Content data initialized:', Object.keys(contentData).length, 'settings');
-        } else {
-            console.warn('⚠️ No site settings data found');
-        }
-
-    } catch (error) {
-        console.error('❌ Failed to load content:', error);
-        showError(`コンテンツの読み込みに失敗しました: ${error.message}`);
-        
-        // 空のデータで初期化（エラーでも動作を続行）
-        contentData = {};
-        settingsCache = [];
-        cacheTime = 0;
-    }
-}
-
-// Load Preview - 高速化版
-function loadPreview(softRefresh = false) {
-    const iframe = document.getElementById('preview-iframe');
-    const loadingOverlay = document.getElementById('preview-loading');
-    
-    // ローディング表示を追加
-    if (loadingOverlay) {
-        loadingOverlay.style.display = 'flex';
-        console.log('🔄 Loading preview...');
-    }
-    
-    if (softRefresh && iframe.contentWindow) {
-        // 🚀 ソフトリフレッシュ: iframe内のJavaScriptを再実行（高速）
-        try {
-            const iframeDoc = iframe.contentWindow.document;
-            const homeScript = iframe.contentWindow.loadDynamicContent;
-            
-            if (homeScript && typeof homeScript === 'function') {
-                console.log('Soft refresh: Reloading dynamic content...');
-                homeScript();
-                
-                // ソフトリフレッシュ完了
-                if (loadingOverlay) {
-                    loadingOverlay.style.display = 'none';
-                    console.log('✅ Soft refresh complete');
-                }
-                return;
-            }
-        } catch (e) {
-            console.log('Soft refresh failed, falling back to full reload:', e);
-        }
-    }
-    
-    // タイムアウトを設定（10秒）
-    const loadTimeout = setTimeout(() => {
-        console.warn('⚠️ Preview load timeout (10s)');
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
-        }
-        showError('プレビューの読み込みがタイムアウトしました。ページが存在しない可能性があります。');
-    }, 10000);
-    
-    // フルリロード
-    iframe.src = currentPage + '?_=' + Date.now(); // Cache busting
-
-    // Wait for iframe to load
-    iframe.onload = () => {
-        clearTimeout(loadTimeout);
-        console.log('✅ Preview loaded successfully');
-        
-        // ローディング表示を解除
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
-        }
-    };
-
-    iframe.onerror = () => {
-        clearTimeout(loadTimeout);
-        console.error('❌ Preview load failed');
-        showError('ページの読み込みに失敗しました');
-        
-        // ローディング表示を解除
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
-        }
-    };
-}
-
-// Update Preview Device
-function updatePreviewDevice() {
-    const wrapper = document.querySelector('.preview-wrapper');
-    wrapper.className = 'preview-wrapper ' + currentDevice;
-}
-
-// Save Changes - 高速化版
+// ========================================
+// 11. Save Changes
+// ========================================
 async function saveChanges() {
     if (!currentEditSection) {
         showError('編集する要素を選択してください');
@@ -637,9 +531,11 @@ async function saveChanges() {
     }
 
     const form = document.getElementById(`form-${currentEditSection}`);
-    if (!form) return;
+    if (!form) {
+        console.error('Form not found:', `form-${currentEditSection}`);
+        return;
+    }
 
-    // Get form data
     const formData = new FormData(form);
     const updates = {};
     
@@ -647,43 +543,32 @@ async function saveChanges() {
         updates[key] = value;
     });
 
-    console.log('Form data collected:', updates);
-    console.log('Number of fields:', Object.keys(updates).length);
+    console.log('💾 Saving updates:', updates);
 
-    // Show loading with progress
     const saveBtn = document.getElementById('save-btn');
     const originalText = saveBtn.textContent;
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
 
-    const startTime = Date.now();
-
     try {
-        console.log('Saving updates (parallel):', updates);
-        
-        // 🚀 並列処理で全フィールドを同時に更新（高速化）
-        const updatePromises = Object.entries(updates).map(([key, value]) => {
-            console.log(`Queuing update: ${key}`);
-            return updatePageContent(key, value);
-        });
+        // 🔥 並列処理で全フィールドを更新
+        const updatePromises = Object.entries(updates).map(([key, value]) => 
+            updatePageContent(key, value)
+        );
         
         await Promise.all(updatePromises);
-        
-        const saveTime = Date.now() - startTime;
-        console.log(`Save completed in ${saveTime}ms`);
+        console.log('✅ All updates completed');
 
-        // Update local content data
+        // ローカルデータを更新
         Object.assign(contentData, updates);
 
-        // 🚀 プレビュー更新を非同期で実行（ソフトリフレッシュ使用）
-        console.log('Reloading preview...');
-        setTimeout(() => loadPreview(true), 100); // 少し遅延させて確実にDB更新完了後に実行
+        // プレビューを更新
+        await loadPreview();
 
-        // Show success message
-        showSuccess(`変更を保存しました（${saveTime}ms）`);
+        showSuccess('変更を保存しました');
 
     } catch (error) {
-        console.error('Failed to save changes:', error);
+        console.error('❌ Failed to save changes:', error);
         showError('保存に失敗しました: ' + error.message);
     } finally {
         saveBtn.disabled = false;
@@ -691,52 +576,35 @@ async function saveChanges() {
     }
 }
 
-// Update Page Content in Database - 高速化版
-let settingsCache = null; // キャッシュを追加
-let cacheTime = null;
-const CACHE_DURATION = 5000; // 5秒間キャッシュ
-
+// ========================================
+// 12. Update Page Content
+// ========================================
 async function updatePageContent(settingKey, settingValue) {
     try {
-        // 🚀 キャッシュを使用して全データ取得を削減
-        const now = Date.now();
-        if (!settingsCache || !cacheTime || (now - cacheTime) > CACHE_DURATION) {
-            const response = await fetch(`tables/site_settings?limit=100`);
-            const data = await response.json();
-            settingsCache = data.data || [];
-            cacheTime = now;
-        }
-
-        // Find the record with matching setting_key
-        const existingRecord = settingsCache.find(item => item.setting_key === settingKey);
+        // 🔥 API パスを修正 - /api/ プレフィックスを確実に付与
+        const response = await fetch('/api/tables/site_settings?limit=100');
+        const data = await response.json();
+        const existingRecord = data.data?.find(item => item.setting_key === settingKey);
 
         if (existingRecord) {
-            // Update existing record
-            const updateResponse = await fetch(`tables/site_settings/${existingRecord.id}`, {
+            // 既存レコードを更新
+            const updateResponse = await fetch(`/api/tables/site_settings/${existingRecord.id}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    setting_value: settingValue
-                })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ setting_value: settingValue })
             });
 
             if (!updateResponse.ok) {
-                const errorText = await updateResponse.text();
-                throw new Error(`Failed to update content: ${errorText}`);
+                throw new Error(`Failed to update: ${updateResponse.statusText}`);
             }
             
-            // キャッシュも更新
-            existingRecord.setting_value = settingValue;
+            console.log(`✅ Updated: ${settingKey}`);
         } else {
-            // Create new record
+            // 新規レコードを作成
             const settingGroup = settingKey.split('_')[0];
             const createResponse = await fetch('/api/tables/site_settings', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     setting_key: settingKey,
                     setting_value: settingValue,
@@ -746,20 +614,73 @@ async function updatePageContent(settingKey, settingValue) {
             });
 
             if (!createResponse.ok) {
-                throw new Error('Failed to create content');
+                throw new Error(`Failed to create: ${createResponse.statusText}`);
             }
             
-            // キャッシュに追加
-            const newRecord = await createResponse.json();
-            settingsCache.push(newRecord);
+            console.log(`✅ Created: ${settingKey}`);
         }
     } catch (error) {
-        console.error('Error updating page content:', error);
+        console.error(`❌ Error updating ${settingKey}:`, error);
         throw error;
     }
 }
 
-// Update Icon Preview
+// ========================================
+// 13. Helper Functions
+// ========================================
+function updatePreviewDevice() {
+    const wrapper = document.querySelector('.preview-wrapper');
+    if (wrapper) {
+        wrapper.className = 'preview-wrapper ' + currentDevice;
+        console.log('Device class updated:', wrapper.className);
+    }
+}
+
+function cancelEdit() {
+    document.querySelectorAll('.element-item').forEach(el => el.classList.remove('active'));
+    
+    const placeholder = document.getElementById('edit-placeholder');
+    const dynamicForms = document.getElementById('dynamic-forms');
+    
+    if (placeholder) placeholder.style.display = 'block';
+    if (dynamicForms) dynamicForms.innerHTML = '';
+    
+    currentEditSection = null;
+    console.log('Edit cancelled');
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showSuccess(message) {
+    console.log('✅ Success:', message);
+    
+    // Toast 通知を使用（window.toast が利用可能な場合）
+    if (window.toast && typeof window.toast.success === 'function') {
+        window.toast.success(message);
+    } else {
+        // フォールバック: シンプルな成功メッセージ
+        alert(`成功: ${message}`);
+    }
+}
+
+function showError(message) {
+    console.error('❌ Error:', message);
+    
+    // Toast 通知を使用（window.toast が利用可能な場合）
+    if (window.toast && typeof window.toast.error === 'function') {
+        window.toast.error(message);
+    } else {
+        // フォールバック: シンプルなエラーメッセージ
+        alert(`エラー: ${message}`);
+    }
+}
+
+// アイコンプレビュー更新
 function updateIconPreview(fieldKey) {
     const select = document.getElementById(`field-${fieldKey}`);
     const preview = document.getElementById(`preview-${fieldKey}`);
@@ -770,66 +691,19 @@ function updateIconPreview(fieldKey) {
     }
 }
 
-// グローバルスコープに公開
-window.updateIconPreview = updateIconPreview;
-
-// Cancel Edit
-function cancelEdit() {
-    // Clear selection
-    document.querySelectorAll('.element-item').forEach(el => el.classList.remove('active'));
-    document.getElementById('edit-placeholder').style.display = 'block';
-    document.getElementById('dynamic-forms').innerHTML = '';
-    currentEditSection = null;
-}
-
-// Show Success Message
-function showSuccess(message) {
-    const successDiv = document.createElement('div');
-    successDiv.className = 'success-message';
-    successDiv.innerHTML = `
-        <i class="fas fa-check-circle"></i>
-        <span>${message}</span>
-    `;
-    document.body.appendChild(successDiv);
-
-    setTimeout(() => {
-        successDiv.style.animation = 'slideIn 0.3s ease reverse';
-        setTimeout(() => successDiv.remove(), 300);
-    }, 2000); // 3秒→2秒に短縮
-}
-
-// Show Error Message
-function showError(message) {
-    alert(`エラー: ${message}`);
-}
-
-// Escape HTML
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// ========================================
-// 画像アップロード関連関数
-// ========================================
-
-/**
- * 画像ピッカーモーダルを開く
- * @param {string} fieldKey - フィールドキー
- */
+// 画像ピッカー
 function openImagePicker(fieldKey) {
+    if (typeof showImagePickerModal !== 'function') {
+        showError('画像アップロード機能が利用できません');
+        return;
+    }
+    
     showImagePickerModal(function(imageUrl) {
-        // 選択された画像URLをフィールドに設定
         const inputField = document.getElementById(`field-${fieldKey}`);
         const previewContainer = document.getElementById(`preview-container-${fieldKey}`);
         const previewImg = document.getElementById(`preview-img-${fieldKey}`);
         
-        if (inputField) {
-            inputField.value = imageUrl;
-        }
-        
+        if (inputField) inputField.value = imageUrl;
         if (previewContainer && previewImg) {
             previewImg.src = imageUrl;
             previewContainer.classList.add('show');
@@ -837,140 +711,18 @@ function openImagePicker(fieldKey) {
     });
 }
 
-/**
- * 画像を削除
- * @param {string} fieldKey - フィールドキー
- */
+// 画像削除
 function removeImage(fieldKey) {
     const inputField = document.getElementById(`field-${fieldKey}`);
     const previewContainer = document.getElementById(`preview-container-${fieldKey}`);
     
-    if (inputField) {
-        inputField.value = '';
-    }
-    
-    if (previewContainer) {
-        previewContainer.classList.remove('show');
-    }
+    if (inputField) inputField.value = '';
+    if (previewContainer) previewContainer.classList.remove('show');
 }
 
 // グローバルスコープに公開
+window.updateIconPreview = updateIconPreview;
 window.openImagePicker = openImagePicker;
 window.removeImage = removeImage;
 
-// ========================================
-// Undo/Redo機能統合
-// ========================================
-
-let historyManager;
-const undoBtn = document.getElementById('undo-btn');
-const redoBtn = document.getElementById('redo-btn');
-
-// フィールド変更を履歴に記録
-function recordFieldChange(fieldKey, oldValue, newValue) {
-    if (!historyManager) return;
-    
-    historyManager.execute({
-        undo: () => {
-            const field = document.getElementById(`field-${fieldKey}`);
-            if (field) {
-                field.value = oldValue;
-                // Update preview if it's an image or icon field
-                if (fieldKey.includes('icon')) {
-                    updateIconPreview(fieldKey);
-                }
-            }
-        },
-        redo: () => {
-            const field = document.getElementById(`field-${fieldKey}`);
-            if (field) {
-                field.value = newValue;
-                // Update preview if it's an image or icon field
-                if (fieldKey.includes('icon')) {
-                    updateIconPreview(fieldKey);
-                }
-            }
-        },
-        description: `Update ${fieldKey}`
-    });
-    
-    updateUndoRedoButtons();
-}
-
-// Undo/Redoボタンの状態を更新
-function updateUndoRedoButtons() {
-    if (!historyManager) return;
-    
-    if (undoBtn) {
-        undoBtn.disabled = !historyManager.canUndo();
-    }
-    if (redoBtn) {
-        redoBtn.disabled = !historyManager.canRedo();
-    }
-}
-
-// ========================================
-// キーボードショートカット統合
-// ========================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize History Manager
-    if (typeof HistoryManager !== 'undefined') {
-        historyManager = new HistoryManager();
-        
-        // Undo/Redo buttons
-        if (undoBtn) {
-            undoBtn.addEventListener('click', () => {
-                historyManager.undo();
-                updateUndoRedoButtons();
-            });
-        }
-        if (redoBtn) {
-            redoBtn.addEventListener('click', () => {
-                historyManager.redo();
-                updateUndoRedoButtons();
-            });
-        }
-        
-        updateUndoRedoButtons();
-    }
-    
-    // Initialize Keyboard Shortcuts
-    if (typeof KeyboardShortcuts !== 'undefined') {
-        KeyboardShortcuts.init({
-            save: () => {
-                const saveBtn = document.getElementById('save-btn');
-                if (saveBtn) saveBtn.click();
-            },
-            undo: () => {
-                if (historyManager && historyManager.canUndo()) {
-                    historyManager.undo();
-                    updateUndoRedoButtons();
-                }
-            },
-            redo: () => {
-                if (historyManager && historyManager.canRedo()) {
-                    historyManager.redo();
-                    updateUndoRedoButtons();
-                }
-            },
-            closeModal: () => {
-                cancelEdit();
-            }
-        });
-    }
-    
-    // Track input changes for undo/redo
-    document.addEventListener('input', (e) => {
-        if (e.target.id && e.target.id.startsWith('field-')) {
-            const fieldKey = e.target.id.replace('field-', '');
-            const oldValue = e.target.defaultValue || '';
-            const newValue = e.target.value;
-            
-            if (oldValue !== newValue) {
-                recordFieldChange(fieldKey, oldValue, newValue);
-                e.target.defaultValue = newValue; // Update default for next comparison
-            }
-        }
-    });
-});
+console.log('📦 Visual Editor script loaded');
