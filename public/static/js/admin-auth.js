@@ -37,7 +37,7 @@ async function handleLogin(e) {
     const errorMessage = document.getElementById('loginError');
     
     // デモ用の簡易認証
-    if (username === 'admin' && password === 'admin0034') {
+    if (username === 'admin' && password === 'admin123') {
         // セッション情報を保存
         const currentTime = new Date().getTime();
         const session = {
