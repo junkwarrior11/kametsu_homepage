@@ -611,7 +611,6 @@ function loadPreview(softRefresh = false) {
         }
     };
 }
-}
 
 // Update Preview Device
 function updatePreviewDevice() {
