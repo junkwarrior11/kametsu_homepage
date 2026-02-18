@@ -252,10 +252,26 @@ Object.assign(formDefinitions, otherPageForms);
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
-    setupEventListeners();
-    await loadAllContent();
-    updateEditableSections(currentPage); // 初期ページのセクションを表示
-    loadPreview();
+    console.log('🚀 Visual Editor: Initializing...');
+    
+    try {
+        setupEventListeners();
+        console.log('✅ Event listeners set up');
+        
+        await loadAllContent();
+        console.log('✅ Content loaded');
+        
+        updateEditableSections(currentPage); // 初期ページのセクションを表示
+        console.log('✅ Editable sections updated');
+        
+        loadPreview();
+        console.log('✅ Preview loading started');
+        
+        console.log('🎉 Visual Editor: Initialization complete!');
+    } catch (error) {
+        console.error('❌ Visual Editor: Initialization failed:', error);
+        showError(`初期化に失敗しました: ${error.message}`);
+    }
 });
 
 // Setup Event Listeners
@@ -502,9 +518,16 @@ function renderForm(sectionId) {
 
 // Load All Content from Database
 async function loadAllContent() {
+    console.log('📥 Loading site settings...');
     try {
         const response = await fetch('/api/tables/site_settings?limit=100');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
+        console.log('✅ Site settings loaded:', data);
         
         if (data.data) {
             contentData = {};
@@ -515,17 +538,33 @@ async function loadAllContent() {
             // 🚀 キャッシュも初期化
             settingsCache = data.data;
             cacheTime = Date.now();
+            
+            console.log('✅ Content data initialized:', Object.keys(contentData).length, 'settings');
+        } else {
+            console.warn('⚠️ No site settings data found');
         }
 
     } catch (error) {
-        console.error('Failed to load content:', error);
-        showError('コンテンツの読み込みに失敗しました');
+        console.error('❌ Failed to load content:', error);
+        showError(`コンテンツの読み込みに失敗しました: ${error.message}`);
+        
+        // 空のデータで初期化（エラーでも動作を続行）
+        contentData = {};
+        settingsCache = [];
+        cacheTime = 0;
     }
 }
 
 // Load Preview - 高速化版
 function loadPreview(softRefresh = false) {
     const iframe = document.getElementById('preview-iframe');
+    
+    // ローディング表示を追加
+    const previewWrapper = document.querySelector('.preview-wrapper');
+    if (previewWrapper) {
+        previewWrapper.classList.add('loading');
+        console.log('🔄 Loading preview...');
+    }
     
     if (softRefresh && iframe.contentWindow) {
         // 🚀 ソフトリフレッシュ: iframe内のJavaScriptを再実行（高速）
@@ -536,6 +575,12 @@ function loadPreview(softRefresh = false) {
             if (homeScript && typeof homeScript === 'function') {
                 console.log('Soft refresh: Reloading dynamic content...');
                 homeScript();
+                
+                // ソフトリフレッシュ完了
+                if (previewWrapper) {
+                    previewWrapper.classList.remove('loading');
+                    console.log('✅ Soft refresh complete');
+                }
                 return;
             }
         } catch (e) {
@@ -548,12 +593,24 @@ function loadPreview(softRefresh = false) {
 
     // Wait for iframe to load
     iframe.onload = () => {
-        console.log('Preview loaded successfully');
+        console.log('✅ Preview loaded successfully');
+        
+        // ローディング表示を解除
+        if (previewWrapper) {
+            previewWrapper.classList.remove('loading');
+        }
     };
 
     iframe.onerror = () => {
+        console.error('❌ Preview load failed');
         showError('ページの読み込みに失敗しました');
+        
+        // ローディング表示を解除
+        if (previewWrapper) {
+            previewWrapper.classList.remove('loading');
+        }
     };
+}
 }
 
 // Update Preview Device
