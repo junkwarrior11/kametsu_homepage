@@ -30,9 +30,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 // 動的コンテンツを読み込む (すべてのセクション)
 async function loadDynamicContent() {
     try {
-        // キャッシュを活用（5分間有効）
-        const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5)); // 5分ごとに更新
-        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
+        // キャッシュバスター: 常に最新データを取得
+        const cacheBuster = Date.now();
+        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheBuster);
         const result = await response.json();
         
         if (result.data) {

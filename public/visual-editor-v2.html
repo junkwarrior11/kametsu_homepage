@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ビジュアルページ編集 v2 - 管理システム</title>
+    <title>ビジュアルページ編集 v2.1 - 管理システム</title>
+    <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -28,6 +29,8 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
         }
 
         .editor-header h1 {
@@ -202,61 +205,17 @@
             color: #333;
         }
 
-        .device-switcher {
-            display: flex;
-            gap: 5px;
-            background: #f5f5f5;
-            padding: 4px;
-            border-radius: 6px;
-        }
-
-        .device-btn {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #666;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .device-btn.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
         .preview-container {
             flex: 1;
-            padding: 20px;
-            overflow-y: auto;
+            overflow: hidden;
+            position: relative;
         }
 
-        .preview-wrapper {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-            margin: 0 auto;
-        }
-
-        .preview-wrapper.desktop {
+        #preview-iframe {
             width: 100%;
-            max-width: 1200px;
-        }
-
-        .preview-wrapper.tablet {
-            width: 768px;
-        }
-
-        .preview-wrapper.mobile {
-            width: 375px;
-        }
-
-        .preview-content {
-            padding: 40px;
-            min-height: 400px;
+            height: 100%;
+            border: none;
+            background: white;
         }
 
         /* Toast Notification */
@@ -354,13 +313,13 @@
 <body>
     <!-- Header -->
     <div class="editor-header">
-        <h1><i class="fas fa-paint-brush"></i> ビジュアルページ編集 v2</h1>
+        <h1><i class="fas fa-paint-brush"></i> ビジュアルページ編集 v2.1</h1>
         <div class="header-actions">
             <button class="btn btn-secondary" onclick="window.location.href='admin-dashboard.html'">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
             </button>
-            <button class="btn btn-secondary" onclick="window.open('index.html', '_blank')">
-                <i class="fas fa-external-link-alt"></i> サイトを見る
+            <button class="btn btn-primary" onclick="refreshPreview()">
+                <i class="fas fa-sync-alt"></i> プレビュー更新
             </button>
         </div>
     </div>
@@ -400,32 +359,14 @@
             </div>
         </div>
 
-        <!-- Right Panel - Preview -->
+        <!-- Right Panel - Preview (iframe) -->
         <div class="preview-panel">
             <div class="preview-header">
-                <h3><i class="fas fa-eye"></i> プレビュー</h3>
-                <div class="device-switcher">
-                    <button class="device-btn active" data-device="desktop" onclick="switchDevice('desktop')">
-                        <i class="fas fa-desktop"></i> デスクトップ
-                    </button>
-                    <button class="device-btn" data-device="tablet" onclick="switchDevice('tablet')">
-                        <i class="fas fa-tablet-alt"></i> タブレット
-                    </button>
-                    <button class="device-btn" data-device="mobile" onclick="switchDevice('mobile')">
-                        <i class="fas fa-mobile-alt"></i> モバイル
-                    </button>
-                </div>
+                <h3><i class="fas fa-eye"></i> プレビュー（実際のホームページ）</h3>
             </div>
 
             <div class="preview-container">
-                <div class="preview-wrapper desktop" id="preview-wrapper">
-                    <div class="preview-content" id="preview-content">
-                        <div class="empty-state">
-                            <i class="fas fa-image"></i>
-                            <p>セクションを選択するとプレビューが表示されます</p>
-                        </div>
-                    </div>
-                </div>
+                <iframe id="preview-iframe" src="/"></iframe>
             </div>
         </div>
     </div>
@@ -508,12 +449,15 @@
 
         // Initialize
         async function init() {
-            console.log('🚀 Visual Editor v2 initializing...');
+            console.log('🚀 Visual Editor v2.1 initializing...');
             showLoading();
             
             try {
                 await loadAllContent();
                 console.log('✅ Initialization complete');
+                
+                // Load preview iframe
+                refreshPreview();
             } catch (error) {
                 console.error('❌ Initialization failed:', error);
                 showToast('初期化に失敗しました', 'error');
@@ -525,7 +469,8 @@
         // Load Content from API
         async function loadAllContent() {
             try {
-                const response = await fetch('/api/tables/site_settings?limit=100');
+                const cacheBuster = Date.now();
+                const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheBuster);
                 if (!response.ok) throw new Error('API request failed');
                 
                 const data = await response.json();
@@ -543,6 +488,14 @@
             }
         }
 
+        // Refresh Preview iframe
+        function refreshPreview() {
+            const iframe = document.getElementById('preview-iframe');
+            const cacheBuster = Date.now();
+            iframe.src = '/?_=' + cacheBuster;
+            console.log('🔄 Preview refreshed');
+        }
+
         // Change Section
         function changeSection() {
             const select = document.getElementById('section-selector');
@@ -555,7 +508,6 @@
             
             currentSection = sectionId;
             renderForm(sectionId);
-            renderPreview(sectionId);
         }
 
         // Render Edit Form
@@ -579,9 +531,9 @@
                 `;
                 
                 if (field.type === 'textarea') {
-                    html += `<textarea id="field-${field.key}" oninput="updatePreview()">${escapeHtml(value)}</textarea>`;
+                    html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
                 } else {
-                    html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}" oninput="updatePreview()">`;
+                    html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
                 }
                 
                 html += `</div>`;
@@ -591,38 +543,6 @@
             
             // Store original data for cancel
             originalData = {...contentData};
-        }
-
-        // Render Preview
-        function renderPreview(sectionId) {
-            const container = document.getElementById('preview-content');
-            const section = sectionDefinitions[sectionId];
-            
-            if (!section) return;
-            
-            let html = `<div style="padding: 20px;">`;
-            html += `<h2 style="color: #667eea; margin-bottom: 20px; font-size: 24px;">${section.title} - プレビュー</h2>`;
-            
-            section.fields.forEach(field => {
-                const value = document.getElementById(`field-${field.key}`)?.value || contentData[field.key] || '';
-                
-                html += `
-                    <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
-                        <div style="font-size: 12px; color: #999; margin-bottom: 5px;">${field.label}</div>
-                        <div style="color: #333; font-size: 16px; line-height: 1.6;">${escapeHtml(value) || '<span style="color: #ccc;">（未入力）</span>'}</div>
-                    </div>
-                `;
-            });
-            
-            html += `</div>`;
-            container.innerHTML = html;
-        }
-
-        // Update Preview (Real-time)
-        function updatePreview() {
-            if (currentSection) {
-                renderPreview(currentSection);
-            }
         }
 
         // Save Changes
@@ -660,7 +580,10 @@
                 // Reload content
                 await loadAllContent();
                 
-                showToast('保存しました', 'success');
+                // Refresh preview
+                refreshPreview();
+                
+                showToast('保存しました！プレビューを更新しています...', 'success');
                 console.log('✅ Save complete');
                 
             } catch (error) {
@@ -724,19 +647,7 @@
                 }
             });
             
-            updatePreview();
             showToast('変更を破棄しました', 'success');
-        }
-
-        // Switch Device
-        function switchDevice(device) {
-            const wrapper = document.getElementById('preview-wrapper');
-            const buttons = document.querySelectorAll('.device-btn');
-            
-            buttons.forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[data-device="${device}"]`).classList.add('active');
-            
-            wrapper.className = `preview-wrapper ${device}`;
         }
 
         // Show Empty State
@@ -745,13 +656,6 @@
                 <div class="empty-state">
                     <i class="fas fa-mouse-pointer"></i>
                     <p>上からセクションを選択してください</p>
-                </div>
-            `;
-            
-            document.getElementById('preview-content').innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-image"></i>
-                    <p>セクションを選択するとプレビューが表示されます</p>
                 </div>
             `;
             
