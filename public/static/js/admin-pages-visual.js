@@ -790,3 +790,120 @@ function removeImage(fieldKey) {
 // グローバルスコープに公開
 window.openImagePicker = openImagePicker;
 window.removeImage = removeImage;
+
+// ========================================
+// Undo/Redo機能統合
+// ========================================
+
+let historyManager;
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
+
+// フィールド変更を履歴に記録
+function recordFieldChange(fieldKey, oldValue, newValue) {
+    if (!historyManager) return;
+    
+    historyManager.execute({
+        undo: () => {
+            const field = document.getElementById(`field-${fieldKey}`);
+            if (field) {
+                field.value = oldValue;
+                // Update preview if it's an image or icon field
+                if (fieldKey.includes('icon')) {
+                    updateIconPreview(fieldKey);
+                }
+            }
+        },
+        redo: () => {
+            const field = document.getElementById(`field-${fieldKey}`);
+            if (field) {
+                field.value = newValue;
+                // Update preview if it's an image or icon field
+                if (fieldKey.includes('icon')) {
+                    updateIconPreview(fieldKey);
+                }
+            }
+        },
+        description: `Update ${fieldKey}`
+    });
+    
+    updateUndoRedoButtons();
+}
+
+// Undo/Redoボタンの状態を更新
+function updateUndoRedoButtons() {
+    if (!historyManager) return;
+    
+    if (undoBtn) {
+        undoBtn.disabled = !historyManager.canUndo();
+    }
+    if (redoBtn) {
+        redoBtn.disabled = !historyManager.canRedo();
+    }
+}
+
+// ========================================
+// キーボードショートカット統合
+// ========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize History Manager
+    if (typeof HistoryManager !== 'undefined') {
+        historyManager = new HistoryManager();
+        
+        // Undo/Redo buttons
+        if (undoBtn) {
+            undoBtn.addEventListener('click', () => {
+                historyManager.undo();
+                updateUndoRedoButtons();
+            });
+        }
+        if (redoBtn) {
+            redoBtn.addEventListener('click', () => {
+                historyManager.redo();
+                updateUndoRedoButtons();
+            });
+        }
+        
+        updateUndoRedoButtons();
+    }
+    
+    // Initialize Keyboard Shortcuts
+    if (typeof KeyboardShortcuts !== 'undefined') {
+        KeyboardShortcuts.init({
+            save: () => {
+                const saveBtn = document.getElementById('save-btn');
+                if (saveBtn) saveBtn.click();
+            },
+            undo: () => {
+                if (historyManager && historyManager.canUndo()) {
+                    historyManager.undo();
+                    updateUndoRedoButtons();
+                }
+            },
+            redo: () => {
+                if (historyManager && historyManager.canRedo()) {
+                    historyManager.redo();
+                    updateUndoRedoButtons();
+                }
+            },
+            closeModal: () => {
+                cancelEdit();
+            }
+        });
+    }
+    
+    // Track input changes for undo/redo
+    document.addEventListener('input', (e) => {
+        if (e.target.id && e.target.id.startsWith('field-')) {
+            const fieldKey = e.target.id.replace('field-', '');
+            const oldValue = e.target.defaultValue || '';
+            const newValue = e.target.value;
+            
+            if (oldValue !== newValue) {
+                recordFieldChange(fieldKey, oldValue, newValue);
+                e.target.defaultValue = newValue; // Update default for next comparison
+            }
+        }
+    });
+});

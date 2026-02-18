@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/static/css/admin.css">
     <link rel="stylesheet" href="/static/css/pdf-upload.css">
     <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="/static/css/datatable.css">
+    <link rel="stylesheet" href="/static/css/dark-mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -44,6 +46,10 @@
                 </a>
             </nav>
             <div class="sidebar-footer">
+                <button id="themeToggle" class="theme-toggle" aria-label="テーマ切替">
+                    <i class="fas fa-moon"></i>
+                    <span>ダークモード</span>
+                </button>
                 <button id="logoutBtn" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> ログアウト
                 </button>
@@ -121,14 +127,14 @@
                 </div>
 
                 <div class="data-table">
-                    <table>
+                    <table id="eventsTable" data-table="true">
                         <thead>
                             <tr>
-                                <th>行事名</th>
-                                <th>開催日</th>
-                                <th>カテゴリー</th>
-                                <th>場所</th>
-                                <th>対象</th>
+                                <th data-key="title" data-sortable="true">行事名</th>
+                                <th data-key="event_date" data-sortable="true" data-type="date">開催日</th>
+                                <th data-key="category" data-filterable="true">カテゴリー</th>
+                                <th data-key="location">場所</th>
+                                <th data-key="target_grade">対象</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -144,6 +150,49 @@
     <script src="/static/js/admin-auth.js"></script>
     <script src="/static/js/image-upload.js"></script>
     <script src="/static/js/pdf-upload.js"></script>
+    <script src="/static/js/dark-mode.js"></script>
+    <script src="/static/js/datatable.js"></script>
+    <script src="/static/js/keyboard-shortcuts.js"></script>
     <script src="/static/js/admin-events.js"></script>
+    <script>
+        // データテーブル初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            const eventsTable = new DataTable('#eventsTable', {
+                searchable: true,
+                sortable: true,
+                filterable: true,
+                pagination: true,
+                perPage: 25,
+                perPageOptions: [10, 25, 50, 100],
+                columns: [
+                    { key: 'title', label: '行事名', sortable: true },
+                    { key: 'event_date', label: '開催日', sortable: true, type: 'date' },
+                    { key: 'category', label: 'カテゴリー', filterable: true },
+                    { key: 'location', label: '場所' },
+                    { key: 'target_grade', label: '対象' }
+                ]
+            });
+
+            // キーボードショートカット初期化
+            KeyboardShortcuts.init({
+                save: () => {
+                    const form = document.getElementById('eventFormElement');
+                    if (form && document.getElementById('eventForm').style.display !== 'none') {
+                        form.dispatchEvent(new Event('submit'));
+                    }
+                },
+                newItem: () => showEventForm(),
+                closeModal: () => {
+                    if (document.getElementById('eventForm').style.display !== 'none') {
+                        hideEventForm();
+                    }
+                },
+                search: () => {
+                    const searchInput = document.querySelector('.datatable-search input');
+                    if (searchInput) searchInput.focus();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

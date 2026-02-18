@@ -6,6 +6,8 @@
     <title>ブログ記事管理 - 管理システム</title>
     <link rel="stylesheet" href="/static/css/admin.css">
     <link rel="stylesheet" href="/static/css/image-upload.css">
+    <link rel="stylesheet" href="/static/css/datatable.css">
+    <link rel="stylesheet" href="/static/css/dark-mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -43,6 +45,10 @@
                 </a>
             </nav>
             <div class="sidebar-footer">
+                <button id="themeToggle" class="theme-toggle" aria-label="テーマ切替">
+                    <i class="fas fa-moon"></i>
+                    <span>ダークモード</span>
+                </button>
                 <button id="logoutBtn" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> ログアウト
                 </button>
@@ -131,14 +137,14 @@
                 </div>
 
                 <div class="data-table">
-                    <table id="postsTable">
+                    <table id="postsTable" data-table="true">
                         <thead>
                             <tr>
-                                <th>タイトル</th>
-                                <th>カテゴリー</th>
-                                <th>投稿者</th>
-                                <th>公開日</th>
-                                <th>状態</th>
+                                <th data-key="title" data-sortable="true">タイトル</th>
+                                <th data-key="category" data-filterable="true">カテゴリー</th>
+                                <th data-key="author">投稿者</th>
+                                <th data-key="publish_date" data-sortable="true" data-type="date">公開日</th>
+                                <th data-key="status" data-filterable="true">状態</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -153,6 +159,49 @@
 
     <script src="/static/js/admin-auth.js"></script>
     <script src="/static/js/image-upload.js"></script>
+    <script src="/static/js/dark-mode.js"></script>
+    <script src="/static/js/datatable.js"></script>
+    <script src="/static/js/keyboard-shortcuts.js"></script>
     <script src="/static/js/admin-blog.js"></script>
+    <script>
+        // データテーブル初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            const blogTable = new DataTable('#postsTable', {
+                searchable: true,
+                sortable: true,
+                filterable: true,
+                pagination: true,
+                perPage: 25,
+                perPageOptions: [10, 25, 50, 100],
+                columns: [
+                    { key: 'title', label: 'タイトル', sortable: true },
+                    { key: 'category', label: 'カテゴリー', filterable: true },
+                    { key: 'author', label: '投稿者' },
+                    { key: 'publish_date', label: '公開日', sortable: true, type: 'date' },
+                    { key: 'status', label: '状態', filterable: true }
+                ]
+            });
+
+            // キーボードショートカット初期化
+            KeyboardShortcuts.init({
+                save: () => {
+                    const form = document.getElementById('blogForm');
+                    if (form && document.getElementById('postForm').style.display !== 'none') {
+                        form.dispatchEvent(new Event('submit'));
+                    }
+                },
+                newItem: () => showPostForm(),
+                closeModal: () => {
+                    if (document.getElementById('postForm').style.display !== 'none') {
+                        hidePostForm();
+                    }
+                },
+                search: () => {
+                    const searchInput = document.querySelector('.datatable-search input');
+                    if (searchInput) searchInput.focus();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
