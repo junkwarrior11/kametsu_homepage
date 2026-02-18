@@ -23,5 +23,14 @@ app.get('/', async (c) => {
   return c.redirect('/index.html')
 })
 
+// Catch-all route for static assets - forward to ASSETS binding
+app.get('/*', async (c) => {
+  const { env } = c
+  if (env.ASSETS) {
+    return env.ASSETS.fetch(c.req.raw)
+  }
+  return c.notFound()
+})
+
 export default app
 

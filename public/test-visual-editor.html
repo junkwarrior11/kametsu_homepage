@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビジュアルエディタ - 診断テスト</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #ccc;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .status.loading {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .test-section h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        #console-log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid transparent;
+        }
+        
+        .log-entry.success {
+            border-color: #28a745;
+            color: #4caf50;
+        }
+        
+        .log-entry.error {
+            border-color: #dc3545;
+            color: #f44336;
+        }
+        
+        .log-entry.info {
+            border-color: #17a2b8;
+            color: #00bcd4;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 ビジュアルエディタ - 診断テスト</h1>
+        
+        <div id="status-container"></div>
+        
+        <div class="test-section">
+            <h2>1. API接続テスト</h2>
+            <button onclick="testAPI()">APIテスト実行</button>
+            <div id="api-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. iframe読み込みテスト</h2>
+            <button onclick="testIframe()">iframeテスト実行</button>
+            <div id="iframe-result"></div>
+            <iframe id="test-iframe" style="display:none;"></iframe>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. コアライブラリテスト</h2>
+            <button onclick="testCoreLibrary()">コアライブラリテスト実行</button>
+            <div id="core-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. 完全統合テスト</h2>
+            <button onclick="runFullTest()">全テスト実行</button>
+        </div>
+        
+        <div id="console-log">
+            <div class="log-entry info">📋 診断ログ（リアルタイム）</div>
+        </div>
+    </div>
+
+    <script>
+        // コンソールログをキャプチャ
+        const consoleLog = document.getElementById('console-log');
+        
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleLog.appendChild(entry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+            
+            // 元のコンソールにも出力
+            console.log(message);
+        }
+        
+        // 1. API接続テスト
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<div class="status loading">⏳ APIテスト実行中...</div>';
+            addLog('🚀 APIテスト開始', 'info');
+            
+            try {
+                // エンドポイントテスト
+                const endpoints = [
+                    '/api/tables/site_settings?limit=1',
+                    '/api/health',
+                    '/api/tables/blog_posts?limit=1'
+                ];
+                
+                const results = [];
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        addLog(`Testing: ${endpoint}`, 'info');
+                        const response = await fetch(endpoint);
+                        const data = await response.json();
+                        
+                        results.push({
+                            endpoint,
+                            status: response.status,
+                            ok: response.ok,
+                            hasData: !!data
+                        });
+                        
+                        addLog(`✅ ${endpoint} - Status: ${response.status}`, 'success');
+                    } catch (error) {
+                        results.push({
+                            endpoint,
+                            error: error.message
+                        });
+                        addLog(`❌ ${endpoint} - Error: ${error.message}`, 'error');
+                    }
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ APIテスト完了<br>
+                        <pre>${JSON.stringify(results, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ APIテスト失敗: ${error.message}</div>`;
+                addLog(`❌ APIテスト失敗: ${error.message}`, 'error');
+            }
+        }
+        
+        // 2. iframe読み込みテスト
+        async function testIframe() {
+            const resultDiv = document.getElementById('iframe-result');
+            const iframe = document.getElementById('test-iframe');
+            
+            resultDiv.innerHTML = '<div class="status loading">⏳ iframeテスト実行中...</div>';
+            addLog('🚀 iframeテスト開始', 'info');
+            
+            return new Promise((resolve) => {
+                const timeout = setTimeout(() => {
+                    resultDiv.innerHTML = '<div class="status error">❌ タイムアウト（10秒）</div>';
+                    addLog('❌ iframeロードタイムアウト', 'error');
+                    iframe.style.display = 'none';
+                    resolve(false);
+                }, 10000);
+                
+                iframe.onload = () => {
+                    clearTimeout(timeout);
+                    resultDiv.innerHTML = '<div class="status success">✅ iframe正常にロード</div>';
+                    addLog('✅ iframeロード成功', 'success');
+                    iframe.style.display = 'block';
+                    resolve(true);
+                };
+                
+                iframe.onerror = () => {
+                    clearTimeout(timeout);
+                    resultDiv.innerHTML = '<div class="status error">❌ iframeロード失敗</div>';
+                    addLog('❌ iframeロード失敗', 'error');
+                    iframe.style.display = 'none';
+                    resolve(false);
+                };
+                
+                addLog('Loading: index.html', 'info');
+                iframe.src = 'index.html?_=' + Date.now();
+            });
+        }
+        
+        // 3. コアライブラリテスト
+        function testCoreLibrary() {
+            const resultDiv = document.getElementById('core-result');
+            addLog('🚀 コアライブラリテスト開始', 'info');
+            
+            const checks = [];
+            
+            // toast のチェック
+            if (window.toast) {
+                checks.push('✅ window.toast exists');
+                addLog('✅ window.toast が利用可能', 'success');
+            } else {
+                checks.push('❌ window.toast missing');
+                addLog('❌ window.toast が見つかりません', 'error');
+            }
+            
+            // loading のチェック
+            if (window.loading) {
+                checks.push('✅ window.loading exists');
+                addLog('✅ window.loading が利用可能', 'success');
+            } else {
+                checks.push('❌ window.loading missing');
+                addLog('❌ window.loading が見つかりません', 'error');
+            }
+            
+            // api のチェック
+            if (window.api) {
+                checks.push('✅ window.api exists');
+                addLog('✅ window.api が利用可能', 'success');
+            } else {
+                checks.push('❌ window.api missing');
+                addLog('❌ window.api が見つかりません', 'error');
+            }
+            
+            const allPassed = checks.every(c => c.startsWith('✅'));
+            
+            resultDiv.innerHTML = `
+                <div class="status ${allPassed ? 'success' : 'error'}">
+                    ${checks.join('<br>')}
+                </div>
+            `;
+        }
+        
+        // 4. 完全統合テスト
+        async function runFullTest() {
+            addLog('🚀🚀🚀 完全統合テスト開始', 'info');
+            
+            await testAPI();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testIframe();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            testCoreLibrary();
+            
+            addLog('🎉 完全統合テスト完了', 'success');
+        }
+        
+        // ページロード時の初期診断
+        window.addEventListener('DOMContentLoaded', () => {
+            addLog('📋 診断ページ読み込み完了', 'success');
+            addLog('ℹ️ 各テストボタンをクリックして診断を開始してください', 'info');
+        });
+    </script>
+</body>
+</html>

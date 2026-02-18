@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビジュアルページ編集 v2 - 管理システム</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .editor-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .editor-header h1 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #f0f0f0;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Layout */
+        .editor-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* Left Panel - Edit Form */
+        .edit-panel {
+            width: 400px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .section-selector {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        .btn-save {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #5568d3;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        /* Right Panel - Preview */
+        .preview-panel {
+            flex: 1;
+            background: #f5f7fa;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h3 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .device-switcher {
+            display: flex;
+            gap: 5px;
+            background: #f5f5f5;
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .device-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .device-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .preview-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .preview-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            margin: 0 auto;
+        }
+
+        .preview-wrapper.desktop {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .preview-wrapper.tablet {
+            width: 768px;
+        }
+
+        .preview-wrapper.mobile {
+            width: 375px;
+        }
+
+        .preview-content {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.success i {
+            color: #28a745;
+        }
+
+        .toast.error i {
+            color: #dc3545;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #ddd;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="editor-header">
+        <h1><i class="fas fa-paint-brush"></i> ビジュアルページ編集 v2</h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='admin-dashboard.html'">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+            </button>
+            <button class="btn btn-secondary" onclick="window.open('index.html', '_blank')">
+                <i class="fas fa-external-link-alt"></i> サイトを見る
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="editor-container">
+        <!-- Left Panel - Edit Form -->
+        <div class="edit-panel">
+            <div class="panel-header">
+                <h2>編集</h2>
+                <select id="section-selector" class="section-selector" onchange="changeSection()">
+                    <option value="">セクションを選択...</option>
+                    <option value="header">ヘッダー（ロゴ・連絡先）</option>
+                    <option value="hero">ヒーローセクション</option>
+                    <option value="news">ニュースセクション</option>
+                    <option value="about">学校紹介セクション</option>
+                    <option value="features">教育の特色セクション</option>
+                    <option value="events">行事予定セクション</option>
+                    <option value="footer">フッター</option>
+                </select>
+            </div>
+
+            <div class="form-container" id="form-container">
+                <div class="empty-state">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>上からセクションを選択してください</p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-cancel" onclick="cancelEdit()">
+                    <i class="fas fa-times"></i> キャンセル
+                </button>
+                <button class="btn btn-save" onclick="saveChanges()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel - Preview -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h3><i class="fas fa-eye"></i> プレビュー</h3>
+                <div class="device-switcher">
+                    <button class="device-btn active" data-device="desktop" onclick="switchDevice('desktop')">
+                        <i class="fas fa-desktop"></i> デスクトップ
+                    </button>
+                    <button class="device-btn" data-device="tablet" onclick="switchDevice('tablet')">
+                        <i class="fas fa-tablet-alt"></i> タブレット
+                    </button>
+                    <button class="device-btn" data-device="mobile" onclick="switchDevice('mobile')">
+                        <i class="fas fa-mobile-alt"></i> モバイル
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-container">
+                <div class="preview-wrapper desktop" id="preview-wrapper">
+                    <div class="preview-content" id="preview-content">
+                        <div class="empty-state">
+                            <i class="fas fa-image"></i>
+                            <p>セクションを選択するとプレビューが表示されます</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global State
+        let currentSection = null;
+        let contentData = {};
+        let originalData = {};
+
+        // Section Definitions
+        const sectionDefinitions = {
+            header: {
+                title: 'ヘッダー（ロゴ・連絡先）',
+                fields: [
+                    {key: 'header_school_name', label: '学校名', type: 'text'},
+                    {key: 'header_motto', label: 'モットー', type: 'text'},
+                    {key: 'header_top_phone', label: '電話番号', type: 'text'},
+                    {key: 'header_top_email', label: 'メールアドレス', type: 'email'}
+                ]
+            },
+            hero: {
+                title: 'ヒーローセクション',
+                fields: [
+                    {key: 'hero_title', label: 'メインタイトル', type: 'text'},
+                    {key: 'hero_subtitle', label: 'サブタイトル', type: 'text'},
+                    {key: 'hero_btn1', label: 'ボタン1テキスト', type: 'text'},
+                    {key: 'hero_btn2', label: 'ボタン2テキスト', type: 'text'}
+                ]
+            },
+            news: {
+                title: 'ニュースセクション',
+                fields: [
+                    {key: 'news_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'news_link', label: 'リンクテキスト', type: 'text'}
+                ]
+            },
+            about: {
+                title: '学校紹介セクション',
+                fields: [
+                    {key: 'about_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_lead', label: 'リード文', type: 'text'},
+                    {key: 'about_description', label: '説明文（第1段落）', type: 'textarea'},
+                    {key: 'about_description2', label: '説明文（第2段落）', type: 'textarea'},
+                    {key: 'about_btn', label: 'ボタンテキスト', type: 'text'}
+                ]
+            },
+            features: {
+                title: '教育の特色セクション',
+                fields: [
+                    {key: 'features_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'feature1_title', label: '特色1 - タイトル', type: 'text'},
+                    {key: 'feature1_description', label: '特色1 - 説明文', type: 'textarea'},
+                    {key: 'feature2_title', label: '特色2 - タイトル', type: 'text'},
+                    {key: 'feature2_description', label: '特色2 - 説明文', type: 'textarea'},
+                    {key: 'feature3_title', label: '特色3 - タイトル', type: 'text'},
+                    {key: 'feature3_description', label: '特色3 - 説明文', type: 'textarea'},
+                    {key: 'feature4_title', label: '特色4 - タイトル', type: 'text'},
+                    {key: 'feature4_description', label: '特色4 - 説明文', type: 'textarea'}
+                ]
+            },
+            events: {
+                title: '行事予定セクション',
+                fields: [
+                    {key: 'events_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'events_link', label: 'リンクテキスト', type: 'text'}
+                ]
+            },
+            footer: {
+                title: 'フッター',
+                fields: [
+                    {key: 'footer_school_name', label: '学校名', type: 'text'},
+                    {key: 'footer_address', label: '住所', type: 'textarea'},
+                    {key: 'footer_phone', label: '電話番号', type: 'text'},
+                    {key: 'footer_email', label: 'メールアドレス', type: 'email'},
+                    {key: 'footer_copyright', label: 'コピーライト', type: 'text'}
+                ]
+            }
+        };
+
+        // Initialize
+        async function init() {
+            console.log('🚀 Visual Editor v2 initializing...');
+            showLoading();
+            
+            try {
+                await loadAllContent();
+                console.log('✅ Initialization complete');
+            } catch (error) {
+                console.error('❌ Initialization failed:', error);
+                showToast('初期化に失敗しました', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load Content from API
+        async function loadAllContent() {
+            try {
+                const response = await fetch('/api/tables/site_settings?limit=100');
+                if (!response.ok) throw new Error('API request failed');
+                
+                const data = await response.json();
+                
+                if (data.data) {
+                    contentData = {};
+                    data.data.forEach(item => {
+                        contentData[item.setting_key] = item.setting_value;
+                    });
+                    console.log('✅ Loaded', Object.keys(contentData).length, 'settings');
+                }
+            } catch (error) {
+                console.error('❌ Failed to load content:', error);
+                throw error;
+            }
+        }
+
+        // Change Section
+        function changeSection() {
+            const select = document.getElementById('section-selector');
+            const sectionId = select.value;
+            
+            if (!sectionId) {
+                showEmptyState();
+                return;
+            }
+            
+            currentSection = sectionId;
+            renderForm(sectionId);
+            renderPreview(sectionId);
+        }
+
+        // Render Edit Form
+        function renderForm(sectionId) {
+            const container = document.getElementById('form-container');
+            const section = sectionDefinitions[sectionId];
+            
+            if (!section) {
+                showEmptyState();
+                return;
+            }
+            
+            let html = `<h3 style="margin-bottom: 20px; color: #333; font-size: 16px;">${section.title}</h3>`;
+            
+            section.fields.forEach(field => {
+                const value = contentData[field.key] || '';
+                
+                html += `
+                    <div class="form-group">
+                        <label>${field.label}</label>
+                `;
+                
+                if (field.type === 'textarea') {
+                    html += `<textarea id="field-${field.key}" oninput="updatePreview()">${escapeHtml(value)}</textarea>`;
+                } else {
+                    html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}" oninput="updatePreview()">`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            container.innerHTML = html;
+            
+            // Store original data for cancel
+            originalData = {...contentData};
+        }
+
+        // Render Preview
+        function renderPreview(sectionId) {
+            const container = document.getElementById('preview-content');
+            const section = sectionDefinitions[sectionId];
+            
+            if (!section) return;
+            
+            let html = `<div style="padding: 20px;">`;
+            html += `<h2 style="color: #667eea; margin-bottom: 20px; font-size: 24px;">${section.title} - プレビュー</h2>`;
+            
+            section.fields.forEach(field => {
+                const value = document.getElementById(`field-${field.key}`)?.value || contentData[field.key] || '';
+                
+                html += `
+                    <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                        <div style="font-size: 12px; color: #999; margin-bottom: 5px;">${field.label}</div>
+                        <div style="color: #333; font-size: 16px; line-height: 1.6;">${escapeHtml(value) || '<span style="color: #ccc;">（未入力）</span>'}</div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // Update Preview (Real-time)
+        function updatePreview() {
+            if (currentSection) {
+                renderPreview(currentSection);
+            }
+        }
+
+        // Save Changes
+        async function saveChanges() {
+            if (!currentSection) {
+                showToast('セクションを選択してください', 'error');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const section = sectionDefinitions[currentSection];
+                const updates = [];
+                
+                // Collect all field values
+                for (const field of section.fields) {
+                    const input = document.getElementById(`field-${field.key}`);
+                    if (input) {
+                        const newValue = input.value;
+                        updates.push({
+                            key: field.key,
+                            value: newValue
+                        });
+                    }
+                }
+                
+                console.log('💾 Saving', updates.length, 'fields...');
+                
+                // Save all updates
+                for (const update of updates) {
+                    await updateSetting(update.key, update.value);
+                }
+                
+                // Reload content
+                await loadAllContent();
+                
+                showToast('保存しました', 'success');
+                console.log('✅ Save complete');
+                
+            } catch (error) {
+                console.error('❌ Save failed:', error);
+                showToast('保存に失敗しました: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Update Single Setting
+        async function updateSetting(key, value) {
+            try {
+                // Find existing record
+                const response = await fetch('/api/tables/site_settings?limit=100');
+                const data = await response.json();
+                const existing = data.data?.find(item => item.setting_key === key);
+                
+                if (existing) {
+                    // Update existing
+                    const updateRes = await fetch(`/api/tables/site_settings/${existing.id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({setting_value: value})
+                    });
+                    
+                    if (!updateRes.ok) throw new Error('Update failed');
+                } else {
+                    // Create new
+                    const createRes = await fetch('/api/tables/site_settings', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            setting_key: key,
+                            setting_value: value,
+                            setting_group: key.split('_')[0],
+                            description: `${key} の設定値`
+                        })
+                    });
+                    
+                    if (!createRes.ok) throw new Error('Create failed');
+                }
+                
+                console.log(`✅ Updated: ${key}`);
+            } catch (error) {
+                console.error(`❌ Failed to update ${key}:`, error);
+                throw error;
+            }
+        }
+
+        // Cancel Edit
+        function cancelEdit() {
+            if (!currentSection) return;
+            
+            // Restore original values
+            const section = sectionDefinitions[currentSection];
+            section.fields.forEach(field => {
+                const input = document.getElementById(`field-${field.key}`);
+                if (input) {
+                    input.value = originalData[field.key] || '';
+                }
+            });
+            
+            updatePreview();
+            showToast('変更を破棄しました', 'success');
+        }
+
+        // Switch Device
+        function switchDevice(device) {
+            const wrapper = document.getElementById('preview-wrapper');
+            const buttons = document.querySelectorAll('.device-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-device="${device}"]`).classList.add('active');
+            
+            wrapper.className = `preview-wrapper ${device}`;
+        }
+
+        // Show Empty State
+        function showEmptyState() {
+            document.getElementById('form-container').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>上からセクションを選択してください</p>
+                </div>
+            `;
+            
+            document.getElementById('preview-content').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-image"></i>
+                    <p>セクションを選択するとプレビューが表示されます</p>
+                </div>
+            `;
+            
+            currentSection = null;
+        }
+
+        // Show Toast
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Show/Hide Loading
+        function showLoading() {
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.id = 'loading-overlay';
+            overlay.innerHTML = '<div class="loading-spinner"></div>';
+            document.body.appendChild(overlay);
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
