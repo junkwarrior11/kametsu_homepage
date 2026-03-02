@@ -470,10 +470,20 @@
         async function loadAllContent() {
             try {
                 const cacheBuster = Date.now();
-                const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheBuster);
-                if (!response.ok) throw new Error('API request failed');
+                const url = '/api/tables/site_settings?limit=100&_=' + cacheBuster;
+                console.log('📡 Fetching from:', url);
+                
+                const response = await fetch(url);
+                console.log('📊 Response status:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error Response:', errorText);
+                    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+                }
                 
                 const data = await response.json();
+                console.log('📦 API Response:', data);
                 
                 if (data.data) {
                     contentData = {};
@@ -481,6 +491,8 @@
                         contentData[item.setting_key] = item.setting_value;
                     });
                     console.log('✅ Loaded', Object.keys(contentData).length, 'settings');
+                } else {
+                    console.warn('⚠️ No data.data in response');
                 }
             } catch (error) {
                 console.error('❌ Failed to load content:', error);
