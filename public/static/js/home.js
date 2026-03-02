@@ -298,9 +298,13 @@ async function loadUpcomingEvents() {
     }
 }
 
-// アクセスカウンターを読み込む
+// アクセスカウンターを読み込む（一時的に無効化）
 async function loadAccessCounter() {
     try {
+        // TODO: access_stats テーブルが完全に設定されたら有効化
+        console.log('ℹ️ Access counter is temporarily disabled');
+        return;
+        
         if (typeof window.getAccessStats === 'function') {
             const stats = await window.getAccessStats();
             
