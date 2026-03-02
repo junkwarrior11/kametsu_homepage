@@ -5,6 +5,16 @@ import { createClient } from '@supabase/supabase-js';
 // Supabaseクライアントの初期化
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+
+// デバッグ用ログ（本番環境では環境変数の存在のみ確認）
+console.log('Supabase URL exists:', !!supabaseUrl);
+console.log('Supabase Key exists:', !!supabaseKey);
+
+// 環境変数が設定されていない場合はエラーを返す
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Missing Supabase environment variables');
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // CORSヘッダー
@@ -104,10 +114,19 @@ export const handler: Handler = async (event) => {
         const { data, error, count } = await query;
 
         if (error) {
+          console.error('Supabase query error:', {
+            table: tableName,
+            error: error.message,
+            details: error,
+            queryParams,
+          });
           return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: error.message }),
+            body: JSON.stringify({ 
+              error: error.message,
+              details: 'Supabase query failed',
+            }),
           };
         }
 
@@ -226,10 +245,19 @@ export const handler: Handler = async (event) => {
     };
   } catch (error) {
     console.error('API Error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      supabaseUrl: !!supabaseUrl,
+      supabaseKey: !!supabaseKey,
+    });
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Internal server error' }),
+      body: JSON.stringify({ 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      }),
     };
   }
 };
