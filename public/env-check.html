@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>環境変数チェック</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🔍 環境変数チェック</h1>
+        
+        <div class="space-y-4">
+            <div class="p-4 bg-blue-50 border-l-4 border-blue-500">
+                <h2 class="font-bold text-lg mb-2">📊 API接続テスト</h2>
+                <button onclick="testAPI()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    テスト実行
+                </button>
+                <div id="api-result" class="mt-4"></div>
+            </div>
+
+            <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500">
+                <h2 class="font-bold text-lg mb-2">⚠️ 問題が発生している場合</h2>
+                <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Netlifyダッシュボードにアクセス</li>
+                    <li>Site configuration → Environment variables</li>
+                    <li>以下の環境変数を追加：
+                        <ul class="list-disc list-inside ml-4 mt-2">
+                            <li><code class="bg-gray-200 px-2 py-1 rounded">SUPABASE_URL</code></li>
+                            <li><code class="bg-gray-200 px-2 py-1 rounded">SUPABASE_ANON_KEY</code></li>
+                        </ul>
+                    </li>
+                    <li>Deploy → Trigger deploy → Deploy site</li>
+                </ol>
+            </div>
+
+            <div class="p-4 bg-green-50 border-l-4 border-green-500">
+                <h2 class="font-bold text-lg mb-2">✅ 期待される結果</h2>
+                <pre class="bg-gray-800 text-green-400 p-4 rounded mt-2 text-sm overflow-x-auto">
+{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 34,
+    "totalPages": 7
+  }
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p class="text-gray-600">テスト中...</p>';
+
+            try {
+                const response = await fetch('/api/tables/site_settings?limit=5');
+                const contentType = response.headers.get('content-type');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`JSON以外のレスポンス: ${text.substring(0, 200)}...`);
+                }
+
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="p-4 bg-green-100 border border-green-400 rounded">
+                        <p class="font-bold text-green-800 mb-2">✅ 成功！</p>
+                        <pre class="bg-gray-800 text-green-400 p-2 rounded text-xs overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="p-4 bg-red-100 border border-red-400 rounded">
+                        <p class="font-bold text-red-800 mb-2">❌ エラー</p>
+                        <pre class="bg-gray-800 text-red-400 p-2 rounded text-xs">${error.message}</pre>
+                        <p class="mt-2 text-sm text-red-700">
+                            <strong>原因:</strong> Netlify環境でSupabase環境変数が未設定です。<br>
+                            上記の手順に従って環境変数を設定してください。
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // ページ読み込み時に自動テスト
+        window.addEventListener('DOMContentLoaded', testAPI);
+    </script>
+</body>
+</html>
