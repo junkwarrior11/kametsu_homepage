@@ -170,7 +170,7 @@ async function getAccessStats() {
         // 今月のアクセス数を取得
         const now = new Date();
         const currentMonth = formatYearMonth(now);
-        const monthlyResponse = await fetch(`tables/access_stats?stat_type=monthly&year_month=${currentMonth}&page_name=all&limit=1`);
+        const monthlyResponse = await fetch(`/api/tables/access_stats?stat_type=monthly&year_month=${currentMonth}&page_name=all&limit=1`);
         const monthlyResult = await monthlyResponse.json();
         const monthlyCount = (monthlyResult.data && monthlyResult.data.length > 0) ? monthlyResult.data[0].count : 0;
         
