@@ -104,9 +104,10 @@ export const handler: Handler = async (event) => {
           query = query.order('created_at', { ascending: false });
         }
 
-        // フィルター
+        // フィルター（ページネーション、ソート、キャッシュバスターなどのメタパラメータを除外）
+        const metaParams = ['page', 'limit', 'sort', '_', 'cachebuster', 'timestamp'];
         Object.keys(queryParams).forEach((key) => {
-          if (key !== 'page' && key !== 'limit' && key !== 'sort') {
+          if (!metaParams.includes(key.toLowerCase())) {
             query = query.eq(key, queryParams[key]);
           }
         });
