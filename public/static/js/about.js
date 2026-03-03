@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     if (contentWrapper) {
         contentWrapper.style.display = 'block';
+        contentWrapper.classList.add('loaded');  // ← 重要: opacity: 1にする
     }
     if (body) {
         body.classList.remove('loading');
