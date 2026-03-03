@@ -872,20 +872,15 @@
             },
             features: {
                 title: '教育の特色セクション',
+                type: 'list',
                 fields: [
-                    {key: 'features_title', label: 'セクションタイトル', type: 'text'},
-                    {key: 'feature1_title', label: '特色1 - タイトル', type: 'text'},
-                    {key: 'feature1_description', label: '特色1 - 説明文', type: 'textarea'},
-                    {key: 'feature1_icon', label: '特色1 - アイコン', type: 'icon-picker'},
-                    {key: 'feature2_title', label: '特色2 - タイトル', type: 'text'},
-                    {key: 'feature2_description', label: '特色2 - 説明文', type: 'textarea'},
-                    {key: 'feature2_icon', label: '特色2 - アイコン', type: 'icon-picker'},
-                    {key: 'feature3_title', label: '特色3 - タイトル', type: 'text'},
-                    {key: 'feature3_description', label: '特色3 - 説明文', type: 'textarea'},
-                    {key: 'feature3_icon', label: '特色3 - アイコン', type: 'icon-picker'},
-                    {key: 'feature4_title', label: '特色4 - タイトル', type: 'text'},
-                    {key: 'feature4_description', label: '特色4 - 説明文', type: 'textarea'},
-                    {key: 'feature4_icon', label: '特色4 - アイコン', type: 'icon-picker'}
+                    {key: 'features_items', label: '教育の特色', type: 'list',
+                        itemFields: [
+                            {key: 'title', label: 'タイトル', type: 'text'},
+                            {key: 'description', label: '説明', type: 'textarea'},
+                            {key: 'icon', label: 'アイコン', type: 'icon-picker'}
+                        ]
+                    }
                 ]
             },
             events: {
@@ -1107,36 +1102,45 @@
             let html = `<h3 style="margin-bottom: 20px; color: #333; font-size: 16px;">${section.title}</h3>`;
             
             section.fields.forEach(field => {
-                const value = contentData[field.key] || '';
-                
-                html += `
-                    <div class="form-group">
-                        <label>${field.label}</label>
-                `;
-                
-                if (field.type === 'textarea') {
-                    html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
-                } else if (field.type === 'icon-picker') {
-                    // アイコンピッカー
-                    html += `
-                        <div class="icon-picker-container">
-                            <input type="text" id="field-${field.key}" value="${escapeHtml(value)}" readonly style="cursor: pointer;">
-                            <button type="button" class="btn-icon-picker" data-field-key="${field.key}">
-                                <i class="fas ${value || 'fa-icons'}"></i> アイコンを選択
-                            </button>
-                        </div>
-                    `;
+                // 動的リストの場合
+                if (field.type === 'list') {
+                    html += renderDynamicList(field);
                 } else {
-                    html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
+                    // 通常のフィールド
+                    const value = contentData[field.key] || '';
+                    
+                    html += `
+                        <div class="form-group">
+                            <label>${field.label}</label>
+                    `;
+                    
+                    if (field.type === 'textarea') {
+                        html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
+                    } else if (field.type === 'icon-picker') {
+                        // アイコンピッカー
+                        html += `
+                            <div class="icon-picker-container">
+                                <input type="text" id="field-${field.key}" value="${escapeHtml(value)}" readonly style="cursor: pointer;">
+                                <button type="button" class="btn-icon-picker" data-field-key="${field.key}">
+                                    <i class="fas ${value || 'fa-icons'}"></i> アイコンを選択
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
+                    }
+                    
+                    html += `</div>`;
                 }
-                
-                html += `</div>`;
             });
             
             container.innerHTML = html;
             
             // Store original data for cancel
             originalData = {...contentData};
+            
+            // 動的リストのイベントを設定
+            setupDynamicListEvents();
             
             // アイコンピッカーボタンのイベントリスナーを設定
             setupIconPickerEvents();
