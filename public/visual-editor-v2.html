@@ -532,6 +532,15 @@
                 await loadAllContent();
                 console.log('✅ Initialization complete');
                 
+                // Initialize page selector
+                const pageSelect = document.getElementById('page-selector');
+                if (pageSelect) {
+                    pageSelect.value = currentPage;
+                }
+                
+                // Initialize section selector
+                updateSectionSelector();
+                
                 // Load preview iframe
                 refreshPreview();
             } catch (error) {
