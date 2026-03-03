@@ -69,11 +69,11 @@ async function loadAboutPageContent() {
         updateTextContent('about-goal3-text', settings.about_goal3_text);
         updateIconClass('about-goal3-icon', settings.about_goal3_icon);
         
-        // 学校情報
+        // 学校情報（HTMLのid属性に合わせる）
         updateTextContent('about-info-students', settings.about_info_students);
-        updateTextContent('about-info-teachers', settings.about_info_teachers);
         updateTextContent('about-info-classes', settings.about_info_classes);
-        updateTextContent('about-info-established', settings.about_info_established);
+        // 注意: HTML では about-info-founded を使用
+        updateTextContent('about-info-founded', settings.about_info_established);
         
         console.log('✅ About page content loaded successfully');
         
