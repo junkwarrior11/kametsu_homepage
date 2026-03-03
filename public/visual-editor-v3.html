@@ -1824,6 +1824,13 @@
 
         // Initialize on load
         window.addEventListener('DOMContentLoaded', init);
+        
+        // グローバルスコープに関数を公開（HTMLのonchange属性から呼び出せるようにする）
+        window.changeSection = changeSection;
+        window.changePage = changePage;
+        window.saveChanges = saveChanges;
+        window.cancelEdit = cancelEdit;
+        window.refreshPreview = refreshPreview;
     </script>
 </body>
 </html>
