@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API診断テスト</title>
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        
+        .test-section h2 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 API診断テスト</h1>
+        <p>このページでAPIの動作状況を確認できます。</p>
+        
+        <div class="test-section">
+            <h2>1. 基本接続テスト</h2>
+            <button onclick="testBasicConnection()">テスト実行</button>
+            <div id="result1"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. site_settings テーブル読み込み</h2>
+            <button onclick="testSiteSettings()">テスト実行</button>
+            <div id="result2"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. キャッシュバスター付き読み込み</h2>
+            <button onclick="testWithCacheBuster()">テスト実行</button>
+            <div id="result3"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. CORS確認</h2>
+            <button onclick="testCORS()">テスト実行</button>
+            <div id="result4"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. 全テスト実行</h2>
+            <button onclick="runAllTests()">すべてのテスト実行</button>
+        </div>
+    </div>
+
+    <script>
+        async function testBasicConnection() {
+            const resultDiv = document.getElementById('result1');
+            resultDiv.innerHTML = '<div class="info">テスト実行中...</div>';
+            
+            try {
+                const response = await fetch('/api/tables/site_settings?limit=1');
+                const data = await response.json();
+                
+                if (response.ok && data.data) {
+                    resultDiv.innerHTML = `<div class="success">✅ 成功！
+Status: ${response.status}
+データ件数: ${data.data.length}
+レスポンス: ${JSON.stringify(data, null, 2)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ エラー
+Status: ${response.status}
+レスポンス: ${JSON.stringify(data, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ エラー: ${error.message}
+${error.stack}</div>`;
+            }
+        }
+        
+        async function testSiteSettings() {
+            const resultDiv = document.getElementById('result2');
+            resultDiv.innerHTML = '<div class="info">テスト実行中...</div>';
+            
+            try {
+                const response = await fetch('/api/tables/site_settings?limit=5');
+                const data = await response.json();
+                
+                if (response.ok && data.data) {
+                    const settings = {};
+                    data.data.forEach(item => {
+                        settings[item.setting_key] = item.setting_value;
+                    });
+                    
+                    resultDiv.innerHTML = `<div class="success">✅ 成功！
+データ件数: ${data.data.length}
+総数: ${data.pagination.total}
+
+取得した設定:
+${JSON.stringify(settings, null, 2)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ エラー
+Status: ${response.status}
+レスポンス: ${JSON.stringify(data, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ エラー: ${error.message}</div>`;
+            }
+        }
+        
+        async function testWithCacheBuster() {
+            const resultDiv = document.getElementById('result3');
+            resultDiv.innerHTML = '<div class="info">テスト実行中...</div>';
+            
+            try {
+                const cacheBuster = Date.now();
+                const url = `/api/tables/site_settings?limit=1&_=${cacheBuster}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok && data.data) {
+                    resultDiv.innerHTML = `<div class="success">✅ 成功！
+URL: ${url}
+Status: ${response.status}
+データ: ${JSON.stringify(data.data[0], null, 2)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ エラー
+URL: ${url}
+Status: ${response.status}
+レスポンス: ${JSON.stringify(data, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ エラー: ${error.message}</div>`;
+            }
+        }
+        
+        async function testCORS() {
+            const resultDiv = document.getElementById('result4');
+            resultDiv.innerHTML = '<div class="info">テスト実行中...</div>';
+            
+            try {
+                const response = await fetch('/api/tables/site_settings?limit=1');
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                };
+                
+                resultDiv.innerHTML = `<div class="success">✅ CORSヘッダー確認
+${JSON.stringify(corsHeaders, null, 2)}
+
+すべてのレスポンスヘッダー:
+${Array.from(response.headers.entries()).map(([key, value]) => `${key}: ${value}`).join('\n')}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ エラー: ${error.message}</div>`;
+            }
+        }
+        
+        async function runAllTests() {
+            await testBasicConnection();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testSiteSettings();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testWithCacheBuster();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testCORS();
+        }
+        
+        // ページロード時に自動実行
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('API診断ページ読み込み完了');
+        });
+    </script>
+</body>
+</html>

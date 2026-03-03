@@ -330,6 +330,10 @@
         <div class="edit-panel">
             <div class="panel-header">
                 <h2>編集</h2>
+                <select id="page-selector" class="section-selector" onchange="changePage()" style="margin-bottom: 10px;">
+                    <option value="index">ホーム（トップページ）</option>
+                    <option value="about">学校概要ページ</option>
+                </select>
                 <select id="section-selector" class="section-selector" onchange="changeSection()">
                     <option value="">セクションを選択...</option>
                     <option value="header">ヘッダー（ロゴ・連絡先）</option>
@@ -374,10 +378,25 @@
     <script>
         // Global State
         let currentSection = null;
+        let currentPage = 'index'; // 現在選択されているページ
         let contentData = {};
         let originalData = {};
 
-        // Section Definitions
+        // Page Configurations
+        const pageConfigs = {
+            index: {
+                name: 'ホーム（トップページ）',
+                url: '/',
+                sections: ['header', 'hero', 'news', 'about', 'features', 'events', 'footer']
+            },
+            about: {
+                name: '学校概要ページ',
+                url: '/about.html',
+                sections: ['about_page', 'about_history', 'about_principal', 'about_philosophy', 'about_goals', 'about_info']
+            }
+        };
+
+        // Section Definitions (ホームページ用)
         const sectionDefinitions = {
             header: {
                 title: 'ヘッダー（ロゴ・連絡先）',
@@ -444,6 +463,63 @@
                     {key: 'footer_email', label: 'メールアドレス', type: 'email'},
                     {key: 'footer_copyright', label: 'コピーライト', type: 'text'}
                 ]
+            },
+            // 学校概要ページのセクション
+            about_page: {
+                title: 'ページヘッダー',
+                fields: [
+                    {key: 'about_page_title', label: 'ページタイトル', type: 'text'},
+                    {key: 'about_page_subtitle', label: 'ページサブタイトル', type: 'text'}
+                ]
+            },
+            about_history: {
+                title: '学校の歴史',
+                fields: [
+                    {key: 'about_history_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_history_text1', label: '第1段落', type: 'textarea'},
+                    {key: 'about_history_text2', label: '第2段落', type: 'textarea'}
+                ]
+            },
+            about_principal: {
+                title: '校長挨拶',
+                fields: [
+                    {key: 'about_principal_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_principal_photo', label: '校長先生の写真URL', type: 'text'},
+                    {key: 'about_principal_text1', label: '第1段落', type: 'textarea'},
+                    {key: 'about_principal_text2', label: '第2段落', type: 'textarea'},
+                    {key: 'about_principal_signature', label: '署名', type: 'text'}
+                ]
+            },
+            about_philosophy: {
+                title: '教育理念',
+                fields: [
+                    {key: 'about_philosophy_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_philosophy_motto', label: 'モットー', type: 'text'},
+                    {key: 'about_philosophy_text', label: '説明文', type: 'textarea'}
+                ]
+            },
+            about_goals: {
+                title: '教育目標',
+                fields: [
+                    {key: 'about_goal1_title', label: '目標1 - タイトル', type: 'text'},
+                    {key: 'about_goal1_text', label: '目標1 - 説明', type: 'text'},
+                    {key: 'about_goal1_icon', label: '目標1 - アイコン（Font Awesome）', type: 'text'},
+                    {key: 'about_goal2_title', label: '目標2 - タイトル', type: 'text'},
+                    {key: 'about_goal2_text', label: '目標2 - 説明', type: 'text'},
+                    {key: 'about_goal2_icon', label: '目標2 - アイコン（Font Awesome）', type: 'text'},
+                    {key: 'about_goal3_title', label: '目標3 - タイトル', type: 'text'},
+                    {key: 'about_goal3_text', label: '目標3 - 説明', type: 'text'},
+                    {key: 'about_goal3_icon', label: '目標3 - アイコン（Font Awesome）', type: 'text'}
+                ]
+            },
+            about_info: {
+                title: '学校情報',
+                fields: [
+                    {key: 'about_info_students', label: '児童数', type: 'text'},
+                    {key: 'about_info_teachers', label: '教職員数', type: 'text'},
+                    {key: 'about_info_classes', label: 'クラス数', type: 'text'},
+                    {key: 'about_info_established', label: '創立年', type: 'text'}
+                ]
             }
         };
 
@@ -504,8 +580,46 @@
         function refreshPreview() {
             const iframe = document.getElementById('preview-iframe');
             const cacheBuster = Date.now();
-            iframe.src = '/?_=' + cacheBuster;
-            console.log('🔄 Preview refreshed');
+            const pageUrl = pageConfigs[currentPage].url;
+            iframe.src = pageUrl + '?_=' + cacheBuster;
+            console.log('🔄 Preview refreshed:', pageUrl);
+        }
+
+        // Change Page
+        function changePage() {
+            const select = document.getElementById('page-selector');
+            currentPage = select.value;
+            
+            console.log('📄 Page changed to:', currentPage);
+            
+            // Update section selector options
+            updateSectionSelector();
+            
+            // Refresh preview
+            refreshPreview();
+            
+            // Clear current section
+            showEmptyState();
+        }
+
+        // Update Section Selector based on current page
+        function updateSectionSelector() {
+            const sectionSelect = document.getElementById('section-selector');
+            const pageSections = pageConfigs[currentPage].sections;
+            
+            // Clear existing options
+            sectionSelect.innerHTML = '<option value="">セクションを選択...</option>';
+            
+            // Add options for current page
+            pageSections.forEach(sectionId => {
+                const section = sectionDefinitions[sectionId];
+                if (section) {
+                    const option = document.createElement('option');
+                    option.value = sectionId;
+                    option.textContent = section.title;
+                    sectionSelect.appendChild(option);
+                }
+            });
         }
 
         // Change Section
