@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビジュアルページ編集 v2.1 - 管理システム</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .editor-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .editor-header h1 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #f0f0f0;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Layout */
+        .editor-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* Left Panel - Edit Form */
+        .edit-panel {
+            width: 400px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .section-selector {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        .btn-save {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #5568d3;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        /* Right Panel - Preview */
+        .preview-panel {
+            flex: 1;
+            background: #f5f7fa;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h3 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .preview-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.success i {
+            color: #28a745;
+        }
+
+        .toast.error i {
+            color: #dc3545;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #ddd;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+        
+        /* Icon Picker Styles */
+        .icon-picker-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .icon-picker-trigger:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .icon-picker-trigger i {
+            font-size: 24px;
+            color: #667eea;
+            width: 30px;
+            text-align: center;
+        }
+        .icon-picker-trigger .icon-name {
+            flex: 1;
+            color: #333;
+        }
+        .icon-picker-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            padding: 20px;
+        }
+        .icon-picker-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-picker-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .icon-picker-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .icon-picker-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .icon-picker-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+        .icon-picker-search {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .icon-picker-search input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .icon-picker-grid {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+        .icon-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 8px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        .icon-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+        .icon-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .icon-option i {
+            font-size: 28px;
+        }
+        .icon-option.selected i {
+            color: white;
+        }
+        .icon-option .icon-label {
+            font-size: 11px;
+            text-align: center;
+            word-break: break-word;
+        }
+        
+        /* Dynamic List Styles */
+        .dynamic-list {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            background: #fafafa;
+        }
+        
+        .list-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .list-item-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .list-item-number {
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover:not(:disabled) {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+        
+        .btn-icon:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .btn-delete-item {
+            margin-left: auto;
+            color: #e53e3e;
+            border-color: #e53e3e;
+        }
+        
+        .btn-delete-item:hover {
+            background: #fff5f5;
+        }
+        
+        .form-group-small {
+            margin-bottom: 12px;
+        }
+        
+        .form-group-small label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .form-group-small input,
+        .form-group-small textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        
+        .form-group-small textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .icon-input-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-input-group input {
+            flex: 1;
+        }
+        
+        .btn-icon-select {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon-select:hover {
+            background: #5568d3;
+        }
+        
+        .btn-add-item {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+        
+        .btn-add-item:hover {
+            background: #5568d3;
+        }
+        
+        /* Icon Picker Styles */
+        .icon-picker-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .icon-picker-container input {
+            flex: 1;
+        }
+        
+        .btn-icon-picker {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-icon-picker:hover {
+            background: #5568d3;
+        }
+        
+        /* Icon Picker Modal */
+        .icon-picker-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.2s;
+        }
+        
+        .icon-picker-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s;
+        }
+        
+        .icon-picker-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .icon-picker-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .btn-close-modal {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        
+        .btn-close-modal:hover {
+            color: #333;
+        }
+        
+        .icon-picker-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .icon-category {
+            margin-bottom: 24px;
+        }
+        
+        .icon-category h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+        }
+        
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .icon-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+        
+        .icon-item.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .icon-item i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .icon-item.selected i {
+            color: white;
+        }
+        
+        .icon-item span {
+            font-size: 11px;
+            text-align: center;
+            word-break: break-all;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="editor-header">
+        <h1><i class="fas fa-paint-brush"></i> ビジュアルページ編集 v3.0</h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='admin-dashboard.html'">
+                <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
+            </button>
+            <button class="btn btn-primary" onclick="refreshPreview()">
+                <i class="fas fa-sync-alt"></i> プレビュー更新
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="editor-container">
+        <!-- Left Panel - Edit Form -->
+        <div class="edit-panel">
+            <div class="panel-header">
+                <h2>編集</h2>
+                <select id="page-selector" class="section-selector" onchange="changePage()" style="margin-bottom: 10px;">
+                    <option value="index">ホーム（トップページ）</option>
+                    <option value="about">学校概要ページ</option>
+                </select>
+                <select id="section-selector" class="section-selector" onchange="changeSection()">
+                    <option value="">セクションを選択...</option>
+                    <option value="header">ヘッダー（ロゴ・連絡先）</option>
+                    <option value="hero">ヒーローセクション</option>
+                    <option value="news">ニュースセクション</option>
+                    <option value="about">学校紹介セクション</option>
+                    <option value="features">教育の特色セクション</option>
+                    <option value="events">行事予定セクション</option>
+                    <option value="footer">フッター</option>
+                </select>
+            </div>
+
+            <div class="form-container" id="form-container">
+                <div class="empty-state">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>上からセクションを選択してください</p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-cancel" onclick="cancelEdit()">
+                    <i class="fas fa-times"></i> キャンセル
+                </button>
+                <button class="btn btn-save" onclick="saveChanges()">
+                    <i class="fas fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel - Preview (iframe) -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h3><i class="fas fa-eye"></i> プレビュー（実際のホームページ）</h3>
+            </div>
+
+            <div class="preview-container">
+                <iframe id="preview-iframe" src="/"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global State
+        let currentSection = null;
+        let currentPage = 'index'; // 現在選択されているページ
+        let contentData = {};
+        let originalData = {};
+
+        // Page Configurations
+        const pageConfigs = {
+            index: {
+                name: 'ホーム（トップページ）',
+                url: '/',
+                sections: ['header', 'hero', 'news', 'about', 'features', 'events', 'footer']
+            },
+            about: {
+                name: '学校概要ページ',
+                url: '/about.html',
+                sections: ['about_page', 'about_history', 'about_principal', 'about_philosophy', 'about_goals', 'about_info']
+            }
+        };
+
+        // Section Definitions (ホームページ用)
+        const sectionDefinitions = {
+            header: {
+                title: 'ヘッダー（ロゴ・連絡先）',
+                fields: [
+                    {key: 'header_school_name', label: '学校名', type: 'text'},
+                    {key: 'header_motto', label: 'モットー', type: 'text'},
+                    {key: 'header_top_phone', label: '電話番号', type: 'text'},
+                    {key: 'header_top_email', label: 'メールアドレス', type: 'email'}
+                ]
+            },
+            hero: {
+                title: 'ヒーローセクション',
+                fields: [
+                    {key: 'hero_title', label: 'メインタイトル', type: 'text'},
+                    {key: 'hero_subtitle', label: 'サブタイトル', type: 'text'},
+                    {key: 'hero_btn1', label: 'ボタン1テキスト', type: 'text'},
+                    {key: 'hero_btn2', label: 'ボタン2テキスト', type: 'text'}
+                ]
+            },
+            news: {
+                title: 'ニュースセクション',
+                fields: [
+                    {key: 'news_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'news_link', label: 'リンクテキスト', type: 'text'}
+                ]
+            },
+            about: {
+                title: '学校紹介セクション',
+                fields: [
+                    {key: 'about_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_lead', label: 'リード文', type: 'text'},
+                    {key: 'about_description', label: '説明文（第1段落）', type: 'textarea'},
+                    {key: 'about_description2', label: '説明文（第2段落）', type: 'textarea'},
+                    {key: 'about_btn', label: 'ボタンテキスト', type: 'text'}
+                ]
+            },
+            features: {
+                title: '教育の特色セクション',
+                type: 'list',
+                fields: [
+                    {key: 'features_items', label: '教育の特色', type: 'list',
+                        itemFields: [
+                            {key: 'title', label: 'タイトル', type: 'text'},
+                            {key: 'description', label: '説明', type: 'textarea'},
+                            {key: 'icon', label: 'アイコン', type: 'icon-picker'}
+                        ]
+                    }
+                ]
+            },
+            events: {
+                title: '行事予定セクション',
+                fields: [
+                    {key: 'events_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'events_link', label: 'リンクテキスト', type: 'text'}
+                ]
+            },
+            footer: {
+                title: 'フッター',
+                fields: [
+                    {key: 'footer_school_name', label: '学校名', type: 'text'},
+                    {key: 'footer_address', label: '住所', type: 'textarea'},
+                    {key: 'footer_phone', label: '電話番号', type: 'text'},
+                    {key: 'footer_email', label: 'メールアドレス', type: 'email'},
+                    {key: 'footer_copyright', label: 'コピーライト', type: 'text'}
+                ]
+            },
+            // 学校概要ページのセクション
+            about_page: {
+                title: 'ページヘッダー',
+                fields: [
+                    {key: 'about_page_title', label: 'ページタイトル', type: 'text'},
+                    {key: 'about_page_subtitle', label: 'ページサブタイトル', type: 'text'}
+                ]
+            },
+            about_history: {
+                title: '学校の歴史',
+                fields: [
+                    {key: 'about_history_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_history_text1', label: '第1段落', type: 'textarea'},
+                    {key: 'about_history_text2', label: '第2段落', type: 'textarea'}
+                ]
+            },
+            about_principal: {
+                title: '校長挨拶',
+                fields: [
+                    {key: 'about_principal_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_principal_photo', label: '校長先生の写真URL', type: 'text'},
+                    {key: 'about_principal_text1', label: '第1段落', type: 'textarea'},
+                    {key: 'about_principal_text2', label: '第2段落', type: 'textarea'},
+                    {key: 'about_principal_signature', label: '署名', type: 'text'}
+                ]
+            },
+            about_philosophy: {
+                title: '教育理念',
+                fields: [
+                    {key: 'about_philosophy_title', label: 'セクションタイトル', type: 'text'},
+                    {key: 'about_philosophy_motto', label: 'モットー', type: 'text'},
+                    {key: 'about_philosophy_text', label: '説明文', type: 'textarea'}
+                ]
+            },
+            about_goals: {
+                title: '教育目標',
+                fields: [
+                    {key: 'about_goal1_title', label: '目標1 - タイトル', type: 'text'},
+                    {key: 'about_goal1_text', label: '目標1 - 説明', type: 'text'},
+                    {key: 'about_goal1_icon', label: '目標1 - アイコン（Font Awesome）', type: 'text'},
+                    {key: 'about_goal2_title', label: '目標2 - タイトル', type: 'text'},
+                    {key: 'about_goal2_text', label: '目標2 - 説明', type: 'text'},
+                    {key: 'about_goal2_icon', label: '目標2 - アイコン（Font Awesome）', type: 'text'},
+                    {key: 'about_goal3_title', label: '目標3 - タイトル', type: 'text'},
+                    {key: 'about_goal3_text', label: '目標3 - 説明', type: 'text'},
+                    {key: 'about_goal3_icon', label: '目標3 - アイコン（Font Awesome）', type: 'text'}
+                ]
+            },
+            about_info: {
+                title: '学校情報',
+                fields: [
+                    {key: 'about_info_students', label: '児童数', type: 'text'},
+                    {key: 'about_info_classes', label: 'クラス数', type: 'text'},
+                    {key: 'about_info_established', label: '創立年', type: 'text'}
+                ]
+            }
+        };
+
+        // Initialize
+        async function init() {
+            console.log('🚀 Visual Editor v2.1 initializing...');
+            showLoading();
+            
+            try {
+                await loadAllContent();
+                console.log('✅ Initialization complete');
+                
+                // Initialize page selector
+                const pageSelect = document.getElementById('page-selector');
+                if (pageSelect) {
+                    pageSelect.value = currentPage;
+                }
+                
+                // Initialize section selector
+                updateSectionSelector();
+                
+                // Load preview iframe
+                refreshPreview();
+            } catch (error) {
+                console.error('❌ Initialization failed:', error);
+                showToast('初期化に失敗しました', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load Content from API
+        async function loadAllContent() {
+            try {
+                const cacheBuster = Date.now();
+                const url = '/api/tables/site_settings?limit=100&_=' + cacheBuster;
+                console.log('📡 Fetching from:', url);
+                
+                const response = await fetch(url);
+                console.log('📊 Response status:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error Response:', errorText);
+                    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('📦 API Response:', data);
+                
+                if (data.data) {
+                    contentData = {};
+                    data.data.forEach(item => {
+                        contentData[item.setting_key] = item.setting_value;
+                    });
+                    console.log('✅ Loaded', Object.keys(contentData).length, 'settings');
+                } else {
+                    console.warn('⚠️ No data.data in response');
+                }
+            } catch (error) {
+                console.error('❌ Failed to load content:', error);
+                throw error;
+            }
+        }
+
+        // Refresh Preview iframe (Debounced)
+        let refreshTimer = null;
+        function refreshPreview() {
+            // Clear existing timer
+            if (refreshTimer) {
+                clearTimeout(refreshTimer);
+            }
+            
+            // ⚡ Debounce: wait 300ms before refreshing
+            refreshTimer = setTimeout(() => {
+                const iframe = document.getElementById('preview-iframe');
+                const cacheBuster = Date.now();
+                const pageUrl = pageConfigs[currentPage].url;
+                iframe.src = pageUrl + '?_=' + cacheBuster;
+                console.log('🔄 Preview refreshed:', pageUrl);
+            }, 300);
+        }
+
+        // Change Page
+        function changePage() {
+            const select = document.getElementById('page-selector');
+            currentPage = select.value;
+            
+            console.log('📄 Page changed to:', currentPage);
+            
+            // Update section selector options
+            updateSectionSelector();
+            
+            // Refresh preview
+            refreshPreview();
+            
+            // Clear current section
+            showEmptyState();
+        }
+
+        // Update Section Selector based on current page
+        function updateSectionSelector() {
+            const sectionSelect = document.getElementById('section-selector');
+            const pageSections = pageConfigs[currentPage].sections;
+            
+            // Clear existing options
+            sectionSelect.innerHTML = '<option value="">セクションを選択...</option>';
+            
+            // Add options for current page
+            pageSections.forEach(sectionId => {
+                const section = sectionDefinitions[sectionId];
+                if (section) {
+                    const option = document.createElement('option');
+                    option.value = sectionId;
+                    option.textContent = section.title;
+                    sectionSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Change Section
+        function changeSection() {
+            const select = document.getElementById('section-selector');
+            const sectionId = select.value;
+            
+            if (!sectionId) {
+                showEmptyState();
+                return;
+            }
+            
+            currentSection = sectionId;
+            renderForm(sectionId);
+        }
+
+        // 動的リストをレンダリング
+        function renderDynamicList(field) {
+            const rawValue = contentData[field.key] || '';
+            let items = [];
+            
+            try {
+                items = rawValue ? JSON.parse(rawValue) : [];
+            } catch (e) {
+                console.warn('Failed to parse list data:', e);
+                items = [];
+            }
+            
+            let html = `
+                <div class="form-group">
+                    <label>${field.label}</label>
+                    <div class="dynamic-list" data-field-key="${field.key}">
+            `;
+            
+            items.forEach((item, index) => {
+                html += `
+                    <div class="list-item" data-index="${index}">
+                        <div class="list-item-header">
+                            <span class="list-item-number">${index + 1}</span>
+                            <button type="button" class="btn-icon btn-delete-item" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button type="button" class="btn-icon btn-move-up" data-index="${index}" ${index === 0 ? 'disabled' : ''}>
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
+                            <button type="button" class="btn-icon btn-move-down" data-index="${index}" ${index === items.length - 1 ? 'disabled' : ''}>
+                                <i class="fas fa-arrow-down"></i>
+                            </button>
+                        </div>
+                `;
+                
+                field.itemFields.forEach(itemField => {
+                    const itemValue = item[itemField.key] || '';
+                    
+                    if (itemField.type === 'icon-picker') {
+                        html += `
+                            <div class="form-group-small">
+                                <label>${itemField.label}</label>
+                                <div class="icon-input-group">
+                                    <div class="icon-picker-trigger" onclick="showIconPicker('${field.key}_${index}_${itemField.key}', '${escapeHtml(itemValue)}')">
+                                        <i class="fas ${itemValue || 'fa-icons'}"></i>
+                                        <span class="icon-name">${itemValue || 'アイコンを選択'}</span>
+                                    </div>
+                                    <input type="hidden" class="item-field" data-field="${itemField.key}" data-index="${index}" id="field-${field.key}_${index}_${itemField.key}" value="${escapeHtml(itemValue)}">
+                                </div>
+                            </div>
+                        `;
+                    } else if (itemField.type === 'textarea') {
+                        html += `
+                            <div class="form-group-small">
+                                <label>${itemField.label}</label>
+                                <textarea class="item-field" data-field="${itemField.key}" data-index="${index}">${escapeHtml(itemValue)}</textarea>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="form-group-small">
+                                <label>${itemField.label}</label>
+                                <input type="${itemField.type}" class="item-field" data-field="${itemField.key}" data-index="${index}" value="${escapeHtml(itemValue)}">
+                            </div>
+                        `;
+                    }
+                });
+                
+                html += `</div>`;
+            });
+            
+            html += `
+                        <button type="button" class="btn-add-item" data-field-key="${field.key}">
+                            <i class="fas fa-plus"></i> 項目を追加
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        // 動的リストのイベントを設定
+        function setupDynamicListEvents() {
+            // 項目追加ボタン
+            document.querySelectorAll('.btn-add-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fieldKey = this.dataset.fieldKey;
+                    addListItem(fieldKey);
+                });
+            });
+            
+            // 項目削除ボタン
+            document.querySelectorAll('.btn-delete-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    const fieldKey = this.closest('.dynamic-list').dataset.fieldKey;
+                    deleteListItem(fieldKey, index);
+                });
+            });
+            
+            // 項目を上に移動
+            document.querySelectorAll('.btn-move-up').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    const fieldKey = this.closest('.dynamic-list').dataset.fieldKey;
+                    moveListItem(fieldKey, index, index - 1);
+                });
+            });
+            
+            // 項目を下に移動
+            document.querySelectorAll('.btn-move-down').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    const fieldKey = this.closest('.dynamic-list').dataset.fieldKey;
+                    moveListItem(fieldKey, index, index + 1);
+                });
+            });
+        }
+        
+        // 項目を追加
+        function addListItem(fieldKey) {
+            const section = sectionDefinitions[currentSection];
+            const field = section.fields.find(f => f.key === fieldKey);
+            if (!field) return;
+            
+            const rawValue = contentData[fieldKey] || '[]';
+            let items = [];
+            
+            try {
+                items = JSON.parse(rawValue);
+            } catch (e) {
+                items = [];
+            }
+            
+            // 新しい空の項目を追加
+            const newItem = {};
+            field.itemFields.forEach(itemField => {
+                newItem[itemField.key] = '';
+            });
+            items.push(newItem);
+            
+            // データを更新
+            contentData[fieldKey] = JSON.stringify(items);
+            
+            // フォームを再レンダリング
+            renderForm(currentSection);
+        }
+        
+        // 項目を削除
+        function deleteListItem(fieldKey, index) {
+            if (!confirm('この項目を削除しますか？')) return;
+            
+            const rawValue = contentData[fieldKey] || '[]';
+            let items = [];
+            
+            try {
+                items = JSON.parse(rawValue);
+            } catch (e) {
+                items = [];
+            }
+            
+            items.splice(index, 1);
+            
+            // データを更新
+            contentData[fieldKey] = JSON.stringify(items);
+            
+            // フォームを再レンダリング
+            renderForm(currentSection);
+        }
+        
+        // 項目を移動
+        function moveListItem(fieldKey, fromIndex, toIndex) {
+            const rawValue = contentData[fieldKey] || '[]';
+            let items = [];
+            
+            try {
+                items = JSON.parse(rawValue);
+            } catch (e) {
+                items = [];
+            }
+            
+            if (toIndex < 0 || toIndex >= items.length) return;
+            
+            // 項目を入れ替え
+            const [movedItem] = items.splice(fromIndex, 1);
+            items.splice(toIndex, 0, movedItem);
+            
+            // データを更新
+            contentData[fieldKey] = JSON.stringify(items);
+            
+            // フォームを再レンダリング
+            renderForm(currentSection);
+        }
+
+        // Render Edit Form
+        function renderForm(sectionId) {
+            const container = document.getElementById('form-container');
+            const section = sectionDefinitions[sectionId];
+            
+            if (!section) {
+                showEmptyState();
+                return;
+            }
+            
+            let html = `<h3 style="margin-bottom: 20px; color: #333; font-size: 16px;">${section.title}</h3>`;
+            
+            section.fields.forEach(field => {
+                // 動的リストの場合
+                if (field.type === 'list') {
+                    html += renderDynamicList(field);
+                } else {
+                    // 通常のフィールド
+                    const value = contentData[field.key] || '';
+                    
+                    html += `
+                        <div class="form-group">
+                            <label>${field.label}</label>
+                    `;
+                    
+                    if (field.type === 'textarea') {
+                        html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
+                    } else if (field.type === 'icon-picker') {
+                        // アイコンピッカー
+                        html += `
+                            <div class="icon-picker-container">
+                                <input type="text" id="field-${field.key}" value="${escapeHtml(value)}" readonly style="cursor: pointer;">
+                                <button type="button" class="btn-icon-picker" data-field-key="${field.key}">
+                                    <i class="fas ${value || 'fa-icons'}"></i> アイコンを選択
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
+                    }
+                    
+                    html += `</div>`;
+                }
+            });
+            
+            container.innerHTML = html;
+            
+            // Store original data for cancel
+            originalData = {...contentData};
+            
+            // 動的リストのイベントを設定
+            setupDynamicListEvents();
+            
+            // アイコンピッカーボタンのイベントリスナーを設定
+            setupIconPickerEvents();
+        }
+        
+        // アイコンピッカーのイベントを設定
+        function setupIconPickerEvents() {
+            document.querySelectorAll('.btn-icon-picker').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fieldKey = this.dataset.fieldKey;
+                    showIconPicker(fieldKey);
+                });
+            });
+        }
+        
+        // アイコンピッカーダイアログを表示
+        function showIconPicker(fieldKey) {
+            const currentIcon = contentData[fieldKey] || '';
+            
+            // アイコン一覧（Font Awesome Free Icons）
+            const iconCategories = {
+                '教育・学習': [
+                    'fa-book-open', 'fa-book', 'fa-graduation-cap', 'fa-user-graduate',
+                    'fa-chalkboard-teacher', 'fa-school', 'fa-pencil-alt', 'fa-pen'
+                ],
+                '自然・環境': [
+                    'fa-tree', 'fa-leaf', 'fa-water', 'fa-sun', 'fa-cloud',
+                    'fa-mountain', 'fa-seedling', 'fa-globe'
+                ],
+                '人・コミュニティ': [
+                    'fa-users', 'fa-user-friends', 'fa-hands-helping', 'fa-handshake',
+                    'fa-heart', 'fa-home', 'fa-child', 'fa-baby'
+                ],
+                'スポーツ・活動': [
+                    'fa-running', 'fa-swimmer', 'fa-baseball-ball', 'fa-basketball-ball',
+                    'fa-football-ball', 'fa-volleyball-ball', 'fa-table-tennis', 'fa-dumbbell'
+                ],
+                '芸術・文化': [
+                    'fa-music', 'fa-palette', 'fa-paint-brush', 'fa-theater-masks',
+                    'fa-guitar', 'fa-drum', 'fa-microphone', 'fa-film'
+                ],
+                'その他': [
+                    'fa-star', 'fa-lightbulb', 'fa-rocket', 'fa-flag',
+                    'fa-trophy', 'fa-medal', 'fa-award', 'fa-certificate'
+                ]
+            };
+            
+            // モーダルHTML
+            let modalHtml = `
+                <div class="icon-picker-modal" id="iconPickerModal">
+                    <div class="icon-picker-content">
+                        <div class="icon-picker-header">
+                            <h3>アイコンを選択</h3>
+                            <button type="button" class="btn-close-modal">&times;</button>
+                        </div>
+                        <div class="icon-picker-body">
+            `;
+            
+            // カテゴリごとにアイコンを表示
+            Object.keys(iconCategories).forEach(category => {
+                modalHtml += `
+                    <div class="icon-category">
+                        <h4>${category}</h4>
+                        <div class="icon-grid">
+                `;
+                
+                iconCategories[category].forEach(icon => {
+                    const isSelected = icon === currentIcon ? 'selected' : '';
+                    modalHtml += `
+                        <div class="icon-item ${isSelected}" data-icon="${icon}">
+                            <i class="fas ${icon}"></i>
+                            <span>${icon.replace('fa-', '')}</span>
+                        </div>
+                    `;
+                });
+                
+                modalHtml += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modalHtml += `
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // モーダルを追加
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHtml;
+            document.body.appendChild(modalContainer.firstElementChild);
+            
+            // イベントリスナーを設定
+            const modal = document.getElementById('iconPickerModal');
+            
+            // 閉じるボタン
+            modal.querySelector('.btn-close-modal').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            // モーダル外クリックで閉じる
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // アイコン選択
+            modal.querySelectorAll('.icon-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const selectedIcon = this.dataset.icon;
+                    
+                    // フィールドを更新
+                    const input = document.getElementById(`field-${fieldKey}`);
+                    if (input) {
+                        input.value = selectedIcon;
+                    }
+                    
+                    // ボタンのアイコンを更新
+                    const btn = document.querySelector(`[data-field-key="${fieldKey}"]`);
+                    if (btn) {
+                        const iconElement = btn.querySelector('i');
+                        iconElement.className = `fas ${selectedIcon}`;
+                    }
+                    
+                    // モーダルを閉じる
+                    modal.remove();
+                });
+            });
+        }
+            
+            // イベントリスナーを設定
+            setupDynamicListEvents();
+        }
+
+        // Save Changes
+        async function saveChanges() {
+            if (!currentSection) {
+                showToast('セクションを選択してください', 'error');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const section = sectionDefinitions[currentSection];
+                const updates = [];
+                
+                // Collect all field values
+                for (const field of section.fields) {
+                    if (field.type === 'list') {
+                        // 動的リストの場合
+                        const listContainer = document.querySelector(`[data-field-key="${field.key}"]`);
+                        if (listContainer) {
+                            const items = [];
+                            listContainer.querySelectorAll('.list-item').forEach(itemEl => {
+                                const item = {};
+                                field.itemFields.forEach(itemField => {
+                                    const input = itemEl.querySelector(`.item-field[data-field="${itemField.key}"]`);
+                                    if (input) {
+                                        item[itemField.key] = input.value;
+                                    }
+                                });
+                                items.push(item);
+                            });
+                            updates.push({
+                                key: field.key,
+                                value: JSON.stringify(items)
+                            });
+                        }
+                    } else {
+                        // 通常のフィールド
+                        const input = document.getElementById(`field-${field.key}`);
+                        if (input) {
+                            const newValue = input.value;
+                            updates.push({
+                                key: field.key,
+                                value: newValue
+                            });
+                        }
+                    }
+                }
+                
+                console.log('💾 Saving', updates.length, 'fields...');
+                
+                // ⚡ Batch save - all updates in parallel
+                await Promise.all(updates.map(update => 
+                    updateSetting(update.key, update.value)
+                ));
+                
+                // Update local cache (no need to reload all)
+                updates.forEach(update => {
+                    contentData[update.key] = update.value;
+                    originalData[update.key] = update.value;
+                });
+                
+                // Refresh preview
+                refreshPreview();
+                
+                showToast('保存しました！', 'success');
+                console.log('✅ Save complete:', updates.length, 'fields');
+                
+            } catch (error) {
+                console.error('❌ Save failed:', error);
+                showToast('保存に失敗しました: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Update Single Setting (Optimized)
+        async function updateSetting(key, value) {
+            try {
+                // ⚡ Use targeted query instead of fetching all 100 records
+                const response = await fetch(`/api/tables/site_settings?setting_key=${encodeURIComponent(key)}&limit=1`);
+                const data = await response.json();
+                const existing = data.data?.find(item => item.setting_key === key);
+                
+                if (existing) {
+                    // Update existing
+                    const updateRes = await fetch(`/api/tables/site_settings/${existing.id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({setting_value: value})
+                    });
+                    
+                    if (!updateRes.ok) throw new Error('Update failed');
+                } else {
+                    // Create new
+                    const createRes = await fetch('/api/tables/site_settings', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            setting_key: key,
+                            setting_value: value,
+                            setting_group: key.split('_')[0],
+                            description: `${key} の設定値`
+                        })
+                    });
+                    
+                    if (!createRes.ok) throw new Error('Create failed');
+                }
+                
+                console.log(`✅ Updated: ${key}`);
+            } catch (error) {
+                console.error(`❌ Failed to update ${key}:`, error);
+                throw error;
+            }
+        }
+
+        // Cancel Edit
+        function cancelEdit() {
+            if (!currentSection) return;
+            
+            // Restore original values
+            const section = sectionDefinitions[currentSection];
+            section.fields.forEach(field => {
+                const input = document.getElementById(`field-${field.key}`);
+                if (input) {
+                    input.value = originalData[field.key] || '';
+                }
+            });
+            
+            showToast('変更を破棄しました', 'success');
+        }
+
+        // Show Empty State
+        function showEmptyState() {
+            document.getElementById('form-container').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>上からセクションを選択してください</p>
+                </div>
+            `;
+            
+            currentSection = null;
+        }
+
+        // Show Toast
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Show/Hide Loading
+        function showLoading() {
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.id = 'loading-overlay';
+            overlay.innerHTML = '<div class="loading-spinner"></div>';
+            document.body.appendChild(overlay);
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // アイコンリスト（よく使用する教育関連アイコン）
+        const iconOptions = [
+            { class: 'fa-book-open', label: '開いた本' },
+            { class: 'fa-graduation-cap', label: '卒業帽' },
+            { class: 'fa-pencil', label: '鉛筆' },
+            { class: 'fa-school', label: '学校' },
+            { class: 'fa-chalkboard-teacher', label: '先生' },
+            { class: 'fa-users', label: '人々' },
+            { class: 'fa-heart', label: 'ハート' },
+            { class: 'fa-running', label: '走る' },
+            { class: 'fa-dumbbell', label: 'ダンベル' },
+            { class: 'fa-futbol', label: 'サッカー' },
+            { class: 'fa-basketball-ball', label: 'バスケ' },
+            { class: 'fa-baseball-ball', label: '野球' },
+            { class: 'fa-volleyball-ball', label: 'バレー' },
+            { class: 'fa-swimmer', label: '水泳' },
+            { class: 'fa-palette', label: 'パレット' },
+            { class: 'fa-music', label: '音楽' },
+            { class: 'fa-guitar', label: 'ギター' },
+            { class: 'fa-microphone', label: 'マイク' },
+            { class: 'fa-theater-masks', label: '演劇' },
+            { class: 'fa-camera', label: 'カメラ' },
+            { class: 'fa-flask', label: 'フラスコ' },
+            { class: 'fa-microscope', label: '顕微鏡' },
+            { class: 'fa-atom', label: '原子' },
+            { class: 'fa-dna', label: 'DNA' },
+            { class: 'fa-leaf', label: '葉' },
+            { class: 'fa-tree', label: '木' },
+            { class: 'fa-seedling', label: '芽' },
+            { class: 'fa-globe-asia', label: '地球' },
+            { class: 'fa-map', label: '地図' },
+            { class: 'fa-compass', label: 'コンパス' },
+            { class: 'fa-calculator', label: '計算機' },
+            { class: 'fa-laptop', label: 'ノートPC' },
+            { class: 'fa-desktop', label: 'デスクトップ' },
+            { class: 'fa-tablet', label: 'タブレット' },
+            { class: 'fa-mobile', label: 'スマホ' },
+            { class: 'fa-brain', label: '脳' },
+            { class: 'fa-lightbulb', label: '電球' },
+            { class: 'fa-star', label: '星' },
+            { class: 'fa-trophy', label: 'トロフィー' },
+            { class: 'fa-medal', label: 'メダル' },
+            { class: 'fa-award', label: '賞' },
+            { class: 'fa-flag', label: '旗' },
+            { class: 'fa-island-tropical', label: '島' },
+            { class: 'fa-water', label: '水' },
+            { class: 'fa-ship', label: '船' },
+            { class: 'fa-anchor', label: 'イカリ' },
+            { class: 'fa-fish', label: '魚' },
+            { class: 'fa-hands-helping', label: '協力' },
+            { class: 'fa-handshake', label: '握手' },
+            { class: 'fa-smile', label: '笑顔' },
+            { class: 'fa-sun', label: '太陽' },
+            { class: 'fa-moon', label: '月' },
+            { class: 'fa-cloud', label: '雲' },
+            { class: 'fa-mountain', label: '山' }
+        ];
+        
+        // アイコンピッカーモーダルを表示
+        function showIconPicker(fieldKey, currentIcon, callback) {
+            // モーダルHTML生成
+            const modalHtml = `
+                <div class="icon-picker-modal active" id="icon-picker-modal">
+                    <div class="icon-picker-content">
+                        <div class="icon-picker-header">
+                            <h3>アイコンを選択</h3>
+                            <button class="icon-picker-close" onclick="closeIconPicker()">&times;</button>
+                        </div>
+                        <div class="icon-picker-search">
+                            <input type="text" id="icon-search" placeholder="アイコンを検索..." onkeyup="filterIcons(this.value)">
+                        </div>
+                        <div class="icon-picker-grid" id="icon-picker-grid">
+                            ${iconOptions.map(icon => `
+                                <div class="icon-option ${icon.class === currentIcon ? 'selected' : ''}" 
+                                     data-icon="${icon.class}" 
+                                     onclick="selectIcon('${fieldKey}', '${icon.class}', ${callback ? 'this' : 'null'})">
+                                    <i class="fas ${icon.class}"></i>
+                                    <div class="icon-label">${icon.label}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 既存のモーダルを削除
+            const existingModal = document.getElementById('icon-picker-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // 新しいモーダルを追加
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // コールバック関数を保存
+            window._iconPickerCallback = callback;
+        }
+        
+        // アイコンを選択
+        function selectIcon(fieldKey, iconClass, element) {
+            // すべてのアイコンの選択状態を解除
+            document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
+            
+            // 選択されたアイコンをハイライト
+            if (element && typeof element !== 'string') {
+                element.classList.add('selected');
+            }
+            
+            // フィールドの値を更新
+            const input = document.getElementById(`field-${fieldKey}`);
+            if (input) {
+                input.value = iconClass;
+                
+                // アイコンピッカートリガーを探して更新
+                const trigger = input.closest('.icon-input-group')?.querySelector('.icon-picker-trigger');
+                if (trigger) {
+                    const icon = trigger.querySelector('i');
+                    const name = trigger.querySelector('.icon-name');
+                    if (icon) icon.className = `fas ${iconClass}`;
+                    if (name) name.textContent = iconClass;
+                }
+                
+                // 古いボタン形式も対応（後方互換）
+                const btn = input.closest('.icon-input-group')?.querySelector(`[data-field-key="${fieldKey}"]`);
+                if (btn) {
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.className = `fas ${iconClass}`;
+                    }
+                }
+            }
+            
+            // コールバックがある場合は呼び出し
+            if (window._iconPickerCallback) {
+                window._iconPickerCallback(iconClass);
+            }
+            
+            // モーダルを閉じる
+            closeIconPicker();
+        }
+        
+        // アイコンピッカーを閉じる
+        function closeIconPicker() {
+            const modal = document.getElementById('icon-picker-modal');
+            if (modal) {
+                modal.remove();
+            }
+            window._iconPickerCallback = null;
+        }
+        
+        // アイコンをフィルタリング
+        function filterIcons(searchText) {
+            const grid = document.getElementById('icon-picker-grid');
+            const options = grid.querySelectorAll('.icon-option');
+            const search = searchText.toLowerCase();
+            
+            options.forEach(option => {
+                const label = option.querySelector('.icon-label').textContent.toLowerCase();
+                const iconClass = option.dataset.icon.toLowerCase();
+                
+                if (label.includes(search) || iconClass.includes(search)) {
+                    option.style.display = 'flex';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
