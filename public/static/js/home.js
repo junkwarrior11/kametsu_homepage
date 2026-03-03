@@ -78,18 +78,43 @@ async function loadDynamicContent() {
             
             // 教育の特色セクション
             updateTextContent('features-title', settings.features_title);
-            updateIcon('feature1-icon', settings['feature1_icon']);
-            updateTextContent('feature1-title', settings['feature1_title']);
-            updateTextContent('feature1-description', settings['feature1_description']);
-            updateIcon('feature2-icon', settings['feature2_icon']);
-            updateTextContent('feature2-title', settings['feature2_title']);
-            updateTextContent('feature2-description', settings['feature2_description']);
-            updateIcon('feature3-icon', settings['feature3_icon']);
-            updateTextContent('feature3-title', settings['feature3_title']);
-            updateTextContent('feature3-description', settings['feature3_description']);
-            updateIcon('feature4-icon', settings['feature4_icon']);
-            updateTextContent('feature4-title', settings['feature4_title']);
-            updateTextContent('feature4-description', settings['feature4_description']);
+            
+            // 動的リスト形式の特色項目を処理
+            if (settings.features_items) {
+                try {
+                    const featuresItems = JSON.parse(settings.features_items);
+                    updateFeaturesGrid(featuresItems);
+                } catch (e) {
+                    console.warn('Failed to parse features_items, falling back to individual fields');
+                    // フォールバック: 個別フィールド形式
+                    updateIcon('feature1-icon', settings['feature1_icon']);
+                    updateTextContent('feature1-title', settings['feature1_title']);
+                    updateTextContent('feature1-description', settings['feature1_description']);
+                    updateIcon('feature2-icon', settings['feature2_icon']);
+                    updateTextContent('feature2-title', settings['feature2_title']);
+                    updateTextContent('feature2-description', settings['feature2_description']);
+                    updateIcon('feature3-icon', settings['feature3_icon']);
+                    updateTextContent('feature3-title', settings['feature3_title']);
+                    updateTextContent('feature3-description', settings['feature3_description']);
+                    updateIcon('feature4-icon', settings['feature4_icon']);
+                    updateTextContent('feature4-title', settings['feature4_title']);
+                    updateTextContent('feature4-description', settings['feature4_description']);
+                }
+            } else {
+                // フォールバック: 個別フィールド形式
+                updateIcon('feature1-icon', settings['feature1_icon']);
+                updateTextContent('feature1-title', settings['feature1_title']);
+                updateTextContent('feature1-description', settings['feature1_description']);
+                updateIcon('feature2-icon', settings['feature2_icon']);
+                updateTextContent('feature2-title', settings['feature2_title']);
+                updateTextContent('feature2-description', settings['feature2_description']);
+                updateIcon('feature3-icon', settings['feature3_icon']);
+                updateTextContent('feature3-title', settings['feature3_title']);
+                updateTextContent('feature3-description', settings['feature3_description']);
+                updateIcon('feature4-icon', settings['feature4_icon']);
+                updateTextContent('feature4-title', settings['feature4_title']);
+                updateTextContent('feature4-description', settings['feature4_description']);
+            }
             
             // 行事予定セクション
             updateTextContent('events-title', settings.events_title);
@@ -321,4 +346,41 @@ async function loadAccessCounter() {
     } catch (error) {
         console.error('Error loading access counter:', error);
     }
+}
+
+/**
+ * 教育の特色グリッドを動的に更新
+ */
+function updateFeaturesGrid(items) {
+    const grid = document.querySelector('.features-grid');
+    if (!grid) return;
+    
+    // グリッドをクリア
+    grid.innerHTML = '';
+    
+    // 各項目を追加
+    items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'feature-card';
+        card.innerHTML = `
+            <div class="feature-icon">
+                <i class="fas ${item.icon || 'fa-star'}"></i>
+            </div>
+            <h3>${escapeHtml(item.title || '')}</h3>
+            <p>${escapeHtml(item.description || '')}</p>
+        `;
+        grid.appendChild(card);
+    });
+    
+    console.log(`✅ Updated features grid: ${items.length} items`);
+}
+
+/**
+ * HTMLエスケープ
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
