@@ -4,6 +4,23 @@
 
 document.addEventListener('DOMContentLoaded', async function() {
     await loadAboutPageContent();
+    
+    // ローディング画面を非表示にしてコンテンツを表示
+    const pageLoading = document.getElementById('pageLoading');
+    const contentWrapper = document.getElementById('contentWrapper');
+    const body = document.body;
+    
+    if (pageLoading) {
+        pageLoading.style.display = 'none';
+    }
+    if (contentWrapper) {
+        contentWrapper.style.display = 'block';
+    }
+    if (body) {
+        body.classList.remove('loading');
+    }
+    
+    console.log('✅ Page loading complete - content displayed');
 });
 
 /**
