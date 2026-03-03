@@ -1089,194 +1089,6 @@
             renderForm(sectionId);
         }
 
-        // Render Edit Form
-        function renderForm(sectionId) {
-            const container = document.getElementById('form-container');
-            const section = sectionDefinitions[sectionId];
-            
-            if (!section) {
-                showEmptyState();
-                return;
-            }
-            
-            let html = `<h3 style="margin-bottom: 20px; color: #333; font-size: 16px;">${section.title}</h3>`;
-            
-            section.fields.forEach(field => {
-                // 動的リストの場合
-                if (field.type === 'list') {
-                    html += renderDynamicList(field);
-                } else {
-                    // 通常のフィールド
-                    const value = contentData[field.key] || '';
-                    
-                    html += `
-                        <div class="form-group">
-                            <label>${field.label}</label>
-                    `;
-                    
-                    if (field.type === 'textarea') {
-                        html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
-                    } else if (field.type === 'icon-picker') {
-                        // アイコンピッカー
-                        html += `
-                            <div class="icon-picker-container">
-                                <input type="text" id="field-${field.key}" value="${escapeHtml(value)}" readonly style="cursor: pointer;">
-                                <button type="button" class="btn-icon-picker" data-field-key="${field.key}">
-                                    <i class="fas ${value || 'fa-icons'}"></i> アイコンを選択
-                                </button>
-                            </div>
-                        `;
-                    } else {
-                        html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
-                    }
-                    
-                    html += `</div>`;
-                }
-            });
-            
-            container.innerHTML = html;
-            
-            // Store original data for cancel
-            originalData = {...contentData};
-            
-            // 動的リストのイベントを設定
-            setupDynamicListEvents();
-            
-            // アイコンピッカーボタンのイベントリスナーを設定
-            setupIconPickerEvents();
-        }
-        
-        // アイコンピッカーのイベントを設定
-        function setupIconPickerEvents() {
-            document.querySelectorAll('.btn-icon-picker').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const fieldKey = this.dataset.fieldKey;
-                    showIconPicker(fieldKey);
-                });
-            });
-        }
-        
-        // アイコンピッカーダイアログを表示
-        function showIconPicker(fieldKey) {
-            const currentIcon = contentData[fieldKey] || '';
-            
-            // アイコン一覧（Font Awesome Free Icons）
-            const iconCategories = {
-                '教育・学習': [
-                    'fa-book-open', 'fa-book', 'fa-graduation-cap', 'fa-user-graduate',
-                    'fa-chalkboard-teacher', 'fa-school', 'fa-pencil-alt', 'fa-pen'
-                ],
-                '自然・環境': [
-                    'fa-tree', 'fa-leaf', 'fa-water', 'fa-sun', 'fa-cloud',
-                    'fa-mountain', 'fa-seedling', 'fa-globe'
-                ],
-                '人・コミュニティ': [
-                    'fa-users', 'fa-user-friends', 'fa-hands-helping', 'fa-handshake',
-                    'fa-heart', 'fa-home', 'fa-child', 'fa-baby'
-                ],
-                'スポーツ・活動': [
-                    'fa-running', 'fa-swimmer', 'fa-baseball-ball', 'fa-basketball-ball',
-                    'fa-football-ball', 'fa-volleyball-ball', 'fa-table-tennis', 'fa-dumbbell'
-                ],
-                '芸術・文化': [
-                    'fa-music', 'fa-palette', 'fa-paint-brush', 'fa-theater-masks',
-                    'fa-guitar', 'fa-drum', 'fa-microphone', 'fa-film'
-                ],
-                'その他': [
-                    'fa-star', 'fa-lightbulb', 'fa-rocket', 'fa-flag',
-                    'fa-trophy', 'fa-medal', 'fa-award', 'fa-certificate'
-                ]
-            };
-            
-            // モーダルHTML
-            let modalHtml = `
-                <div class="icon-picker-modal" id="iconPickerModal">
-                    <div class="icon-picker-content">
-                        <div class="icon-picker-header">
-                            <h3>アイコンを選択</h3>
-                            <button type="button" class="btn-close-modal">&times;</button>
-                        </div>
-                        <div class="icon-picker-body">
-            `;
-            
-            // カテゴリごとにアイコンを表示
-            Object.keys(iconCategories).forEach(category => {
-                modalHtml += `
-                    <div class="icon-category">
-                        <h4>${category}</h4>
-                        <div class="icon-grid">
-                `;
-                
-                iconCategories[category].forEach(icon => {
-                    const isSelected = icon === currentIcon ? 'selected' : '';
-                    modalHtml += `
-                        <div class="icon-item ${isSelected}" data-icon="${icon}">
-                            <i class="fas ${icon}"></i>
-                            <span>${icon.replace('fa-', '')}</span>
-                        </div>
-                    `;
-                });
-                
-                modalHtml += `
-                        </div>
-                    </div>
-                `;
-            });
-            
-            modalHtml += `
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // モーダルを追加
-            const modalContainer = document.createElement('div');
-            modalContainer.innerHTML = modalHtml;
-            document.body.appendChild(modalContainer.firstElementChild);
-            
-            // イベントリスナーを設定
-            const modal = document.getElementById('iconPickerModal');
-            
-            // 閉じるボタン
-            modal.querySelector('.btn-close-modal').addEventListener('click', () => {
-                modal.remove();
-            });
-            
-            // モーダル外クリックで閉じる
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.remove();
-                }
-            });
-            
-            // アイコン選択
-            modal.querySelectorAll('.icon-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const selectedIcon = this.dataset.icon;
-                    
-                    // フィールドを更新
-                    const input = document.getElementById(`field-${fieldKey}`);
-                    if (input) {
-                        input.value = selectedIcon;
-                    }
-                    
-                    // ボタンのアイコンを更新
-                    const btn = document.querySelector(`[data-field-key="${fieldKey}"]`);
-                    if (btn) {
-                        const iconElement = btn.querySelector('i');
-                        iconElement.className = `fas ${selectedIcon}`;
-                    }
-                    
-                    // モーダルを閉じる
-                    modal.remove();
-                });
-            });
-        }
-            
-            // イベントリスナーを設定
-            setupDynamicListEvents();
-        }
-        
         // 動的リストをレンダリング
         function renderDynamicList(field) {
             const rawValue = contentData[field.key] || '';
@@ -1470,6 +1282,194 @@
             
             // フォームを再レンダリング
             renderForm(currentSection);
+        }
+
+        // Render Edit Form
+        function renderForm(sectionId) {
+            const container = document.getElementById('form-container');
+            const section = sectionDefinitions[sectionId];
+            
+            if (!section) {
+                showEmptyState();
+                return;
+            }
+            
+            let html = `<h3 style="margin-bottom: 20px; color: #333; font-size: 16px;">${section.title}</h3>`;
+            
+            section.fields.forEach(field => {
+                // 動的リストの場合
+                if (field.type === 'list') {
+                    html += renderDynamicList(field);
+                } else {
+                    // 通常のフィールド
+                    const value = contentData[field.key] || '';
+                    
+                    html += `
+                        <div class="form-group">
+                            <label>${field.label}</label>
+                    `;
+                    
+                    if (field.type === 'textarea') {
+                        html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
+                    } else if (field.type === 'icon-picker') {
+                        // アイコンピッカー
+                        html += `
+                            <div class="icon-picker-container">
+                                <input type="text" id="field-${field.key}" value="${escapeHtml(value)}" readonly style="cursor: pointer;">
+                                <button type="button" class="btn-icon-picker" data-field-key="${field.key}">
+                                    <i class="fas ${value || 'fa-icons'}"></i> アイコンを選択
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
+                    }
+                    
+                    html += `</div>`;
+                }
+            });
+            
+            container.innerHTML = html;
+            
+            // Store original data for cancel
+            originalData = {...contentData};
+            
+            // 動的リストのイベントを設定
+            setupDynamicListEvents();
+            
+            // アイコンピッカーボタンのイベントリスナーを設定
+            setupIconPickerEvents();
+        }
+        
+        // アイコンピッカーのイベントを設定
+        function setupIconPickerEvents() {
+            document.querySelectorAll('.btn-icon-picker').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fieldKey = this.dataset.fieldKey;
+                    showIconPicker(fieldKey);
+                });
+            });
+        }
+        
+        // アイコンピッカーダイアログを表示
+        function showIconPicker(fieldKey) {
+            const currentIcon = contentData[fieldKey] || '';
+            
+            // アイコン一覧（Font Awesome Free Icons）
+            const iconCategories = {
+                '教育・学習': [
+                    'fa-book-open', 'fa-book', 'fa-graduation-cap', 'fa-user-graduate',
+                    'fa-chalkboard-teacher', 'fa-school', 'fa-pencil-alt', 'fa-pen'
+                ],
+                '自然・環境': [
+                    'fa-tree', 'fa-leaf', 'fa-water', 'fa-sun', 'fa-cloud',
+                    'fa-mountain', 'fa-seedling', 'fa-globe'
+                ],
+                '人・コミュニティ': [
+                    'fa-users', 'fa-user-friends', 'fa-hands-helping', 'fa-handshake',
+                    'fa-heart', 'fa-home', 'fa-child', 'fa-baby'
+                ],
+                'スポーツ・活動': [
+                    'fa-running', 'fa-swimmer', 'fa-baseball-ball', 'fa-basketball-ball',
+                    'fa-football-ball', 'fa-volleyball-ball', 'fa-table-tennis', 'fa-dumbbell'
+                ],
+                '芸術・文化': [
+                    'fa-music', 'fa-palette', 'fa-paint-brush', 'fa-theater-masks',
+                    'fa-guitar', 'fa-drum', 'fa-microphone', 'fa-film'
+                ],
+                'その他': [
+                    'fa-star', 'fa-lightbulb', 'fa-rocket', 'fa-flag',
+                    'fa-trophy', 'fa-medal', 'fa-award', 'fa-certificate'
+                ]
+            };
+            
+            // モーダルHTML
+            let modalHtml = `
+                <div class="icon-picker-modal" id="iconPickerModal">
+                    <div class="icon-picker-content">
+                        <div class="icon-picker-header">
+                            <h3>アイコンを選択</h3>
+                            <button type="button" class="btn-close-modal">&times;</button>
+                        </div>
+                        <div class="icon-picker-body">
+            `;
+            
+            // カテゴリごとにアイコンを表示
+            Object.keys(iconCategories).forEach(category => {
+                modalHtml += `
+                    <div class="icon-category">
+                        <h4>${category}</h4>
+                        <div class="icon-grid">
+                `;
+                
+                iconCategories[category].forEach(icon => {
+                    const isSelected = icon === currentIcon ? 'selected' : '';
+                    modalHtml += `
+                        <div class="icon-item ${isSelected}" data-icon="${icon}">
+                            <i class="fas ${icon}"></i>
+                            <span>${icon.replace('fa-', '')}</span>
+                        </div>
+                    `;
+                });
+                
+                modalHtml += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modalHtml += `
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // モーダルを追加
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHtml;
+            document.body.appendChild(modalContainer.firstElementChild);
+            
+            // イベントリスナーを設定
+            const modal = document.getElementById('iconPickerModal');
+            
+            // 閉じるボタン
+            modal.querySelector('.btn-close-modal').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            // モーダル外クリックで閉じる
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // アイコン選択
+            modal.querySelectorAll('.icon-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const selectedIcon = this.dataset.icon;
+                    
+                    // フィールドを更新
+                    const input = document.getElementById(`field-${fieldKey}`);
+                    if (input) {
+                        input.value = selectedIcon;
+                    }
+                    
+                    // ボタンのアイコンを更新
+                    const btn = document.querySelector(`[data-field-key="${fieldKey}"]`);
+                    if (btn) {
+                        const iconElement = btn.querySelector('i');
+                        iconElement.className = `fas ${selectedIcon}`;
+                    }
+                    
+                    // モーダルを閉じる
+                    modal.remove();
+                });
+            });
+        }
+            
+            // イベントリスナーを設定
+            setupDynamicListEvents();
         }
 
         // Save Changes
