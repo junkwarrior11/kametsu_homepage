@@ -32,7 +32,10 @@ async function loadAboutPageContent() {
             settings[item.setting_key] = item.setting_value;
         });
         
-        // ページヘッダー
+        console.log('📊 Total settings loaded:', Object.keys(settings).length);
+        console.log('📋 About page settings:', Object.keys(settings).filter(k => k.startsWith('about_')).length);
+        
+        // ページヘッダー（HTMLのid属性に合わせてハイフンを使用）
         updateTextContent('about-page-title', settings.about_page_title);
         updateTextContent('about-page-subtitle', settings.about_page_subtitle);
         
@@ -86,6 +89,11 @@ function updateTextContent(elementId, value) {
     const element = document.getElementById(elementId);
     if (element && value) {
         element.textContent = value;
+        console.log(`✅ Updated ${elementId}:`, value.substring(0, 50));
+    } else if (!element) {
+        console.warn(`⚠️ Element not found: ${elementId}`);
+    } else if (!value) {
+        console.warn(`⚠️ No value for: ${elementId}`);
     }
 }
 
