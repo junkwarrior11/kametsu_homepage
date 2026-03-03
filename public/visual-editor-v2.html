@@ -308,6 +308,150 @@
         .empty-state p {
             font-size: 16px;
         }
+        
+        /* Dynamic List Styles */
+        .dynamic-list {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            background: #fafafa;
+        }
+        
+        .list-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .list-item-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .list-item-number {
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover:not(:disabled) {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+        
+        .btn-icon:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .btn-delete-item {
+            margin-left: auto;
+            color: #e53e3e;
+            border-color: #e53e3e;
+        }
+        
+        .btn-delete-item:hover {
+            background: #fff5f5;
+        }
+        
+        .form-group-small {
+            margin-bottom: 12px;
+        }
+        
+        .form-group-small label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .form-group-small input,
+        .form-group-small textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        
+        .form-group-small textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .icon-input-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-input-group input {
+            flex: 1;
+        }
+        
+        .btn-icon-select {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon-select:hover {
+            background: #5568d3;
+        }
+        
+        .btn-add-item {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+        
+        .btn-add-item:hover {
+            background: #5568d3;
+        }
     </style>
 </head>
 <body>
@@ -435,16 +579,14 @@
             },
             features: {
                 title: '教育の特色セクション',
+                type: 'dynamic_list',  // 動的リスト形式
                 fields: [
                     {key: 'features_title', label: 'セクションタイトル', type: 'text'},
-                    {key: 'feature1_title', label: '特色1 - タイトル', type: 'text'},
-                    {key: 'feature1_description', label: '特色1 - 説明文', type: 'textarea'},
-                    {key: 'feature2_title', label: '特色2 - タイトル', type: 'text'},
-                    {key: 'feature2_description', label: '特色2 - 説明文', type: 'textarea'},
-                    {key: 'feature3_title', label: '特色3 - タイトル', type: 'text'},
-                    {key: 'feature3_description', label: '特色3 - 説明文', type: 'textarea'},
-                    {key: 'feature4_title', label: '特色4 - タイトル', type: 'text'},
-                    {key: 'feature4_description', label: '特色4 - 説明文', type: 'textarea'}
+                    {key: 'features_items', label: '特色項目', type: 'list', itemFields: [
+                        {key: 'title', label: 'タイトル', type: 'text'},
+                        {key: 'description', label: '説明文', type: 'textarea'},
+                        {key: 'icon', label: 'アイコン', type: 'icon'}
+                    ]}
                 ]
             },
             events: {
@@ -666,26 +808,229 @@
             let html = `<h3 style="margin-bottom: 20px; color: #333; font-size: 16px;">${section.title}</h3>`;
             
             section.fields.forEach(field => {
-                const value = contentData[field.key] || '';
-                
-                html += `
-                    <div class="form-group">
-                        <label>${field.label}</label>
-                `;
-                
-                if (field.type === 'textarea') {
-                    html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
+                if (field.type === 'list') {
+                    // 動的リスト形式
+                    html += renderDynamicList(field);
                 } else {
-                    html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
+                    // 通常のフィールド
+                    const value = contentData[field.key] || '';
+                    
+                    html += `
+                        <div class="form-group">
+                            <label>${field.label}</label>
+                    `;
+                    
+                    if (field.type === 'textarea') {
+                        html += `<textarea id="field-${field.key}">${escapeHtml(value)}</textarea>`;
+                    } else {
+                        html += `<input type="${field.type}" id="field-${field.key}" value="${escapeHtml(value)}">`;
+                    }
+                    
+                    html += `</div>`;
                 }
-                
-                html += `</div>`;
             });
             
             container.innerHTML = html;
             
             // Store original data for cancel
             originalData = {...contentData};
+            
+            // イベントリスナーを設定
+            setupDynamicListEvents();
+        }
+        
+        // 動的リストをレンダリング
+        function renderDynamicList(field) {
+            const rawValue = contentData[field.key] || '';
+            let items = [];
+            
+            try {
+                items = rawValue ? JSON.parse(rawValue) : [];
+            } catch (e) {
+                console.warn('Failed to parse list data:', e);
+                items = [];
+            }
+            
+            let html = `
+                <div class="form-group">
+                    <label>${field.label}</label>
+                    <div class="dynamic-list" data-field-key="${field.key}">
+            `;
+            
+            items.forEach((item, index) => {
+                html += `
+                    <div class="list-item" data-index="${index}">
+                        <div class="list-item-header">
+                            <span class="list-item-number">${index + 1}</span>
+                            <button type="button" class="btn-icon btn-delete-item" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button type="button" class="btn-icon btn-move-up" data-index="${index}" ${index === 0 ? 'disabled' : ''}>
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
+                            <button type="button" class="btn-icon btn-move-down" data-index="${index}" ${index === items.length - 1 ? 'disabled' : ''}>
+                                <i class="fas fa-arrow-down"></i>
+                            </button>
+                        </div>
+                `;
+                
+                field.itemFields.forEach(itemField => {
+                    const itemValue = item[itemField.key] || '';
+                    
+                    if (itemField.type === 'icon') {
+                        html += `
+                            <div class="form-group-small">
+                                <label>${itemField.label}</label>
+                                <div class="icon-input-group">
+                                    <input type="text" class="item-field" data-field="${itemField.key}" data-index="${index}" value="${escapeHtml(itemValue)}" placeholder="fa-book-open">
+                                    <button type="button" class="btn-icon-select" data-index="${index}">
+                                        <i class="fas ${itemValue || 'fa-icons'}"></i> 選択
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (itemField.type === 'textarea') {
+                        html += `
+                            <div class="form-group-small">
+                                <label>${itemField.label}</label>
+                                <textarea class="item-field" data-field="${itemField.key}" data-index="${index}">${escapeHtml(itemValue)}</textarea>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="form-group-small">
+                                <label>${itemField.label}</label>
+                                <input type="${itemField.type}" class="item-field" data-field="${itemField.key}" data-index="${index}" value="${escapeHtml(itemValue)}">
+                            </div>
+                        `;
+                    }
+                });
+                
+                html += `</div>`;
+            });
+            
+            html += `
+                        <button type="button" class="btn-add-item" data-field-key="${field.key}">
+                            <i class="fas fa-plus"></i> 項目を追加
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        // 動的リストのイベントを設定
+        function setupDynamicListEvents() {
+            // 項目追加ボタン
+            document.querySelectorAll('.btn-add-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fieldKey = this.dataset.fieldKey;
+                    addListItem(fieldKey);
+                });
+            });
+            
+            // 項目削除ボタン
+            document.querySelectorAll('.btn-delete-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    const fieldKey = this.closest('.dynamic-list').dataset.fieldKey;
+                    deleteListItem(fieldKey, index);
+                });
+            });
+            
+            // 項目を上に移動
+            document.querySelectorAll('.btn-move-up').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    const fieldKey = this.closest('.dynamic-list').dataset.fieldKey;
+                    moveListItem(fieldKey, index, index - 1);
+                });
+            });
+            
+            // 項目を下に移動
+            document.querySelectorAll('.btn-move-down').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    const fieldKey = this.closest('.dynamic-list').dataset.fieldKey;
+                    moveListItem(fieldKey, index, index + 1);
+                });
+            });
+        }
+        
+        // 項目を追加
+        function addListItem(fieldKey) {
+            const section = sectionDefinitions[currentSection];
+            const field = section.fields.find(f => f.key === fieldKey);
+            if (!field) return;
+            
+            const rawValue = contentData[fieldKey] || '[]';
+            let items = [];
+            
+            try {
+                items = JSON.parse(rawValue);
+            } catch (e) {
+                items = [];
+            }
+            
+            // 新しい空の項目を追加
+            const newItem = {};
+            field.itemFields.forEach(itemField => {
+                newItem[itemField.key] = '';
+            });
+            items.push(newItem);
+            
+            // データを更新
+            contentData[fieldKey] = JSON.stringify(items);
+            
+            // フォームを再レンダリング
+            renderForm(currentSection);
+        }
+        
+        // 項目を削除
+        function deleteListItem(fieldKey, index) {
+            if (!confirm('この項目を削除しますか？')) return;
+            
+            const rawValue = contentData[fieldKey] || '[]';
+            let items = [];
+            
+            try {
+                items = JSON.parse(rawValue);
+            } catch (e) {
+                items = [];
+            }
+            
+            items.splice(index, 1);
+            
+            // データを更新
+            contentData[fieldKey] = JSON.stringify(items);
+            
+            // フォームを再レンダリング
+            renderForm(currentSection);
+        }
+        
+        // 項目を移動
+        function moveListItem(fieldKey, fromIndex, toIndex) {
+            const rawValue = contentData[fieldKey] || '[]';
+            let items = [];
+            
+            try {
+                items = JSON.parse(rawValue);
+            } catch (e) {
+                items = [];
+            }
+            
+            if (toIndex < 0 || toIndex >= items.length) return;
+            
+            // 項目を入れ替え
+            const [movedItem] = items.splice(fromIndex, 1);
+            items.splice(toIndex, 0, movedItem);
+            
+            // データを更新
+            contentData[fieldKey] = JSON.stringify(items);
+            
+            // フォームを再レンダリング
+            renderForm(currentSection);
         }
 
         // Save Changes
@@ -703,13 +1048,36 @@
                 
                 // Collect all field values
                 for (const field of section.fields) {
-                    const input = document.getElementById(`field-${field.key}`);
-                    if (input) {
-                        const newValue = input.value;
-                        updates.push({
-                            key: field.key,
-                            value: newValue
-                        });
+                    if (field.type === 'list') {
+                        // 動的リストの場合
+                        const listContainer = document.querySelector(`[data-field-key="${field.key}"]`);
+                        if (listContainer) {
+                            const items = [];
+                            listContainer.querySelectorAll('.list-item').forEach(itemEl => {
+                                const item = {};
+                                field.itemFields.forEach(itemField => {
+                                    const input = itemEl.querySelector(`.item-field[data-field="${itemField.key}"]`);
+                                    if (input) {
+                                        item[itemField.key] = input.value;
+                                    }
+                                });
+                                items.push(item);
+                            });
+                            updates.push({
+                                key: field.key,
+                                value: JSON.stringify(items)
+                            });
+                        }
+                    } else {
+                        // 通常のフィールド
+                        const input = document.getElementById(`field-${field.key}`);
+                        if (input) {
+                            const newValue = input.value;
+                            updates.push({
+                                key: field.key,
+                                value: newValue
+                            });
+                        }
                     }
                 }
                 
