@@ -576,13 +576,22 @@
             }
         }
 
-        // Refresh Preview iframe
+        // Refresh Preview iframe (Debounced)
+        let refreshTimer = null;
         function refreshPreview() {
-            const iframe = document.getElementById('preview-iframe');
-            const cacheBuster = Date.now();
-            const pageUrl = pageConfigs[currentPage].url;
-            iframe.src = pageUrl + '?_=' + cacheBuster;
-            console.log('🔄 Preview refreshed:', pageUrl);
+            // Clear existing timer
+            if (refreshTimer) {
+                clearTimeout(refreshTimer);
+            }
+            
+            // ⚡ Debounce: wait 300ms before refreshing
+            refreshTimer = setTimeout(() => {
+                const iframe = document.getElementById('preview-iframe');
+                const cacheBuster = Date.now();
+                const pageUrl = pageConfigs[currentPage].url;
+                iframe.src = pageUrl + '?_=' + cacheBuster;
+                console.log('🔄 Preview refreshed:', pageUrl);
+            }, 300);
         }
 
         // Change Page
@@ -698,19 +707,22 @@
                 
                 console.log('💾 Saving', updates.length, 'fields...');
                 
-                // Save all updates
-                for (const update of updates) {
-                    await updateSetting(update.key, update.value);
-                }
+                // ⚡ Batch save - all updates in parallel
+                await Promise.all(updates.map(update => 
+                    updateSetting(update.key, update.value)
+                ));
                 
-                // Reload content
-                await loadAllContent();
+                // Update local cache (no need to reload all)
+                updates.forEach(update => {
+                    contentData[update.key] = update.value;
+                    originalData[update.key] = update.value;
+                });
                 
                 // Refresh preview
                 refreshPreview();
                 
-                showToast('保存しました！プレビューを更新しています...', 'success');
-                console.log('✅ Save complete');
+                showToast('保存しました！', 'success');
+                console.log('✅ Save complete:', updates.length, 'fields');
                 
             } catch (error) {
                 console.error('❌ Save failed:', error);
@@ -720,11 +732,11 @@
             }
         }
 
-        // Update Single Setting
+        // Update Single Setting (Optimized)
         async function updateSetting(key, value) {
             try {
-                // Find existing record
-                const response = await fetch('/api/tables/site_settings?limit=100');
+                // ⚡ Use targeted query instead of fetching all 100 records
+                const response = await fetch(`/api/tables/site_settings?setting_key=${encodeURIComponent(key)}&limit=1`);
                 const data = await response.json();
                 const existing = data.data?.find(item => item.setting_key === key);
                 
