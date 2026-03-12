@@ -113,6 +113,16 @@
             transition: all 0.2s;
             cursor: pointer;
             position: relative;
+            min-height: 20px;
+            min-width: 40px;
+            display: inline-block;
+        }
+        
+        .editable-hint:empty::before {
+            content: '（空欄）';
+            color: #999;
+            font-style: italic;
+            font-size: 0.9em;
         }
         
         .editable-hint:hover {

@@ -673,9 +673,6 @@ a {
    Principal Message
 ======================================== */
 .principal-message {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 40px;
     background: white;
     padding: 40px;
     border-radius: 12px;
