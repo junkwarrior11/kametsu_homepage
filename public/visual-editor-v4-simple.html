@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビジュアルページ編集 v4（直接編集・シンプル版）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: sans-serif; overflow: hidden; }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .btn-toggle {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            margin: 0 10px;
+        }
+        
+        .btn-toggle.active {
+            background: #10b981;
+        }
+        
+        .preview-container {
+            width: 100%;
+            height: calc(100vh - 60px);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .save-status {
+            color: white;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-edit"></i> ビジュアルページ編集 v4.0（シンプル版）</h1>
+        <div>
+            <button class="btn btn-secondary" onclick="location.href='admin-dashboard.html'">
+                <i class="fas fa-arrow-left"></i> 戻る
+            </button>
+            <button class="btn btn-toggle" id="editModeBtn">
+                <i class="fas fa-edit"></i> 編集モード: OFF
+            </button>
+            <span id="status" class="save-status"></span>
+        </div>
+    </div>
+    
+    <div class="preview-container">
+        <iframe id="preview" src="/"></iframe>
+    </div>
+    
+    <script>
+        console.log('🚀 Simple Visual Editor v4 loading...');
+        
+        let editMode = false;
+        
+        // DOMContentLoaded後に初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM loaded');
+            
+            const btn = document.getElementById('editModeBtn');
+            const status = document.getElementById('status');
+            
+            if (!btn) {
+                console.error('❌ Button not found!');
+                return;
+            }
+            
+            console.log('✅ Button found:', btn);
+            
+            btn.addEventListener('click', function() {
+                console.log('🎯 Button clicked!');
+                editMode = !editMode;
+                
+                if (editMode) {
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: ON';
+                    status.textContent = '編集モード有効';
+                    console.log('✅ Edit mode enabled');
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: OFF';
+                    status.textContent = '';
+                    console.log('❌ Edit mode disabled');
+                }
+            });
+            
+            console.log('✅ Event listener added');
+        });
+    </script>
+</body>
+</html>
