@@ -279,12 +279,14 @@
         
         function setupIframe() {
             const iframe = document.getElementById('preview');
-            iframe.addEventListener('load', function() {
+            
+            // Remove old listener if exists
+            iframe.onload = function() {
                 console.log('📄 Iframe loaded');
                 if (editMode) {
                     setupEditableElements();
                 }
-            });
+            };
         }
         
         function enableDirectEditing() {
@@ -315,8 +317,11 @@
                 return;
             }
             
+            console.log('🔧 Setting up editable elements...');
+            
             // 教育の特色カード
             const featureCards = iframeDoc.querySelectorAll('.features-grid .feature-card');
+            console.log('📦 Found', featureCards.length, 'feature cards');
             featureCards.forEach((card, index) => {
                 card.classList.add('editable-hint');
                 card.dataset.editableType = 'feature';
@@ -324,22 +329,34 @@
                 card.addEventListener('click', handleElementClick);
             });
             
-            // テキスト要素
-            const textSelectors = [
-                '[data-setting="header_school_name"]',
-                '[data-setting="hero_title"]',
-                '[data-setting="hero_subtitle"]',
-                '[data-setting="about_title"]',
-                '[data-setting="features_title"]'
+            // data-setting属性を持つ全ての要素
+            const dataSettingElements = iframeDoc.querySelectorAll('[data-setting]');
+            console.log('📝 Found', dataSettingElements.length, 'data-setting elements');
+            dataSettingElements.forEach(el => {
+                el.classList.add('editable-hint');
+                el.dataset.editableType = 'text';
+                el.dataset.settingKey = el.getAttribute('data-setting');
+                el.addEventListener('click', handleElementClick);
+            });
+            
+            // 主要なテキスト要素（data-setting属性がない場合のフォールバック）
+            const fallbackSelectors = [
+                '.hero-content h1',
+                '.hero-content p',
+                '.section-header h2',
+                '.about-content h2',
+                '.about-content p'
             ];
             
-            textSelectors.forEach(selector => {
+            fallbackSelectors.forEach(selector => {
                 const elements = iframeDoc.querySelectorAll(selector);
                 elements.forEach(el => {
-                    el.classList.add('editable-hint');
-                    el.dataset.editableType = 'text';
-                    el.dataset.settingKey = el.getAttribute('data-setting');
-                    el.addEventListener('click', handleElementClick);
+                    // 既に編集可能になっていない場合のみ追加
+                    if (!el.classList.contains('editable-hint')) {
+                        el.classList.add('editable-hint');
+                        el.dataset.editableType = 'text-simple';
+                        el.addEventListener('click', handleElementClick);
+                    }
                 });
             });
             
@@ -355,10 +372,12 @@
             const element = event.currentTarget;
             const editableType = element.dataset.editableType;
             
-            console.log('🎯 Element clicked:', editableType);
+            console.log('🎯 Element clicked:', editableType, element);
             
             if (editableType === 'text') {
                 editTextElement(element);
+            } else if (editableType === 'text-simple') {
+                editSimpleTextElement(element);
             } else if (editableType === 'feature') {
                 editFeatureCard(element);
             }
@@ -375,6 +394,23 @@
                 element.textContent = newValue;
                 scheduleAutoSave(settingKey, newValue);
                 console.log('✅ Text updated:', settingKey);
+            }
+        }
+        
+        function editSimpleTextElement(element) {
+            const currentValue = element.textContent.trim();
+            const elementInfo = element.tagName + (element.className ? '.' + element.className.split(' ')[0] : '');
+            
+            const newValue = prompt('テキストを編集 (' + elementInfo + '):', currentValue);
+            
+            if (newValue !== null && newValue !== currentValue) {
+                element.textContent = newValue;
+                
+                // 簡易的な保存: タグとクラス名から推測してキーを作成
+                // 将来的にはより良い方法に改善する
+                alert('⚠️ この要素は直接データベースに保存されません。\ndata-setting属性を持つ要素のみ保存できます。\n\nページをリロードすると元に戻ります。');
+                
+                console.log('ℹ️ Simple text element edited (not saved):', elementInfo);
             }
         }
         
