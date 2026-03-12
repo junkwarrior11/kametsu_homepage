@@ -344,7 +344,17 @@
             console.log('📝 Found', dataSettingElements.length, 'data-setting elements');
             dataSettingElements.forEach(el => {
                 el.classList.add('editable-hint');
-                el.dataset.editableType = 'text';
+                
+                // アイコン要素の判定
+                if (el.tagName === 'I' && el.className.includes('fa')) {
+                    el.dataset.editableType = 'icon';
+                } else if (el.dataset.editableType === 'icon') {
+                    // 既に icon として指定されている
+                    el.dataset.editableType = 'icon';
+                } else {
+                    el.dataset.editableType = 'text';
+                }
+                
                 el.dataset.settingKey = el.getAttribute('data-setting');
                 el.addEventListener('click', handleElementClick);
             });

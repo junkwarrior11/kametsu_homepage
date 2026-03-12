@@ -54,13 +54,27 @@
                 const settingValue = settings[settingKey];
                 
                 if (settingValue !== undefined && settingValue !== null) {
-                    // 現在の値と異なる場合のみ更新
-                    const currentValue = element.textContent.trim();
-                    
-                    if (currentValue !== settingValue) {
-                        element.textContent = settingValue;
-                        updatedCount++;
-                        console.log(`✏️ Updated ${settingKey}: "${currentValue}" → "${settingValue}"`);
+                    // アイコン要素の場合
+                    if (element.tagName === 'I' && element.className.includes('fa')) {
+                        // アイコンクラスを更新
+                        const currentIcon = element.className.replace(/fas?|far|fab|editable-hint/g, '').trim();
+                        
+                        if (currentIcon !== settingValue) {
+                            // fa- プレフィックスの処理
+                            const iconClass = settingValue.startsWith('fa-') ? settingValue : 'fa-' + settingValue;
+                            element.className = 'fas ' + iconClass;
+                            updatedCount++;
+                            console.log(`🎨 Updated icon ${settingKey}: "${currentIcon}" → "${iconClass}"`);
+                        }
+                    } else {
+                        // テキスト要素の場合
+                        const currentValue = element.textContent.trim();
+                        
+                        if (currentValue !== settingValue) {
+                            element.textContent = settingValue;
+                            updatedCount++;
+                            console.log(`✏️ Updated ${settingKey}: "${currentValue}" → "${settingValue}"`);
+                        }
                     }
                 }
             });
