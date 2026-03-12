@@ -164,6 +164,9 @@
             <button class="btn btn-toggle" id="editModeBtn">
                 <i class="fas fa-edit"></i> 編集モード: OFF
             </button>
+            <button class="btn btn-secondary" id="addCardBtn" style="display:none;">
+                <i class="fas fa-plus"></i> カード追加
+            </button>
             <select id="pageSelector" class="page-selector">
                 <option value="index">ホーム</option>
                 <option value="about">学校概要</option>
@@ -209,6 +212,7 @@
             const backBtn = document.getElementById('backBtn');
             const editModeBtn = document.getElementById('editModeBtn');
             const pageSelector = document.getElementById('pageSelector');
+            const addCardBtn = document.getElementById('addCardBtn');
             
             if (backBtn) {
                 backBtn.addEventListener('click', function() {
@@ -225,6 +229,11 @@
                 pageSelector.addEventListener('change', changePage);
                 console.log('✅ Page selector listener added');
             }
+            
+            if (addCardBtn) {
+                addCardBtn.addEventListener('click', addNewFeatureCard);
+                console.log('✅ Add card button listener added');
+            }
         }
         
         function toggleEditMode() {
@@ -233,17 +242,25 @@
             
             const btn = document.getElementById('editModeBtn');
             const status = document.getElementById('saveStatus');
+            const addCardBtn = document.getElementById('addCardBtn');
             
             if (editMode) {
                 btn.classList.add('active');
                 btn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: ON';
                 status.textContent = '編集モード有効';
                 console.log('✅ Edit mode enabled');
+                
+                // ホームページの場合のみカード追加ボタンを表示
+                if (currentPage === 'index') {
+                    addCardBtn.style.display = 'inline-block';
+                }
+                
                 enableDirectEditing();
             } else {
                 btn.classList.remove('active');
                 btn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: OFF';
                 status.textContent = '';
+                addCardBtn.style.display = 'none';
                 console.log('❌ Edit mode disabled');
                 disableDirectEditing();
             }
@@ -410,6 +427,29 @@
             });
             console.log('🔑 Mapped', mappedCount, 'elements by ID');
             
+            // アイコン要素のマッピング
+            const iconMappings = {
+                'about-goal1-icon': 'about_goal1_icon',
+                'about-goal2-icon': 'about_goal2_icon',
+                'about-goal3-icon': 'about_goal3_icon',
+                'about-goal4-icon': 'about_goal4_icon',
+                'about-goal5-icon': 'about_goal5_icon',
+                'about-goal6-icon': 'about_goal6_icon'
+            };
+            
+            let iconCount = 0;
+            Object.entries(iconMappings).forEach(([id, settingKey]) => {
+                const el = iframeDoc.getElementById(id);
+                if (el && !el.classList.contains('editable-hint')) {
+                    el.classList.add('editable-hint');
+                    el.dataset.editableType = 'icon';
+                    el.dataset.settingKey = settingKey;
+                    el.addEventListener('click', handleElementClick);
+                    iconCount++;
+                }
+            });
+            console.log('🎨 Mapped', iconCount, 'icon elements');
+            
             // 主要なテキスト要素（data-setting属性もIDもない場合のフォールバック）
             const fallbackSelectors = [
                 '.hero-content h2',
@@ -452,6 +492,8 @@
                 editTextElement(element);
             } else if (editableType === 'text-simple') {
                 editSimpleTextElement(element);
+            } else if (editableType === 'icon') {
+                editIconElement(element);
             } else if (editableType === 'feature') {
                 editFeatureCard(element);
             }
@@ -483,6 +525,111 @@
             }
         }
         
+        function editIconElement(element) {
+            const settingKey = element.dataset.settingKey;
+            const currentIcon = element.className.replace('fas ', '').replace('far ', '').replace('fab ', '').trim();
+            
+            console.log('🎨 Editing icon:', settingKey, 'Current:', currentIcon);
+            
+            // アイコン選択ダイアログを表示
+            showIconPickerDialog(element, settingKey, currentIcon);
+        }
+        
+        function showIconPickerDialog(iconElement, settingKey, currentIcon) {
+            // アイコンカテゴリとアイコンリスト
+            const iconCategories = {
+                '教育・学習': [
+                    'fa-graduation-cap', 'fa-book', 'fa-book-open', 'fa-pen', 
+                    'fa-pencil-alt', 'fa-chalkboard-teacher', 'fa-school', 'fa-user-graduate'
+                ],
+                '人・コミュニティ': [
+                    'fa-users', 'fa-user-friends', 'fa-handshake', 'fa-hands-helping',
+                    'fa-child', 'fa-baby', 'fa-user-tie'
+                ],
+                '心・感情': [
+                    'fa-heart', 'fa-smile', 'fa-grin', 'fa-laugh',
+                    'fa-star', 'fa-sun', 'fa-award', 'fa-medal'
+                ],
+                'スポーツ・運動': [
+                    'fa-running', 'fa-swimmer', 'fa-baseball-ball', 'fa-basketball-ball',
+                    'fa-football-ball', 'fa-volleyball-ball', 'fa-dumbbell', 'fa-skating'
+                ],
+                '創造性・芸術': [
+                    'fa-lightbulb', 'fa-paint-brush', 'fa-palette', 'fa-music',
+                    'fa-guitar', 'fa-drum', 'fa-camera', 'fa-film'
+                ],
+                '国際・地球': [
+                    'fa-globe', 'fa-globe-americas', 'fa-globe-asia', 'fa-earth-asia',
+                    'fa-flag', 'fa-plane', 'fa-map', 'fa-compass'
+                ],
+                'その他': [
+                    'fa-rocket', 'fa-trophy', 'fa-certificate', 'fa-bullhorn',
+                    'fa-leaf', 'fa-tree', 'fa-mountain', 'fa-home'
+                ]
+            };
+            
+            // モーダルHTML作成
+            let modalHTML = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;" id="icon-picker-modal">';
+            modalHTML += '<div style="background:white;border-radius:12px;padding:30px;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.3);">';
+            modalHTML += '<h3 style="margin:0 0 20px 0;color:#333;">アイコンを選択</h3>';
+            modalHTML += '<p style="margin:0 0 20px 0;color:#666;font-size:14px;">現在: <i class="fas ' + currentIcon + '"></i> ' + currentIcon + '</p>';
+            
+            // カテゴリごとにアイコンを表示
+            Object.entries(iconCategories).forEach(([category, icons]) => {
+                modalHTML += '<div style="margin-bottom:20px;">';
+                modalHTML += '<h4 style="margin:0 0 10px 0;color:#555;font-size:14px;border-bottom:1px solid #ddd;padding-bottom:5px;">' + category + '</h4>';
+                modalHTML += '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;">';
+                
+                icons.forEach(icon => {
+                    const isSelected = icon === currentIcon ? 'background:#667eea;color:white;' : 'background:#f5f5f5;';
+                    modalHTML += '<button onclick="selectIconForElement(\'' + settingKey + '\', \'' + icon + '\')" style="border:none;padding:12px;border-radius:6px;cursor:pointer;transition:all 0.2s;' + isSelected + '" onmouseover="this.style.background=\'#667eea\';this.style.color=\'white\';" onmouseout="this.style.background=\'' + (icon === currentIcon ? '#667eea' : '#f5f5f5') + '\';this.style.color=\'' + (icon === currentIcon ? 'white' : '#333') + '\';" title="' + icon + '">';
+                    modalHTML += '<i class="fas ' + icon + '" style="font-size:18px;"></i>';
+                    modalHTML += '</button>';
+                });
+                
+                modalHTML += '</div></div>';
+            });
+            
+            modalHTML += '<div style="margin-top:20px;text-align:right;">';
+            modalHTML += '<button onclick="closeIconPickerModal()" style="padding:10px 20px;background:#f5f5f5;border:none;border-radius:6px;cursor:pointer;font-size:14px;">キャンセル</button>';
+            modalHTML += '</div>';
+            modalHTML += '</div></div>';
+            
+            // モーダルを親ウィンドウに追加
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = modalHTML;
+            document.body.appendChild(modalDiv);
+            
+            // グローバル関数として登録
+            window.selectIconForElement = function(key, icon) {
+                selectIcon(iconElement, key, icon);
+            };
+            
+            window.closeIconPickerModal = function() {
+                const modal = document.getElementById('icon-picker-modal');
+                if (modal) {
+                    modal.parentElement.remove();
+                }
+            };
+        }
+        
+        function selectIcon(iconElement, settingKey, newIcon) {
+            console.log('✅ Icon selected:', settingKey, newIcon);
+            
+            // アイコン要素のクラスを更新
+            iconElement.className = 'fas ' + newIcon + ' editable-hint';
+            
+            // データベースに保存
+            contentData[settingKey] = newIcon;
+            scheduleAutoSave(settingKey, newIcon);
+            
+            // モーダルを閉じる
+            const modal = document.getElementById('icon-picker-modal');
+            if (modal) {
+                modal.parentElement.remove();
+            }
+        }
+        
         function editFeatureCard(card) {
             const index = parseInt(card.dataset.editableIndex);
             let featuresItems = [];
@@ -501,27 +648,166 @@
             
             const item = featuresItems[index];
             
-            const newTitle = prompt('タイトル:', item.title);
-            if (newTitle === null) return;
+            // 編集メニューを表示
+            const action = prompt(
+                '【特色カード編集メニュー】\n\n' +
+                '現在: ' + item.title + '\n\n' +
+                '1: タイトル・説明を編集\n' +
+                '2: アイコンを変更\n' +
+                '3: このカードを削除\n' +
+                '0: キャンセル\n\n' +
+                '番号を入力してください:',
+                '1'
+            );
             
-            const newDescription = prompt('説明:', item.description);
+            if (action === '1') {
+                // タイトルと説明を編集
+                const newTitle = prompt('タイトル:', item.title);
+                if (newTitle === null) return;
+                
+                const newDescription = prompt('説明:', item.description);
+                if (newDescription === null) return;
+                
+                item.title = newTitle;
+                item.description = newDescription;
+                
+                contentData['features_items'] = JSON.stringify(featuresItems);
+                refreshIframe();
+                scheduleAutoSave('features_items', JSON.stringify(featuresItems));
+                console.log('✅ Feature card updated');
+                
+            } else if (action === '2') {
+                // アイコンを選択
+                showFeatureIconPicker(index, item);
+                
+            } else if (action === '3') {
+                // カード削除
+                if (confirm('「' + item.title + '」を削除しますか？')) {
+                    featuresItems.splice(index, 1);
+                    contentData['features_items'] = JSON.stringify(featuresItems);
+                    refreshIframe();
+                    scheduleAutoSave('features_items', JSON.stringify(featuresItems));
+                    console.log('✅ Feature card deleted');
+                }
+            }
+        }
+        
+        function showFeatureIconPicker(index, item) {
+            // アイコンカテゴリ
+            const iconCategories = {
+                '教育・学習': [
+                    'fa-graduation-cap', 'fa-book', 'fa-book-open', 'fa-pen', 
+                    'fa-pencil-alt', 'fa-chalkboard-teacher', 'fa-school', 'fa-user-graduate'
+                ],
+                '人・コミュニティ': [
+                    'fa-users', 'fa-user-friends', 'fa-handshake', 'fa-hands-helping',
+                    'fa-child', 'fa-baby', 'fa-user-tie'
+                ],
+                '心・感情': [
+                    'fa-heart', 'fa-smile', 'fa-grin', 'fa-laugh',
+                    'fa-star', 'fa-sun', 'fa-award', 'fa-medal'
+                ],
+                'スポーツ・運動': [
+                    'fa-running', 'fa-swimmer', 'fa-baseball-ball', 'fa-basketball-ball',
+                    'fa-football-ball', 'fa-volleyball-ball', 'fa-dumbbell', 'fa-skating'
+                ],
+                'その他': [
+                    'fa-rocket', 'fa-trophy', 'fa-certificate', 'fa-bullhorn',
+                    'fa-leaf', 'fa-tree', 'fa-mountain', 'fa-home', 'fa-lightbulb', 'fa-globe'
+                ]
+            };
+            
+            // モーダルHTML作成
+            let modalHTML = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;" id="feature-icon-picker-modal">';
+            modalHTML += '<div style="background:white;border-radius:12px;padding:30px;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.3);">';
+            modalHTML += '<h3 style="margin:0 0 20px 0;color:#333;">アイコンを選択</h3>';
+            modalHTML += '<p style="margin:0 0 20px 0;color:#666;font-size:14px;">現在: <i class="fas ' + item.icon + '"></i> ' + item.icon + '</p>';
+            
+            // カテゴリごとにアイコンを表示
+            Object.entries(iconCategories).forEach(([category, icons]) => {
+                modalHTML += '<div style="margin-bottom:20px;">';
+                modalHTML += '<h4 style="margin:0 0 10px 0;color:#555;font-size:14px;border-bottom:1px solid #ddd;padding-bottom:5px;">' + category + '</h4>';
+                modalHTML += '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;">';
+                
+                icons.forEach(icon => {
+                    const isSelected = icon === item.icon ? 'background:#667eea;color:white;' : 'background:#f5f5f5;';
+                    modalHTML += '<button onclick="selectFeatureIcon(' + index + ', \'' + icon + '\')" style="border:none;padding:12px;border-radius:6px;cursor:pointer;transition:all 0.2s;' + isSelected + '" onmouseover="this.style.background=\'#667eea\';this.style.color=\'white\';" onmouseout="this.style.background=\'' + (icon === item.icon ? '#667eea' : '#f5f5f5') + '\';this.style.color=\'' + (icon === item.icon ? 'white' : '#333') + '\';" title="' + icon + '">';
+                    modalHTML += '<i class="fas ' + icon + '" style="font-size:18px;"></i>';
+                    modalHTML += '</button>';
+                });
+                
+                modalHTML += '</div></div>';
+            });
+            
+            modalHTML += '<div style="margin-top:20px;text-align:right;">';
+            modalHTML += '<button onclick="closeFeatureIconPickerModal()" style="padding:10px 20px;background:#f5f5f5;border:none;border-radius:6px;cursor:pointer;font-size:14px;">キャンセル</button>';
+            modalHTML += '</div>';
+            modalHTML += '</div></div>';
+            
+            // モーダルを親ウィンドウに追加
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = modalHTML;
+            document.body.appendChild(modalDiv);
+            
+            // グローバル関数として登録
+            window.selectFeatureIcon = function(idx, icon) {
+                let items = JSON.parse(contentData['features_items'] || '[]');
+                items[idx].icon = icon;
+                contentData['features_items'] = JSON.stringify(items);
+                refreshIframe();
+                scheduleAutoSave('features_items', JSON.stringify(items));
+                
+                // モーダルを閉じる
+                const modal = document.getElementById('feature-icon-picker-modal');
+                if (modal) modal.parentElement.remove();
+                
+                console.log('✅ Feature icon updated:', icon);
+            };
+            
+            window.closeFeatureIconPickerModal = function() {
+                const modal = document.getElementById('feature-icon-picker-modal');
+                if (modal) modal.parentElement.remove();
+            };
+        }
+        
+        function refreshIframe() {
+            const iframe = document.getElementById('preview');
+            const currentSrc = iframe.src;
+            iframe.src = currentSrc.split('?')[0] + '?_=' + Date.now();
+        }
+        
+        // カード追加機能
+        function addNewFeatureCard() {
+            let featuresItems = [];
+            
+            try {
+                featuresItems = JSON.parse(contentData['features_items'] || '[]');
+            } catch (e) {
+                console.error('Failed to parse features_items:', e);
+                return;
+            }
+            
+            const newTitle = prompt('新しいカードのタイトル:', '新しい特色');
+            if (!newTitle) return;
+            
+            const newDescription = prompt('説明:', '');
             if (newDescription === null) return;
             
-            const newIcon = prompt('アイコン (例: fa-book-open):', item.icon);
-            if (newIcon === null) return;
+            const newIcon = prompt('アイコン (例: fa-star):', 'fa-star');
+            if (!newIcon) return;
             
-            item.title = newTitle;
-            item.description = newDescription;
-            item.icon = newIcon;
+            featuresItems.push({
+                title: newTitle,
+                description: newDescription,
+                icon: newIcon
+            });
             
             contentData['features_items'] = JSON.stringify(featuresItems);
-            
-            // Reload iframe
-            const iframe = document.getElementById('preview');
-            iframe.src = iframe.src;
-            
+            refreshIframe();
             scheduleAutoSave('features_items', JSON.stringify(featuresItems));
-            console.log('✅ Feature card updated');
+            
+            console.log('✅ New feature card added');
+            alert('新しいカードを追加しました！\n編集モードを再度ONにしてください。');
         }
         
         function scheduleAutoSave(key, value) {
