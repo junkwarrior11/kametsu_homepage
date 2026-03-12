@@ -3,131 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブログ - 徳之島町立亀津小学校</title>
+    <title>ブログへ移動中 - 徳之島町立亀津小学校</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        .redirect-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .redirect-content {
+            max-width: 600px;
+        }
+        
+        .redirect-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .redirect-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .redirect-message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .redirect-url {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            word-break: break-all;
+        }
+        
+        .redirect-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .redirect-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .back-link {
+            margin-top: 2rem;
+        }
+        
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+        
+        .back-link a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        .countdown {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
-<body class="loading">
-    <!-- Loading Screen -->
-    <div class="page-loading" id="pageLoading">
-        <div class="loading-spinner"></div>
+<body>
+    <div class="redirect-container">
+        <div class="redirect-content">
+            <div class="redirect-icon">
+                <i class="fas fa-external-link-alt"></i>
+            </div>
+            <h1 class="redirect-title">ブログページへ移動します</h1>
+            <p class="redirect-message" id="redirect-message">外部のブログサイトに移動します...</p>
+            <div class="redirect-url" id="redirect-url">URLを読み込み中...</div>
+            <a href="#" class="redirect-button" id="redirect-button">
+                <i class="fas fa-arrow-right"></i> 今すぐ移動
+            </a>
+            <div class="countdown" id="countdown"></div>
+            <div class="back-link">
+                <a href="index.html"><i class="fas fa-arrow-left"></i> ホームに戻る</a>
+            </div>
+        </div>
     </div>
     
-    <!-- Content Wrapper -->
-    <div class="content-wrapper" id="contentWrapper">
-    <!-- Header -->
-    <header class="header">
-        <div class="header-top">
-            <div class="container">
-                <div class="header-info">
-                    <span><i class="fas fa-phone"></i> <span id="header-top-phone">0997-82-0142</span></span>
-                    <span><i class="fas fa-envelope"></i> <span id="header-top-email">kametu-es@town.tokunoshima.lg.jp</span></span>
-                </div>
-                <div class="header-links">
-                    <a href="admin-login.html" class="admin-link"><i class="fas fa-lock"></i> 管理者ログイン</a>
-                </div>
-            </div>
-        </div>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1 id="header-school-name">徳之島町立亀津小学校</h1>
-                    <p class="subtitle" id="header-motto">心豊かに、たくましく</p>
-                </div>
-                <button class="mobile-menu-btn" id="mobileMenuBtn">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <ul class="nav-menu" id="navMenu">
-                    <li><a href="index.html">ホーム</a></li>
-                    <li><a href="about.html">学校概要</a></li>
-                    <li><a href="events.html">行事予定</a></li>
-                    <li><a href="newsletter.html">学校だより</a></li>
-                    <li><a href="blog.html" class="active">ブログ</a></li>
-                    <li><a href="school-rules.html">亀津小のやくそく</a></li>
-                    <li><a href="bullying-prevention.html">いじめ防止</a></li>
-                    <li><a href="access.html">アクセス</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Page Header -->
-    <section class="page-header">
-        <div class="container">
-            <h1 id="blog-page-title">ブログ</h1>
-            <p id="blog-page-subtitle">Blog</p>
-        </div>
-    </section>
-
-    <!-- Blog Content -->
-    <section class="section">
-        <div class="container">
-            <div class="blog-filter">
-                <button class="filter-btn active" data-category="all">すべて</button>
-                <button class="filter-btn" data-category="行事">行事</button>
-                <button class="filter-btn" data-category="お知らせ">お知らせ</button>
-                <button class="filter-btn" data-category="活動報告">活動報告</button>
-                <button class="filter-btn" data-category="その他">その他</button>
-            </div>
-
-            <div class="blog-grid" id="blogGrid">
-                <!-- Dynamic content loaded by JavaScript -->
-            </div>
-
-            <div class="pagination" id="pagination">
-                <!-- Dynamic pagination loaded by JavaScript -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3 id="footer-school-name">徳之島町立亀津小学校</h3>
-                    <p id="footer-address">〒891-7101<br>
-                    鹿児島県大島郡徳之島町亀津2918番地</p>
-                    <p><i class="fas fa-phone"></i> <span id="footer-phone">0997-82-0142</span></p>
-                    <p><i class="fas fa-envelope"></i> <span id="footer-email">kametu-es@town.tokunoshima.lg.jp</span></p>
-                </div>
-                <div class="footer-section">
-                    <h3>リンク</h3>
-                    <ul>
-                        <li><a href="about.html">学校概要</a></li>
-                        <li><a href="events.html">行事予定</a></li>
-                        <li><a href="newsletter.html">学校だより</a></li>
-                        <li><a href="blog.html">ブログ</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3 id="footer-access-title">アクセス</h3>
-                    <ul>
-                        <li id="footer-access1">徳之島空港より車で約15分</li>
-                        <li id="footer-access2">亀徳港より車で約10分</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p id="footer-copyright">&copy; 2024 徳之島町立亀津小学校. All rights reserved.</p>
-                <div class="access-counter">
-                    <p>
-                        <i class="fas fa-eye"></i> 
-                        総アクセス数: <span id="total-access">-</span> | 
-                        今月: <span id="monthly-access">-</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-    </div>
-    <!-- End Content Wrapper -->
-
-    <script src="/static/js/main.js"></script>
-    <script src="/static/js/blog.js"></script>
-    <script src="/static/js/access-counter.js"></script>
+    <script>
+        // ブログURLを取得
+        async function getBlogUrl() {
+            try {
+                const response = await fetch('/api/tables/site_settings?setting_key=blog_external_url');
+                const data = await response.json();
+                
+                if (data.data && data.data.length > 0) {
+                    return data.data[0].setting_value;
+                }
+                
+                // デフォルトURL（設定がない場合）
+                return 'https://blog.example.com';
+            } catch (error) {
+                console.error('ブログURLの取得に失敗:', error);
+                // デフォルトURL
+                return 'https://blog.example.com';
+            }
+        }
+        
+        // カウントダウンとリダイレクト
+        async function startRedirect() {
+            const blogUrl = await getBlogUrl();
+            
+            // URLを表示
+            document.getElementById('redirect-url').textContent = blogUrl;
+            document.getElementById('redirect-button').href = blogUrl;
+            
+            // カウントダウン開始
+            let seconds = 3;
+            const countdownEl = document.getElementById('countdown');
+            
+            const updateCountdown = () => {
+                if (seconds > 0) {
+                    countdownEl.textContent = `${seconds}秒後に自動的に移動します...`;
+                    seconds--;
+                    setTimeout(updateCountdown, 1000);
+                } else {
+                    // リダイレクト実行
+                    window.location.href = blogUrl;
+                }
+            };
+            
+            updateCountdown();
+        }
+        
+        // ページ読み込み時に実行
+        window.addEventListener('DOMContentLoaded', startRedirect);
+    </script>
 </body>
 </html>

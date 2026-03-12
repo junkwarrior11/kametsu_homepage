@@ -3,15 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブログ記事管理 - 管理システム</title>
+    <title>ブログ設定 - 管理システム</title>
     <link rel="stylesheet" href="/static/css/admin.css">
-    <link rel="stylesheet" href="/static/css/image-upload.css">
-    <link rel="stylesheet" href="/static/css/datatable.css">
-    <link rel="stylesheet" href="/static/css/dark-mode.css">
-    <link rel="stylesheet" href="/static/css/admin-ui-improvements.css">
-    <link rel="stylesheet" href="/static/css/admin-phase3-features.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .blog-config-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .info-box i {
+            color: #2196f3;
+            margin-right: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .preview-link {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+        
+        .preview-link a {
+            color: #667eea;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .preview-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .status-message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
 </head>
 <body class="admin-page">
     <div class="admin-container">
@@ -25,7 +135,7 @@
                     <i class="fas fa-chart-line"></i> ダッシュボード
                 </a>
                 <a href="admin-blog.html" class="nav-item active">
-                    <i class="fas fa-blog"></i> ブログ記事
+                    <i class="fas fa-blog"></i> ブログ設定
                 </a>
                 <a href="admin-newsletter.html" class="nav-item">
                     <i class="fas fa-newspaper"></i> 学校だより
@@ -47,10 +157,6 @@
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <button id="themeToggle" class="theme-toggle" aria-label="テーマ切替">
-                    <i class="fas fa-moon"></i>
-                    <span>ダークモード</span>
-                </button>
                 <button id="logoutBtn" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> ログアウト
                 </button>
@@ -59,160 +165,154 @@
 
         <main class="admin-main">
             <header class="admin-header">
-                <h1><i class="fas fa-blog"></i> ブログ記事管理</h1>
-                <button class="btn-primary" onclick="showPostForm()">
-                    <i class="fas fa-plus"></i> 新規投稿
-                </button>
+                <h1><i class="fas fa-blog"></i> ブログ設定</h1>
             </header>
 
             <div class="admin-content">
-                <div id="postForm" class="form-modal" style="display: none;">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="formTitle">新規投稿</h2>
-                            <button class="btn-close" onclick="hidePostForm()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <form id="blogForm">
-                            <input type="hidden" id="postId">
-                            <div class="form-group">
-                                <label for="title">タイトル *</label>
-                                <input type="text" id="title" required>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="category">カテゴリー *</label>
-                                    <select id="category" required>
-                                        <option value="行事">行事</option>
-                                        <option value="お知らせ">お知らせ</option>
-                                        <option value="活動報告">活動報告</option>
-                                        <option value="その他">その他</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="status">公開状態 *</label>
-                                    <select id="status" required>
-                                        <option value="公開">公開</option>
-                                        <option value="下書き">下書き</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="author">投稿者 *</label>
-                                    <input type="text" id="author" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="publish_date">公開日時 *</label>
-                                    <input type="datetime-local" id="publish_date" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="featured_image">アイキャッチ画像</label>
-                                <input type="text" id="featured_image" placeholder="画像URLまたはアップロードしてください">
-                                <button type="button" class="image-upload-btn" onclick="openBlogImagePicker()">
-                                    <i class="fas fa-upload"></i> 画像をアップロード
-                                </button>
-                                <div class="image-preview-container" id="blog-preview-container" style="display: none;">
-                                    <img src="" alt="プレビュー" id="blog-preview-img">
-                                    <div class="image-preview-actions">
-                                        <button type="button" class="btn-change-image" onclick="openBlogImagePicker()">
-                                            <i class="fas fa-exchange-alt"></i> 変更
-                                        </button>
-                                        <button type="button" class="btn-remove-image" onclick="removeBlogImage()">
-                                            <i class="fas fa-trash"></i> 削除
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="content">本文 *</label>
-                                <textarea id="content" rows="10" required></textarea>
-                            </div>
-                            <div class="form-actions">
-                                <button type="button" class="btn-secondary" onclick="hidePostForm()">キャンセル</button>
-                                <button type="submit" class="btn-primary">保存</button>
-                            </div>
-                        </form>
+                <div class="blog-config-card">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>外部ブログサイトへのリンク設定</strong><br>
+                        このホームページでは、ブログ機能は外部サイトで運用しています。<br>
+                        ブログページにアクセスすると、設定したURLに自動的にリダイレクトされます。
                     </div>
-                </div>
-
-                <div class="data-table">
-                    <table id="postsTable" data-table="true">
-                        <thead>
-                            <tr>
-                                <th data-key="title" data-sortable="true">タイトル</th>
-                                <th data-key="category" data-filterable="true">カテゴリー</th>
-                                <th data-key="author">投稿者</th>
-                                <th data-key="publish_date" data-sortable="true" data-type="date">公開日</th>
-                                <th data-key="status" data-filterable="true">状態</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="postsTableBody">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
+                    
+                    <form id="blogUrlForm">
+                        <div class="form-group">
+                            <label for="blogUrl">
+                                <i class="fas fa-link"></i> ブログサイトのURL
+                            </label>
+                            <input 
+                                type="url" 
+                                id="blogUrl" 
+                                name="blogUrl" 
+                                placeholder="https://blog.example.com" 
+                                required
+                            >
+                            <small style="color: #666; display: block; margin-top: 5px;">
+                                例: https://blog.example.com または https://note.com/your-account
+                            </small>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存
+                            </button>
+                            <a href="blog.html" target="_blank" class="btn btn-secondary">
+                                <i class="fas fa-external-link-alt"></i> プレビュー
+                            </a>
+                        </div>
+                    </form>
+                    
+                    <div class="status-message" id="statusMessage"></div>
+                    
+                    <div class="preview-link" id="previewLink" style="display: none;">
+                        <strong><i class="fas fa-link"></i> 現在のブログURL:</strong><br>
+                        <a href="#" target="_blank" id="currentUrl"></a>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- コアライブラリ（ES Module） -->
-    <script type="module" src="/static/js/core/admin-core.js"></script>
-    <script type="module" src="/static/js/core/api-client.js"></script>
-    
-    <!-- レガシーコード（既存の機能、順次移行予定） -->
     <script src="/static/js/admin-auth.js"></script>
-    <script src="/static/js/image-upload.js"></script>
-    <script src="/static/js/dark-mode.js"></script>
-    <script src="/static/js/datatable.js"></script>
-    <script src="/static/js/keyboard-shortcuts.js"></script>
-    <script src="/static/js/admin-ui-improvements.js"></script>
-    <script src="/static/js/admin-phase3-features.js"></script>
-    
-    <!-- メイン管理スクリプト（統合版） -->
-    <script type="module" src="/static/js/admin-blog-v2.js"></script>
     <script>
-        // データテーブル初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            const blogTable = new DataTable('#postsTable', {
-                searchable: true,
-                sortable: true,
-                filterable: true,
-                pagination: true,
-                perPage: 25,
-                perPageOptions: [10, 25, 50, 100],
-                columns: [
-                    { key: 'title', label: 'タイトル', sortable: true },
-                    { key: 'category', label: 'カテゴリー', filterable: true },
-                    { key: 'author', label: '投稿者' },
-                    { key: 'publish_date', label: '公開日', sortable: true, type: 'date' },
-                    { key: 'status', label: '状態', filterable: true }
-                ]
-            });
-
-            // キーボードショートカット初期化
-            KeyboardShortcuts.init({
-                save: () => {
-                    const form = document.getElementById('blogForm');
-                    if (form && document.getElementById('postForm').style.display !== 'none') {
-                        form.dispatchEvent(new Event('submit'));
-                    }
-                },
-                newItem: () => showPostForm(),
-                closeModal: () => {
-                    if (document.getElementById('postForm').style.display !== 'none') {
-                        hidePostForm();
-                    }
-                },
-                search: () => {
-                    const searchInput = document.querySelector('.datatable-search input');
-                    if (searchInput) searchInput.focus();
+        // ブログURLを読み込み
+        async function loadBlogUrl() {
+            try {
+                const response = await fetch('/api/tables/site_settings?setting_key=blog_external_url');
+                const data = await response.json();
+                
+                if (data.data && data.data.length > 0) {
+                    const url = data.data[0].setting_value;
+                    document.getElementById('blogUrl').value = url;
+                    
+                    // プレビューリンクを表示
+                    document.getElementById('currentUrl').href = url;
+                    document.getElementById('currentUrl').textContent = url;
+                    document.getElementById('previewLink').style.display = 'block';
                 }
-            });
+            } catch (error) {
+                console.error('ブログURLの読み込みに失敗:', error);
+            }
+        }
+        
+        // ブログURLを保存
+        async function saveBlogUrl(url) {
+            try {
+                // まず既存の設定を取得
+                const getResponse = await fetch('/api/tables/site_settings?setting_key=blog_external_url');
+                const getData = await getResponse.json();
+                
+                let response;
+                if (getData.data && getData.data.length > 0) {
+                    // 更新
+                    const id = getData.data[0].id;
+                    response = await fetch(`/api/tables/site_settings/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            setting_value: url,
+                            updated_at: new Date().toISOString()
+                        })
+                    });
+                } else {
+                    // 新規作成
+                    response = await fetch('/api/tables/site_settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            setting_key: 'blog_external_url',
+                            setting_value: url,
+                            setting_group: 'blog',
+                            description: '外部ブログサイトのURL'
+                        })
+                    });
+                }
+                
+                if (response.ok) {
+                    showMessage('success', 'ブログURLを保存しました！');
+                    
+                    // プレビューリンクを更新
+                    document.getElementById('currentUrl').href = url;
+                    document.getElementById('currentUrl').textContent = url;
+                    document.getElementById('previewLink').style.display = 'block';
+                } else {
+                    throw new Error('保存に失敗しました');
+                }
+            } catch (error) {
+                console.error('保存エラー:', error);
+                showMessage('error', 'ブログURLの保存に失敗しました');
+            }
+        }
+        
+        // ステータスメッセージを表示
+        function showMessage(type, message) {
+            const messageEl = document.getElementById('statusMessage');
+            messageEl.className = 'status-message ' + type;
+            messageEl.textContent = message;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        // フォーム送信
+        document.getElementById('blogUrlForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('blogUrl').value.trim();
+            
+            if (!url) {
+                showMessage('error', 'URLを入力してください');
+                return;
+            }
+            
+            await saveBlogUrl(url);
         });
+        
+        // ページ読み込み時にURLを取得
+        window.addEventListener('DOMContentLoaded', loadBlogUrl);
     </script>
 </body>
 </html>
