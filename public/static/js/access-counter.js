@@ -1,15 +1,11 @@
 // ========================================
-// アクセスカウンター（一時的に無効化中）
+// アクセスカウンター（有効化済み）
 // ========================================
 
-// TODO: access_stats テーブルを作成後に有効化する
-console.log('⚠️ Access counter is temporarily disabled. Please create access_stats table in Supabase.');
+console.log('✅ Access counter is enabled.');
 
 // ページ読み込み時にアクセスを記録
 (function() {
-    // 一時的に無効化
-    return;
-    
     // 管理画面は除外
     if (window.location.pathname.includes('admin-')) {
         return;
@@ -17,7 +13,36 @@ console.log('⚠️ Access counter is temporarily disabled. Please create access
     
     // アクセスを記録
     recordAccess();
+    
+    // 統計を表示（3秒後に表示して、カウント反映を待つ）
+    setTimeout(() => {
+        displayAccessStats();
+    }, 3000);
 })();
+
+/**
+ * アクセス統計を表示
+ */
+async function displayAccessStats() {
+    try {
+        const stats = await getAccessStats();
+        
+        const totalElement = document.getElementById('total-access');
+        const monthlyElement = document.getElementById('monthly-access');
+        
+        if (totalElement) {
+            totalElement.textContent = stats.total.toLocaleString();
+        }
+        
+        if (monthlyElement) {
+            monthlyElement.textContent = stats.monthly.toLocaleString();
+        }
+        
+        console.log('✅ Access stats displayed:', stats);
+    } catch (error) {
+        console.error('Display stats error:', error);
+    }
+}
 
 /**
  * アクセスを記録する
