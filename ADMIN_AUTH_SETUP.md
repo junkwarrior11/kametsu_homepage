@@ -11,47 +11,50 @@
 
 ### 1️⃣ **ローカル開発環境**
 
-`.dev.vars` ファイルに認証情報を設定（このファイルはGitにコミットされません）：
+`.env` ファイルに認証情報を設定（このファイルはGitにコミットされません）：
 
 ```bash
-# .dev.vars
+# .env
 ADMIN_USERNAME=your_username
 ADMIN_PASSWORD=your_secure_password
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
 ```
 
-**注意**: `.dev.vars` ファイルは `.gitignore` に含まれているため、Gitにコミットされません。
+**注意**: `.env` ファイルは `.gitignore` に含まれているため、Gitにコミットされません。
 
 ---
 
-### 2️⃣ **本番環境（Cloudflare Pages）**
+### 2️⃣ **本番環境（Netlify）**
 
-#### Cloudflare Pagesダッシュボードで設定：
+#### Netlifyダッシュボードで設定：
 
-1. **Cloudflare Pagesダッシュボードにアクセス**
-   - https://dash.cloudflare.com/ にログイン
-   - 「Pages」→ プロジェクト（webapp）を選択
+1. **Netlifyダッシュボードにアクセス**
+   - https://app.netlify.com/ にログイン
+   - サイト一覧から「kametsu-homepage」を選択
 
 2. **環境変数を設定**
-   - 「Settings」タブをクリック
-   - 「Environment variables」セクションを探す
-   - 「Add variable」をクリック
+   - 「Site settings」をクリック
+   - 左メニューから「Environment variables」を選択
+   - 「Add a variable」ボタンをクリック
 
 3. **変数を追加**
    
    **変数1: ADMIN_USERNAME**
-   - Variable name: `ADMIN_USERNAME`
+   - Key: `ADMIN_USERNAME`
    - Value: `your_admin_username`（任意のユーザー名）
-   - Environment: `Production` と `Preview` の両方にチェック
-   - 「Save」をクリック
+   - Scopes: 「Same value for all deploy contexts」を選択
+   - 「Create variable」をクリック
 
    **変数2: ADMIN_PASSWORD**
-   - Variable name: `ADMIN_PASSWORD`
+   - Key: `ADMIN_PASSWORD`
    - Value: `your_secure_password`（強力なパスワード）
-   - Environment: `Production` と `Preview` の両方にチェック
-   - 「Save」をクリック
+   - Scopes: 「Same value for all deploy contexts」を選択
+   - 「Create variable」をクリック
 
-4. **再デプロイ**
-   - 環境変数を設定後、最新のデプロイを「Retry deployment」で再実行
+4. **デプロイをトリガー**
+   - 左メニューから「Deploys」をクリック
+   - 「Trigger deploy」→「Clear cache and deploy site」を選択
    - または、新しいコミットをプッシュして自動デプロイ
 
 ---
@@ -85,13 +88,13 @@ TkN$chool2026*Pass
 ## ✅ 設定確認方法
 
 ### ローカル環境：
-1. `.dev.vars` ファイルに認証情報を記載
-2. `npm run build && pm2 restart webapp`
-3. http://localhost:3000/admin-login.html でログインテスト
+1. `.env` ファイルに認証情報を記載
+2. `npm run dev` または `netlify dev`
+3. http://localhost:8888/admin-login.html でログインテスト
 
 ### 本番環境：
-1. Cloudflare Pagesで環境変数を設定
-2. 再デプロイ
+1. Netlifyで環境変数を設定
+2. 「Clear cache and deploy site」で再デプロイ
 3. https://kametsu-homepage.netlify.app/admin-login.html でログインテスト
 
 ---
@@ -99,18 +102,19 @@ TkN$chool2026*Pass
 ## 🔧 トラブルシューティング
 
 ### ログインできない場合：
-1. 環境変数のスペルミスを確認
-2. Cloudflare Pagesで環境変数が保存されているか確認
+1. 環境変数のスペルミスを確認（`ADMIN_USERNAME`, `ADMIN_PASSWORD`）
+2. Netlifyで環境変数が保存されているか確認
 3. 再デプロイが完了しているか確認
 4. ブラウザのコンソール（F12）でエラーを確認
 
 ### 環境変数が反映されない場合：
-- Cloudflare Pagesで「Retry deployment」を実行
+- Netlifyで「Clear cache and deploy site」を実行
 - キャッシュをクリアしてページを再読み込み（Ctrl+Shift+R）
+- Netlify Functionsのログを確認（Site settings → Functions）
 
 ---
 
 ## 📚 参考資料
 
-- [Cloudflare Pages - Environment Variables](https://developers.cloudflare.com/pages/platform/build-configuration/#environment-variables)
-- [Wrangler - Environment Variables](https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables)
+- [Netlify - Environment Variables](https://docs.netlify.com/environment-variables/overview/)
+- [Netlify Functions - Environment Variables](https://docs.netlify.com/functions/configure-and-deploy/#environment-variables)

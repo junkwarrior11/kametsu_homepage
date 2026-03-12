@@ -8,6 +8,11 @@
   to = "/.netlify/functions/tables/:splat"
   status = 200
 
+[[redirects]]
+  from = "/api/auth/*"
+  to = "/.netlify/functions/auth"
+  status = 200
+
 [build.environment]
   NODE_VERSION = "18"
 
