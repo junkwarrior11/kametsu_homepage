@@ -159,25 +159,27 @@
                 ]
             });
 
-            // キーボードショートカット初期化
-            KeyboardShortcuts.init({
-                save: () => {
-                    const form = document.getElementById('newsletterFormElement');
-                    if (form && document.getElementById('newsletterForm').style.display !== 'none') {
-                        form.dispatchEvent(new Event('submit'));
+            // キーボードショートカット初期化（オプション）
+            if (typeof KeyboardShortcuts !== 'undefined' && KeyboardShortcuts.init) {
+                KeyboardShortcuts.init({
+                    save: () => {
+                        const form = document.getElementById('newsletterFormElement');
+                        if (form && document.getElementById('newsletterForm').style.display !== 'none') {
+                            form.dispatchEvent(new Event('submit'));
+                        }
+                    },
+                    newItem: () => showNewsletterForm(),
+                    closeModal: () => {
+                        if (document.getElementById('newsletterForm').style.display !== 'none') {
+                            hideNewsletterForm();
+                        }
+                    },
+                    search: () => {
+                        const searchInput = document.querySelector('.datatable-search input');
+                        if (searchInput) searchInput.focus();
                     }
-                },
-                newItem: () => showNewsletterForm(),
-                closeModal: () => {
-                    if (document.getElementById('newsletterForm').style.display !== 'none') {
-                        hideNewsletterForm();
-                    }
-                },
-                search: () => {
-                    const searchInput = document.querySelector('.datatable-search input');
-                    if (searchInput) searchInput.focus();
-                }
-            });
+                });
+            }
         });
     </script>
 </body>
