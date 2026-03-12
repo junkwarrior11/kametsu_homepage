@@ -56,8 +56,8 @@
     <!-- Page Header -->
     <section class="page-header">
         <div class="container">
-            <h1 id="access-page-title">アクセス</h1>
-            <p id="access-page-subtitle">Access</p>
+            <h1 id="access-page-title" data-setting="access_page_title">アクセス</h1>
+            <p id="access-page-subtitle" data-setting="access_page_subtitle">Access</p>
         </div>
     </section>
 
@@ -66,33 +66,33 @@
         <div class="container">
             <div class="access-info">
                 <div class="access-details">
-                    <h2 id="access-school-name">徳之島町立亀津小学校</h2>
+                    <h2 id="access-school-name" data-setting="access_school_name">徳之島町立亀津小学校</h2>
                     <div class="info-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
                             <strong>所在地</strong>
-                            <p id="access-address">〒891-7101<br>鹿児島県大島郡徳之島町亀津2918番地</p>
+                            <p id="access-address" data-setting="access_address">〒891-7101<br>鹿児島県大島郡徳之島町亀津2918番地</p>
                         </div>
                     </div>
                     <div class="info-item">
                         <i class="fas fa-phone"></i>
                         <div>
                             <strong>電話番号</strong>
-                            <p id="access-phone">0997-82-0142</p>
+                            <p id="access-phone" data-setting="access_phone">0997-82-0142</p>
                         </div>
                     </div>
                     <div class="info-item">
                         <i class="fas fa-fax"></i>
                         <div>
                             <strong>FAX</strong>
-                            <p id="access-fax">0997-82-0143</p>
+                            <p id="access-fax" data-setting="access_fax">0997-82-0143</p>
                         </div>
                     </div>
                     <div class="info-item">
                         <i class="fas fa-envelope"></i>
                         <div>
                             <strong>メールアドレス</strong>
-                            <p id="access-email">kametu-es@town.tokunoshima.lg.jp</p>
+                            <p id="access-email" data-setting="access_email">kametu-es@town.tokunoshima.lg.jp</p>
                         </div>
                     </div>
                 </div>
@@ -100,8 +100,25 @@
                 <div class="access-map">
                     <div class="map-placeholder">
                         <i class="fas fa-map-marked-alt"></i>
-                        <p id="access-map-text">地図を表示</p>
-                        <small id="access-map-note">※実際の運用時にはGoogle Mapsなどを埋め込んでください</small>
+                        <p id="access-map-text" data-setting="access_map_text">地図を表示</p>
+                        <small id="access-map-note" data-setting="access_map_note">※実際の運用時にはGoogle Mapsなどを埋め込んでください</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Transportation Section -->
+            <div class="transportation-section">
+                <h2 class="section-title" id="access-method-title" data-setting="access_method_title">交通アクセス</h2>
+                <div class="transportation-grid">
+                    <div class="transport-card">
+                        <i id="access-method1-icon" data-setting="access_method1_icon" data-editable-type="icon" class="fas fa-plane"></i>
+                        <h3 id="access-method1-title" data-setting="access_method1_title">徳之島空港から</h3>
+                        <p id="access-method1-text" data-setting="access_method1_text">車で約25分</p>
+                    </div>
+                    <div class="transport-card">
+                        <i id="access-method2-icon" data-setting="access_method2_icon" data-editable-type="icon" class="fas fa-ship"></i>
+                        <h3 id="access-method2-title" data-setting="access_method2_title">亀徳港から</h3>
+                        <p id="access-method2-text" data-setting="access_method2_text">車で約10分</p>
                     </div>
                 </div>
             </div>
