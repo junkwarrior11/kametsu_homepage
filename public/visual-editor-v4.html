@@ -412,6 +412,8 @@
             };
             
             let mappedCount = 0;
+            let headerCount = 0;
+            let footerCount = 0;
             Object.entries(idMappings).forEach(([id, settingKey]) => {
                 const el = iframeDoc.getElementById(id);
                 if (el && !el.classList.contains('editable-hint')) {
@@ -420,9 +422,15 @@
                     el.dataset.settingKey = settingKey;
                     el.addEventListener('click', handleElementClick);
                     mappedCount++;
+                    
+                    // カウント
+                    if (id.startsWith('header-')) headerCount++;
+                    if (id.startsWith('footer-')) footerCount++;
                 }
             });
             console.log('🔑 Mapped', mappedCount, 'elements by ID');
+            console.log('📋 Header elements:', headerCount);
+            console.log('📋 Footer elements:', footerCount);
             
             // アイコン要素のマッピング
             const iconMappings = {
