@@ -522,32 +522,79 @@
             // アイコンカテゴリとアイコンリスト
             const iconCategories = {
                 '教育・学習': [
-                    'fa-graduation-cap', 'fa-book', 'fa-book-open', 'fa-pen', 
-                    'fa-pencil-alt', 'fa-chalkboard-teacher', 'fa-school', 'fa-user-graduate'
+                    'fa-graduation-cap', 'fa-user-graduate', 'fa-school', 'fa-book', 
+                    'fa-book-open', 'fa-book-reader', 'fa-books', 'fa-bookmark',
+                    'fa-pen', 'fa-pencil-alt', 'fa-pen-fancy', 'fa-highlighter',
+                    'fa-chalkboard', 'fa-chalkboard-teacher', 'fa-blackboard',
+                    'fa-apple-alt', 'fa-microscope', 'fa-flask', 'fa-atom',
+                    'fa-calculator', 'fa-drafting-compass', 'fa-ruler', 'fa-eraser',
+                    'fa-backpack', 'fa-glasses', 'fa-mortar-board'
                 ],
                 '人・コミュニティ': [
-                    'fa-users', 'fa-user-friends', 'fa-handshake', 'fa-hands-helping',
-                    'fa-child', 'fa-baby', 'fa-user-tie'
+                    'fa-users', 'fa-user-friends', 'fa-people-group', 'fa-children',
+                    'fa-child', 'fa-baby', 'fa-user-tie', 'fa-user-circle',
+                    'fa-handshake', 'fa-hands-helping', 'fa-hand-holding-heart',
+                    'fa-praying-hands', 'fa-family', 'fa-house-user', 'fa-person-chalkboard'
                 ],
                 '心・感情': [
-                    'fa-heart', 'fa-smile', 'fa-grin', 'fa-laugh',
-                    'fa-star', 'fa-sun', 'fa-award', 'fa-medal'
+                    'fa-heart', 'fa-heart-pulse', 'fa-heartbeat', 'fa-hand-holding-heart',
+                    'fa-smile', 'fa-grin', 'fa-laugh', 'fa-grin-hearts',
+                    'fa-smile-beam', 'fa-grin-beam', 'fa-face-smile',
+                    'fa-star', 'fa-star-half-alt', 'fa-sparkles', 'fa-sun',
+                    'fa-award', 'fa-medal', 'fa-trophy', 'fa-gem',
+                    'fa-crown', 'fa-ribbon', 'fa-certificate'
                 ],
                 'スポーツ・運動': [
-                    'fa-running', 'fa-swimmer', 'fa-baseball-ball', 'fa-basketball-ball',
-                    'fa-football-ball', 'fa-volleyball-ball', 'fa-dumbbell', 'fa-skating'
+                    'fa-running', 'fa-person-running', 'fa-walking', 'fa-person-walking',
+                    'fa-swimmer', 'fa-person-swimming', 'fa-person-biking',
+                    'fa-baseball-ball', 'fa-basketball-ball', 'fa-football-ball',
+                    'fa-volleyball-ball', 'fa-table-tennis', 'fa-bowling-ball',
+                    'fa-dumbbell', 'fa-weight', 'fa-skating', 'fa-skiing',
+                    'fa-futbol', 'fa-golf-ball', 'fa-hockey-puck'
                 ],
                 '創造性・芸術': [
-                    'fa-lightbulb', 'fa-paint-brush', 'fa-palette', 'fa-music',
-                    'fa-guitar', 'fa-drum', 'fa-camera', 'fa-film'
+                    'fa-lightbulb', 'fa-brain', 'fa-head-side-brain', 'fa-wand-magic',
+                    'fa-paint-brush', 'fa-paintbrush', 'fa-palette', 'fa-pencil-ruler',
+                    'fa-music', 'fa-guitar', 'fa-drum', 'fa-violin',
+                    'fa-microphone', 'fa-headphones', 'fa-music-note',
+                    'fa-camera', 'fa-camera-retro', 'fa-film', 'fa-video',
+                    'fa-theater-masks', 'fa-puzzle-piece', 'fa-shapes'
                 ],
                 '国際・地球': [
-                    'fa-globe', 'fa-globe-americas', 'fa-globe-asia', 'fa-earth-asia',
-                    'fa-flag', 'fa-plane', 'fa-map', 'fa-compass'
+                    'fa-globe', 'fa-globe-americas', 'fa-globe-asia', 'fa-globe-europe',
+                    'fa-earth-asia', 'fa-earth-americas', 'fa-world',
+                    'fa-flag', 'fa-flag-checkered', 'fa-flags',
+                    'fa-plane', 'fa-plane-departure', 'fa-plane-arrival',
+                    'fa-map', 'fa-map-marked', 'fa-compass', 'fa-location-dot',
+                    'fa-passport', 'fa-language', 'fa-comments'
+                ],
+                '自然・環境': [
+                    'fa-leaf', 'fa-tree', 'fa-seedling', 'fa-spa',
+                    'fa-mountain', 'fa-cloud', 'fa-cloud-sun', 'fa-rainbow',
+                    'fa-water', 'fa-droplet', 'fa-fire', 'fa-wind',
+                    'fa-snowflake', 'fa-sun', 'fa-moon', 'fa-star',
+                    'fa-flower', 'fa-clover', 'fa-fish', 'fa-bug'
+                ],
+                '科学・技術': [
+                    'fa-atom', 'fa-microscope', 'fa-flask', 'fa-vial',
+                    'fa-dna', 'fa-magnet', 'fa-satellite', 'fa-rocket',
+                    'fa-laptop', 'fa-desktop', 'fa-tablet', 'fa-mobile',
+                    'fa-robot', 'fa-microchip', 'fa-code', 'fa-gear',
+                    'fa-bolt', 'fa-battery-full', 'fa-plug'
+                ],
+                '目標・成長': [
+                    'fa-chart-line', 'fa-chart-bar', 'fa-arrow-trend-up', 'fa-ranking-star',
+                    'fa-bullseye', 'fa-target', 'fa-flag-checkered', 'fa-mountain',
+                    'fa-stairs', 'fa-seedling', 'fa-sprout', 'fa-arrow-up',
+                    'fa-trophy', 'fa-medal', 'fa-award', 'fa-certificate'
                 ],
                 'その他': [
-                    'fa-rocket', 'fa-trophy', 'fa-certificate', 'fa-bullhorn',
-                    'fa-leaf', 'fa-tree', 'fa-mountain', 'fa-home'
+                    'fa-home', 'fa-house', 'fa-building', 'fa-school-flag',
+                    'fa-clock', 'fa-calendar', 'fa-bell', 'fa-bullhorn',
+                    'fa-envelope', 'fa-phone', 'fa-comment', 'fa-comments',
+                    'fa-shield', 'fa-shield-heart', 'fa-hand-point-right',
+                    'fa-circle-check', 'fa-circle-info', 'fa-lightbulb',
+                    'fa-key', 'fa-link', 'fa-anchor'
                 ]
             };
             
@@ -679,24 +726,79 @@
             // アイコンカテゴリ
             const iconCategories = {
                 '教育・学習': [
-                    'fa-graduation-cap', 'fa-book', 'fa-book-open', 'fa-pen', 
-                    'fa-pencil-alt', 'fa-chalkboard-teacher', 'fa-school', 'fa-user-graduate'
+                    'fa-graduation-cap', 'fa-user-graduate', 'fa-school', 'fa-book', 
+                    'fa-book-open', 'fa-book-reader', 'fa-books', 'fa-bookmark',
+                    'fa-pen', 'fa-pencil-alt', 'fa-pen-fancy', 'fa-highlighter',
+                    'fa-chalkboard', 'fa-chalkboard-teacher', 'fa-blackboard',
+                    'fa-apple-alt', 'fa-microscope', 'fa-flask', 'fa-atom',
+                    'fa-calculator', 'fa-drafting-compass', 'fa-ruler', 'fa-eraser',
+                    'fa-backpack', 'fa-glasses', 'fa-mortar-board'
                 ],
                 '人・コミュニティ': [
-                    'fa-users', 'fa-user-friends', 'fa-handshake', 'fa-hands-helping',
-                    'fa-child', 'fa-baby', 'fa-user-tie'
+                    'fa-users', 'fa-user-friends', 'fa-people-group', 'fa-children',
+                    'fa-child', 'fa-baby', 'fa-user-tie', 'fa-user-circle',
+                    'fa-handshake', 'fa-hands-helping', 'fa-hand-holding-heart',
+                    'fa-praying-hands', 'fa-family', 'fa-house-user', 'fa-person-chalkboard'
                 ],
                 '心・感情': [
-                    'fa-heart', 'fa-smile', 'fa-grin', 'fa-laugh',
-                    'fa-star', 'fa-sun', 'fa-award', 'fa-medal'
+                    'fa-heart', 'fa-heart-pulse', 'fa-heartbeat', 'fa-hand-holding-heart',
+                    'fa-smile', 'fa-grin', 'fa-laugh', 'fa-grin-hearts',
+                    'fa-smile-beam', 'fa-grin-beam', 'fa-face-smile',
+                    'fa-star', 'fa-star-half-alt', 'fa-sparkles', 'fa-sun',
+                    'fa-award', 'fa-medal', 'fa-trophy', 'fa-gem',
+                    'fa-crown', 'fa-ribbon', 'fa-certificate'
                 ],
                 'スポーツ・運動': [
-                    'fa-running', 'fa-swimmer', 'fa-baseball-ball', 'fa-basketball-ball',
-                    'fa-football-ball', 'fa-volleyball-ball', 'fa-dumbbell', 'fa-skating'
+                    'fa-running', 'fa-person-running', 'fa-walking', 'fa-person-walking',
+                    'fa-swimmer', 'fa-person-swimming', 'fa-person-biking',
+                    'fa-baseball-ball', 'fa-basketball-ball', 'fa-football-ball',
+                    'fa-volleyball-ball', 'fa-table-tennis', 'fa-bowling-ball',
+                    'fa-dumbbell', 'fa-weight', 'fa-skating', 'fa-skiing',
+                    'fa-futbol', 'fa-golf-ball', 'fa-hockey-puck'
+                ],
+                '創造性・芸術': [
+                    'fa-lightbulb', 'fa-brain', 'fa-head-side-brain', 'fa-wand-magic',
+                    'fa-paint-brush', 'fa-paintbrush', 'fa-palette', 'fa-pencil-ruler',
+                    'fa-music', 'fa-guitar', 'fa-drum', 'fa-violin',
+                    'fa-microphone', 'fa-headphones', 'fa-music-note',
+                    'fa-camera', 'fa-camera-retro', 'fa-film', 'fa-video',
+                    'fa-theater-masks', 'fa-puzzle-piece', 'fa-shapes'
+                ],
+                '国際・地球': [
+                    'fa-globe', 'fa-globe-americas', 'fa-globe-asia', 'fa-globe-europe',
+                    'fa-earth-asia', 'fa-earth-americas', 'fa-world',
+                    'fa-flag', 'fa-flag-checkered', 'fa-flags',
+                    'fa-plane', 'fa-plane-departure', 'fa-plane-arrival',
+                    'fa-map', 'fa-map-marked', 'fa-compass', 'fa-location-dot',
+                    'fa-passport', 'fa-language', 'fa-comments'
+                ],
+                '自然・環境': [
+                    'fa-leaf', 'fa-tree', 'fa-seedling', 'fa-spa',
+                    'fa-mountain', 'fa-cloud', 'fa-cloud-sun', 'fa-rainbow',
+                    'fa-water', 'fa-droplet', 'fa-fire', 'fa-wind',
+                    'fa-snowflake', 'fa-sun', 'fa-moon', 'fa-star',
+                    'fa-flower', 'fa-clover', 'fa-fish', 'fa-bug'
+                ],
+                '科学・技術': [
+                    'fa-atom', 'fa-microscope', 'fa-flask', 'fa-vial',
+                    'fa-dna', 'fa-magnet', 'fa-satellite', 'fa-rocket',
+                    'fa-laptop', 'fa-desktop', 'fa-tablet', 'fa-mobile',
+                    'fa-robot', 'fa-microchip', 'fa-code', 'fa-gear',
+                    'fa-bolt', 'fa-battery-full', 'fa-plug'
+                ],
+                '目標・成長': [
+                    'fa-chart-line', 'fa-chart-bar', 'fa-arrow-trend-up', 'fa-ranking-star',
+                    'fa-bullseye', 'fa-target', 'fa-flag-checkered', 'fa-mountain',
+                    'fa-stairs', 'fa-seedling', 'fa-sprout', 'fa-arrow-up',
+                    'fa-trophy', 'fa-medal', 'fa-award', 'fa-certificate'
                 ],
                 'その他': [
-                    'fa-rocket', 'fa-trophy', 'fa-certificate', 'fa-bullhorn',
-                    'fa-leaf', 'fa-tree', 'fa-mountain', 'fa-home', 'fa-lightbulb', 'fa-globe'
+                    'fa-home', 'fa-house', 'fa-building', 'fa-school-flag',
+                    'fa-clock', 'fa-calendar', 'fa-bell', 'fa-bullhorn',
+                    'fa-envelope', 'fa-phone', 'fa-comment', 'fa-comments',
+                    'fa-shield', 'fa-shield-heart', 'fa-hand-point-right',
+                    'fa-circle-check', 'fa-circle-info', 'fa-lightbulb',
+                    'fa-key', 'fa-link', 'fa-anchor'
                 ]
             };
             
