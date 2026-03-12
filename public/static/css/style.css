@@ -1409,6 +1409,53 @@ a {
     .page-header h1 {
         font-size: 2rem;
     }
+    
+    /* フッターのモバイル最適化 */
+    .footer {
+        padding: 40px 0 20px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+    }
+    
+    .footer-section {
+        padding: 0 20px;
+    }
+    
+    .footer-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 10px;
+        display: inline-block;
+        width: auto;
+    }
+    
+    .footer-section p,
+    .footer-section ul {
+        text-align: center;
+    }
+    
+    .footer-section ul li {
+        margin-bottom: 8px;
+    }
+    
+    .footer-bottom {
+        padding: 20px 15px 0;
+    }
+    
+    .footer-bottom p {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+    
+    .access-counter {
+        margin-top: 10px;
+        font-size: 0.8rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1431,6 +1478,48 @@ a {
     .contact-form,
     .content-box {
         padding: 20px;
+    }
+    
+    /* 小型スマホのフッター最適化 */
+    .footer {
+        padding: 30px 0 15px;
+    }
+    
+    .footer-content {
+        gap: 25px;
+    }
+    
+    .footer-section {
+        padding: 0 15px;
+    }
+    
+    .footer-section h3 {
+        font-size: 1rem;
+    }
+    
+    .footer-section p,
+    .footer-section ul li {
+        font-size: 0.9rem;
+    }
+    
+    .footer-bottom p {
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+    
+    .access-counter {
+        font-size: 0.75rem;
+    }
+    
+    .access-counter p {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .access-counter p i {
+        display: block;
+        margin-bottom: 5px;
     }
 }
 /* Transportation Section */
@@ -1513,5 +1602,121 @@ a {
 @media (max-width: 768px) {
     .map-container {
         height: 300px;
+    }
+}
+
+/* ========================================
+   追加のモバイル最適化
+======================================== */
+
+/* タブレット・スマホ共通 */
+@media (max-width: 768px) {
+    /* ヘッダーの最適化 */
+    .header-top {
+        padding: 8px 0;
+    }
+    
+    .logo h1 {
+        font-size: 1.3rem;
+    }
+    
+    .logo .subtitle {
+        font-size: 0.85rem;
+    }
+    
+    /* セクション間隔の調整 */
+    .section {
+        padding: 50px 0;
+    }
+    
+    /* カードグリッドの最適化 */
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .feature-card,
+    .news-card,
+    .event-card {
+        margin-bottom: 15px;
+    }
+    
+    /* ボタンの最適化 */
+    .btn {
+        padding: 14px 30px;
+        font-size: 1rem;
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* テーブルの横スクロール */
+    .info-table {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .info-table table {
+        min-width: 100%;
+    }
+}
+
+/* 小型スマホ専用 */
+@media (max-width: 480px) {
+    /* コンテナのパディング調整 */
+    .container {
+        padding: 0 15px;
+    }
+    
+    /* ロゴの最適化 */
+    .logo h1 {
+        font-size: 1.1rem;
+    }
+    
+    .logo .subtitle {
+        font-size: 0.75rem;
+    }
+    
+    /* セクション間隔の縮小 */
+    .section {
+        padding: 35px 0;
+    }
+    
+    /* カードのパディング縮小 */
+    .feature-card,
+    .news-card,
+    .event-card,
+    .goal-card {
+        padding: 20px 15px;
+    }
+    
+    /* ページヘッダーの最適化 */
+    .page-header {
+        padding: 50px 0;
+    }
+    
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .page-header p {
+        font-size: 0.9rem;
+    }
+}
+
+/* 極小スマホ対応 (360px以下) */
+@media (max-width: 360px) {
+    .logo h1 {
+        font-size: 1rem;
+    }
+    
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
     }
 }
