@@ -4,7 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardStats();
-    loadRecentPosts();
+    loadBlogConfig();
 });
 
 // 統計データを読み込む
@@ -14,18 +14,18 @@ async function loadDashboardStats() {
         const now = new Date();
         const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         
-        // アクセス統計は一時的にスキップ（access_statsテーブル未作成のため）
-        const [blogRes, newsletterRes, eventsRes] = await Promise.all([
-            fetch('/api/tables/blog_posts'),
+        // ブログは外部サイトなので統計から除外
+        const [newsletterRes, eventsRes] = await Promise.all([
             fetch('/api/tables/newsletters'),
             fetch('/api/tables/events')
         ]);
         
-        const blogData = await blogRes.json();
         const newsletterData = await newsletterRes.json();
         const eventsData = await eventsRes.json();
         
-        document.getElementById('blogCount').textContent = blogData.total || 0;
+        // ブログステータスを表示
+        loadBlogStatus();
+        
         document.getElementById('newsletterCount').textContent = newsletterData.total || 0;
         document.getElementById('eventCount').textContent = eventsData.total || 0;
         
@@ -39,32 +39,42 @@ async function loadDashboardStats() {
     }
 }
 
-// 最近のブログ記事を読み込む
-async function loadRecentPosts() {
-    const container = document.getElementById('recentPosts');
+// ブログステータスを読み込む
+async function loadBlogStatus() {
+    try {
+        const response = await fetch('/api/tables/site_settings?setting_key=blog_external_url');
+        const data = await response.json();
+        
+        if (data.data && data.data.length > 0 && data.data[0].setting_value) {
+            document.getElementById('blogStatus').textContent = '設定済み';
+        } else {
+            document.getElementById('blogStatus').textContent = '未設定';
+        }
+    } catch (error) {
+        console.error('Error loading blog status:', error);
+        document.getElementById('blogStatus').textContent = '-';
+    }
+}
+
+// ブログ設定を読み込む
+async function loadBlogConfig() {
+    const displayEl = document.getElementById('blogUrlDisplay');
     
     try {
-        const response = await fetch('/api/tables/blog_posts?limit=5&sort=-created_at');
+        const response = await fetch('/api/tables/site_settings?setting_key=blog_external_url');
         const result = await response.json();
-        const posts = result.data || [];
         
-        if (posts.length === 0) {
-            container.innerHTML = '<p style="color: #9ca3af;">まだ記事がありません</p>';
-            return;
+        if (result.data && result.data.length > 0 && result.data[0].setting_value) {
+            const url = result.data[0].setting_value;
+            displayEl.innerHTML = `<a href="${escapeHtml(url)}" target="_blank" style="color: #667eea; text-decoration: none;">${escapeHtml(url)}</a>`;
+        } else {
+            displayEl.textContent = 'URL未設定';
+            displayEl.style.color = '#9ca3af';
         }
-        
-        container.innerHTML = posts.map(post => `
-            <div class="dashboard-item">
-                <div class="dashboard-item-info">
-                    <h4>${escapeHtml(post.title)}</h4>
-                    <p>${escapeHtml(post.category)} | ${escapeHtml(post.author)}</p>
-                </div>
-                <span class="dashboard-item-date">${formatDate(post.publish_date)}</span>
-            </div>
-        `).join('');
     } catch (error) {
-        console.error('Error loading recent posts:', error);
-        container.innerHTML = '<p style="color: #ef4444;">読み込みに失敗しました</p>';
+        console.error('Error loading blog config:', error);
+        displayEl.textContent = '読み込みに失敗しました';
+        displayEl.style.color = '#ef4444';
     }
 }
 

@@ -22,7 +22,7 @@
                     <i class="fas fa-chart-line"></i> ダッシュボード
                 </a>
                 <a href="admin-blog.html" class="nav-item">
-                    <i class="fas fa-blog"></i> ブログ記事
+                    <i class="fas fa-link"></i> ブログ設定
                 </a>
                 <a href="admin-newsletter.html" class="nav-item">
                     <i class="fas fa-newspaper"></i> 学校だより
@@ -69,11 +69,11 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <i class="fas fa-blog"></i>
+                            <i class="fas fa-link"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 id="blogCount">0</h3>
-                            <p>ブログ記事</p>
+                            <h3 id="blogStatus">外部リンク</h3>
+                            <p>ブログ（外部サイト）</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -114,11 +114,24 @@
                     </div>
                 </div>
 
-                <!-- Recent Posts -->
+                <!-- Blog Configuration -->
                 <div class="dashboard-section">
-                    <h2><i class="fas fa-blog"></i> 最近のブログ記事</h2>
-                    <div class="dashboard-list" id="recentPosts">
-                        <!-- Dynamic content -->
+                    <h2><i class="fas fa-link"></i> ブログ設定</h2>
+                    <div class="dashboard-list" id="blogConfig">
+                        <div class="list-item">
+                            <div class="list-info">
+                                <h4>外部ブログサイトへのリンク</h4>
+                                <p id="blogUrlDisplay">URL未設定</p>
+                            </div>
+                            <div class="list-actions">
+                                <a href="admin-blog.html" class="btn-action">
+                                    <i class="fas fa-cog"></i> 設定
+                                </a>
+                                <a href="blog.html" target="_blank" class="btn-action">
+                                    <i class="fas fa-external-link-alt"></i> プレビュー
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
