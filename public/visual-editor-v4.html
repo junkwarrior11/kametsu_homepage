@@ -164,9 +164,6 @@
             <button class="btn btn-toggle" id="editModeBtn">
                 <i class="fas fa-edit"></i> 編集モード: OFF
             </button>
-            <button class="btn btn-secondary" id="addCardBtn" style="display:none;">
-                <i class="fas fa-plus"></i> カード追加
-            </button>
             <select id="pageSelector" class="page-selector">
                 <option value="index">ホーム</option>
                 <option value="about">学校概要</option>
@@ -212,7 +209,6 @@
             const backBtn = document.getElementById('backBtn');
             const editModeBtn = document.getElementById('editModeBtn');
             const pageSelector = document.getElementById('pageSelector');
-            const addCardBtn = document.getElementById('addCardBtn');
             
             if (backBtn) {
                 backBtn.addEventListener('click', function() {
@@ -229,11 +225,6 @@
                 pageSelector.addEventListener('change', changePage);
                 console.log('✅ Page selector listener added');
             }
-            
-            if (addCardBtn) {
-                addCardBtn.addEventListener('click', addNewFeatureCard);
-                console.log('✅ Add card button listener added');
-            }
         }
         
         function toggleEditMode() {
@@ -242,25 +233,17 @@
             
             const btn = document.getElementById('editModeBtn');
             const status = document.getElementById('saveStatus');
-            const addCardBtn = document.getElementById('addCardBtn');
             
             if (editMode) {
                 btn.classList.add('active');
                 btn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: ON';
                 status.textContent = '編集モード有効';
                 console.log('✅ Edit mode enabled');
-                
-                // ホームページの場合のみカード追加ボタンを表示
-                if (currentPage === 'index') {
-                    addCardBtn.style.display = 'inline-block';
-                }
-                
                 enableDirectEditing();
             } else {
                 btn.classList.remove('active');
                 btn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: OFF';
                 status.textContent = '';
-                addCardBtn.style.display = 'none';
                 console.log('❌ Edit mode disabled');
                 disableDirectEditing();
             }
@@ -776,39 +759,6 @@
             iframe.src = currentSrc.split('?')[0] + '?_=' + Date.now();
         }
         
-        // カード追加機能
-        function addNewFeatureCard() {
-            let featuresItems = [];
-            
-            try {
-                featuresItems = JSON.parse(contentData['features_items'] || '[]');
-            } catch (e) {
-                console.error('Failed to parse features_items:', e);
-                return;
-            }
-            
-            const newTitle = prompt('新しいカードのタイトル:', '新しい特色');
-            if (!newTitle) return;
-            
-            const newDescription = prompt('説明:', '');
-            if (newDescription === null) return;
-            
-            const newIcon = prompt('アイコン (例: fa-star):', 'fa-star');
-            if (!newIcon) return;
-            
-            featuresItems.push({
-                title: newTitle,
-                description: newDescription,
-                icon: newIcon
-            });
-            
-            contentData['features_items'] = JSON.stringify(featuresItems);
-            refreshIframe();
-            scheduleAutoSave('features_items', JSON.stringify(featuresItems));
-            
-            console.log('✅ New feature card added');
-            alert('新しいカードを追加しました！\n編集モードを再度ONにしてください。');
-        }
         
         function scheduleAutoSave(key, value) {
             const status = document.getElementById('saveStatus');
