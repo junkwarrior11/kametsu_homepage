@@ -339,15 +339,41 @@
                 el.addEventListener('click', handleElementClick);
             });
             
-            // 主要なテキスト要素（data-setting属性がない場合のフォールバック）
+            // ID属性から設定キーを推測（hero-title → hero_title）
+            const idMappings = {
+                'hero-title': 'hero_title',
+                'hero-subtitle': 'hero_subtitle',
+                'about-title': 'about_title',
+                'about-lead': 'about_lead',
+                'about-description': 'about_description',
+                'features-title': 'features_title',
+                'news-title': 'news_title',
+                'events-title': 'events_title'
+            };
+            
+            let mappedCount = 0;
+            Object.entries(idMappings).forEach(([id, settingKey]) => {
+                const el = iframeDoc.getElementById(id);
+                if (el && !el.classList.contains('editable-hint')) {
+                    el.classList.add('editable-hint');
+                    el.dataset.editableType = 'text';
+                    el.dataset.settingKey = settingKey;
+                    el.addEventListener('click', handleElementClick);
+                    mappedCount++;
+                }
+            });
+            console.log('🔑 Mapped', mappedCount, 'elements by ID');
+            
+            // 主要なテキスト要素（data-setting属性もIDもない場合のフォールバック）
             const fallbackSelectors = [
-                '.hero-content h1',
+                '.hero-content h2',
                 '.hero-content p',
                 '.section-header h2',
                 '.about-content h2',
                 '.about-content p'
             ];
             
+            let fallbackCount = 0;
             fallbackSelectors.forEach(selector => {
                 const elements = iframeDoc.querySelectorAll(selector);
                 elements.forEach(el => {
@@ -356,9 +382,11 @@
                         el.classList.add('editable-hint');
                         el.dataset.editableType = 'text-simple';
                         el.addEventListener('click', handleElementClick);
+                        fallbackCount++;
                     }
                 });
             });
+            console.log('📄 Added', fallbackCount, 'fallback text elements');
             
             console.log('✅ Editable elements setup complete');
         }
@@ -401,15 +429,10 @@
             const currentValue = element.textContent.trim();
             const elementInfo = element.tagName + (element.className ? '.' + element.className.split(' ')[0] : '');
             
-            const newValue = prompt('テキストを編集 (' + elementInfo + '):', currentValue);
+            const newValue = prompt('⚠️ この要素は保存されません（リロードで元に戻ります）\n\nテキストを編集 (' + elementInfo + '):', currentValue);
             
             if (newValue !== null && newValue !== currentValue) {
                 element.textContent = newValue;
-                
-                // 簡易的な保存: タグとクラス名から推測してキーを作成
-                // 将来的にはより良い方法に改善する
-                alert('⚠️ この要素は直接データベースに保存されません。\ndata-setting属性を持つ要素のみ保存できます。\n\nページをリロードすると元に戻ります。');
-                
                 console.log('ℹ️ Simple text element edited (not saved):', elementInfo);
             }
         }
