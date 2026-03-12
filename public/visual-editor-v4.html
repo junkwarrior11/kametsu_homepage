@@ -731,14 +731,14 @@
             <button class="btn btn-secondary" onclick="window.location.href='admin-dashboard.html'">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
             </button>
-            <button class="btn btn-toggle" id="edit-mode-toggle" onclick="toggleEditMode()">
+            <button class="btn btn-toggle" id="edit-mode-toggle">
                 <i class="fas fa-edit"></i> 編集モード: OFF
             </button>
-            <select id="page-selector" class="page-selector" onchange="changePage()">
+            <select id="page-selector" class="page-selector">
                 <option value="index">ホーム</option>
                 <option value="about">学校概要</option>
             </select>
-            <button class="btn btn-primary" onclick="refreshPreview()">
+            <button class="btn btn-primary" id="refresh-btn">
                 <i class="fas fa-sync-alt"></i> 更新
             </button>
             <span id="save-status" class="save-status"></span>
@@ -931,6 +931,20 @@
                 const pageSelect = document.getElementById('page-selector');
                 if (pageSelect) {
                     pageSelect.value = currentPage;
+                    // Add event listener
+                    pageSelect.addEventListener('change', changePage);
+                }
+                
+                // Setup edit mode toggle button
+                const editModeToggle = document.getElementById('edit-mode-toggle');
+                if (editModeToggle) {
+                    editModeToggle.addEventListener('click', toggleEditMode);
+                }
+                
+                // Setup refresh button
+                const refreshBtn = document.getElementById('refresh-btn');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', refreshPreview);
                 }
                 
                 // Load preview iframe
@@ -2010,11 +2024,6 @@
 
         // Initialize on load
         window.addEventListener('DOMContentLoaded', init);
-        
-        // グローバルスコープに関数を公開（HTMLのonchange/onclick属性から呼び出せるようにする）
-        window.changePage = changePage;
-        window.refreshPreview = refreshPreview;
-        window.toggleEditMode = toggleEditMode;
     </script>
 </body>
 </html>
