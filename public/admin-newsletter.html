@@ -5,13 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学校だより管理 - 管理システム</title>
     <link rel="stylesheet" href="/static/css/admin.css">
-    <link rel="stylesheet" href="/static/css/pdf-upload.css">
-    <link rel="stylesheet" href="/static/css/image-upload.css">
-    <link rel="stylesheet" href="/static/css/datatable.css">
-    <link rel="stylesheet" href="/static/css/dark-mode.css">
-    <link rel="stylesheet" href="/static/css/admin-ui-improvements.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .pdf-list {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .pdf-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pdf-info h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .pdf-info p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .pdf-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+        .btn-delete {
+            background: #f56565;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn-upload {
+            background: #48bb78;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+        .message {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+    </style>
 </head>
 <body class="admin-page">
     <div class="admin-container">
@@ -25,7 +110,7 @@
                     <i class="fas fa-chart-line"></i> ダッシュボード
                 </a>
                 <a href="admin-blog.html" class="nav-item">
-                    <i class="fas fa-blog"></i> ブログ記事
+                    <i class="fas fa-link"></i> ブログ設定
                 </a>
                 <a href="admin-newsletter.html" class="nav-item active">
                     <i class="fas fa-newspaper"></i> 学校だより
@@ -40,17 +125,13 @@
                     <i class="fas fa-shield-alt"></i> いじめ防止方針
                 </a>
                 <a href="visual-editor-v4" class="nav-item">
-                    <i class="fas fa-paint-brush"></i> ビジュアル編集 v4（直接編集）
+                    <i class="fas fa-paint-brush"></i> ビジュアル編集 v4
                 </a>
                 <a href="index.html" class="nav-item">
                     <i class="fas fa-external-link-alt"></i> サイトを見る
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <button id="themeToggle" class="theme-toggle" aria-label="テーマ切替">
-                    <i class="fas fa-moon"></i>
-                    <span>ダークモード</span>
-                </button>
                 <button id="logoutBtn" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> ログアウト
                 </button>
@@ -58,129 +139,173 @@
         </aside>
 
         <main class="admin-main">
-            <header class="admin-header">
+            <div class="admin-header">
                 <h1><i class="fas fa-newspaper"></i> 学校だより管理</h1>
-                <button class="btn-primary" onclick="showNewsletterForm()">
-                    <i class="fas fa-plus"></i> 新規追加
-                </button>
-            </header>
+                <p>PDFファイルをアップロードして学校だよりを掲載できます</p>
+            </div>
 
-            <div class="admin-content">
-                <div id="newsletterForm" class="form-modal" style="display: none;">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 id="formTitle">新規追加</h2>
-                            <button class="btn-close" onclick="hideNewsletterForm()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <form id="newsletterFormElement">
-                            <input type="hidden" id="newsletterId">
-                            <div class="form-group">
-                                <label for="title">タイトル *</label>
-                                <input type="text" id="title" required>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="issue_number">号数 *</label>
-                                    <input type="number" id="issue_number" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="issue_date">発行日 *</label>
-                                    <input type="date" id="issue_date" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="file_url">PDFファイル *</label>
-                                <div class="pdf-upload-field">
-                                    <input type="text" id="file_url" required placeholder="PDFをアップロードしてください" readonly>
-                                    <button type="button" class="btn-upload" onclick="openNewsletterPDFPicker()">
-                                        <i class="fas fa-upload"></i> PDFを選択
-                                    </button>
-                                </div>
-                                <input type="hidden" id="file_name">
-                                <input type="hidden" id="pdf_id">
-                                <small style="color: #666; display: block; margin-top: 8px;">PCからPDFファイルを選択してアップロードできます（最大10MB）</small>
-                            </div>
-                            <div class="form-group">
-                                <label for="description">概要</label>
-                                <textarea id="description" rows="4"></textarea>
-                            </div>
-                            <div class="form-actions">
-                                <button type="button" class="btn-secondary" onclick="hideNewsletterForm()">キャンセル</button>
-                                <button type="submit" class="btn-primary">保存</button>
-                            </div>
-                        </form>
+            <div id="message" class="message"></div>
+
+            <div class="upload-section">
+                <h2>新しい学校だよりをアップロード</h2>
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="title">タイトル *</label>
+                        <input type="text" id="title" required placeholder="例: 第1号 4月号">
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="issue_date">発行日 *</label>
+                        <input type="date" id="issue_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pdf_file">PDFファイル *</label>
+                        <input type="file" id="pdf_file" accept=".pdf" required>
+                    </div>
+                    <button type="submit" class="btn btn-upload">
+                        <i class="fas fa-upload"></i> アップロード
+                    </button>
+                </form>
+            </div>
 
-                <div class="data-table">
-                    <table id="newslettersTable" data-table="true">
-                        <thead>
-                            <tr>
-                                <th data-key="title" data-sortable="true">タイトル</th>
-                                <th data-key="issue_number" data-sortable="true" data-type="number">号数</th>
-                                <th data-key="issue_date" data-sortable="true" data-type="date">発行日</th>
-                                <th data-key="file_name">ファイル名</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="newslettersTableBody">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
+            <h2>掲載中の学校だより</h2>
+            <div id="pdfList" class="pdf-list">
+                <p>読み込み中...</p>
             </div>
         </main>
     </div>
 
     <script src="/static/js/admin-auth.js"></script>
-    <script src="/static/js/pdf-upload.js"></script>
-    <script src="/static/js/dark-mode.js"></script>
-    <script src="/static/js/datatable.js"></script>
-    <script src="/static/js/keyboard-shortcuts.js"></script>
-    <script src="/static/js/admin-ui-improvements.js"></script>
-    <script src="/static/js/admin-newsletter.js"></script>
     <script>
-        // データテーブル初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            const newslettersTable = new DataTable('#newslettersTable', {
-                searchable: true,
-                sortable: true,
-                filterable: false,
-                pagination: true,
-                perPage: 25,
-                perPageOptions: [10, 25, 50, 100],
-                columns: [
-                    { key: 'title', label: 'タイトル', sortable: true },
-                    { key: 'issue_number', label: '号数', sortable: true, type: 'number' },
-                    { key: 'issue_date', label: '発行日', sortable: true, type: 'date' },
-                    { key: 'file_name', label: 'ファイル名' }
-                ]
-            });
+        // 学校だより一覧を読み込む
+        async function loadNewsletters() {
+            try {
+                const response = await fetch('/api/tables/newsletters?sort=-issue_date');
+                const data = await response.json();
+                
+                const listEl = document.getElementById('pdfList');
+                
+                if (!data.data || data.data.length === 0) {
+                    listEl.innerHTML = '<p>まだ学校だよりが掲載されていません。</p>';
+                    return;
+                }
+                
+                listEl.innerHTML = data.data.map(item => `
+                    <div class="pdf-item">
+                        <div class="pdf-info">
+                            <h3>${escapeHtml(item.title)}</h3>
+                            <p><i class="fas fa-calendar"></i> 発行日: ${item.issue_date}</p>
+                            <p><i class="fas fa-file-pdf"></i> ${escapeHtml(item.file_name || 'ファイル')}</p>
+                        </div>
+                        <div class="pdf-actions">
+                            <button class="btn btn-view" onclick="viewPDF('${item.file_url}')">
+                                <i class="fas fa-eye"></i> 表示
+                            </button>
+                            <button class="btn btn-delete" onclick="deleteNewsletter('${item.id}', '${escapeHtml(item.title)}')">
+                                <i class="fas fa-trash"></i> 削除
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading newsletters:', error);
+                document.getElementById('pdfList').innerHTML = '<p>読み込みに失敗しました。</p>';
+            }
+        }
 
-            // キーボードショートカット初期化（オプション）
-            if (typeof KeyboardShortcuts !== 'undefined' && KeyboardShortcuts.init) {
-                KeyboardShortcuts.init({
-                    save: () => {
-                        const form = document.getElementById('newsletterFormElement');
-                        if (form && document.getElementById('newsletterForm').style.display !== 'none') {
-                            form.dispatchEvent(new Event('submit'));
-                        }
-                    },
-                    newItem: () => showNewsletterForm(),
-                    closeModal: () => {
-                        if (document.getElementById('newsletterForm').style.display !== 'none') {
-                            hideNewsletterForm();
-                        }
-                    },
-                    search: () => {
-                        const searchInput = document.querySelector('.datatable-search input');
-                        if (searchInput) searchInput.focus();
-                    }
+        // PDFを表示
+        function viewPDF(url) {
+            window.open(url, '_blank');
+        }
+
+        // 学校だよりを削除
+        async function deleteNewsletter(id, title) {
+            if (!confirm(`「${title}」を削除してもよろしいですか？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/tables/newsletters/${id}`, {
+                    method: 'DELETE'
                 });
+                
+                if (response.ok) {
+                    showMessage('学校だよりを削除しました', 'success');
+                    loadNewsletters();
+                } else {
+                    showMessage('削除に失敗しました', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting newsletter:', error);
+                showMessage('削除に失敗しました', 'error');
+            }
+        }
+
+        // フォーム送信
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const issue_date = document.getElementById('issue_date').value;
+            const file = document.getElementById('pdf_file').files[0];
+            
+            if (!file) {
+                showMessage('PDFファイルを選択してください', 'error');
+                return;
+            }
+            
+            try {
+                // PDFをBase64に変換
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const base64 = e.target.result.split(',')[1];
+                    
+                    // データベースに保存
+                    const response = await fetch('/api/tables/newsletters', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title,
+                            issue_date,
+                            file_url: `data:application/pdf;base64,${base64}`,
+                            file_name: file.name
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        showMessage('学校だよりをアップロードしました', 'success');
+                        document.getElementById('uploadForm').reset();
+                        loadNewsletters();
+                    } else {
+                        showMessage('アップロードに失敗しました', 'error');
+                    }
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error uploading:', error);
+                showMessage('アップロードに失敗しました', 'error');
             }
         });
+
+        // メッセージ表示
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }
+
+        // HTMLエスケープ
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 初期化
+        loadNewsletters();
     </script>
 </body>
 </html>

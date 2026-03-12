@@ -203,7 +203,7 @@ function updateImageSrc(elementId, imageUrl) {
     }
 }
 
-// 最新のお知らせ・ブログを読み込む
+// 最新のお知らせ（学校だより・行事予定）を読み込む
 async function loadRecentNews() {
     const newsGrid = document.getElementById('newsGrid');
     
@@ -212,34 +212,66 @@ async function loadRecentNews() {
     showLoading(newsGrid);
     
     try {
-        const response = await fetch('/api/tables/blog_posts?limit=3&sort=-publish_date&status=公開');
+        // 学校だよりと行事予定を並行して取得
+        const [newslettersRes, eventsRes] = await Promise.all([
+            fetch('/api/tables/newsletters?limit=2&sort=-issue_date'),
+            fetch('/api/tables/events?limit=2&sort=-event_date')
+        ]);
         
-        if (!response.ok) {
-            throw new Error('データの取得に失敗しました');
-        }
+        const newslettersData = await newslettersRes.json();
+        const eventsData = await eventsRes.json();
         
-        const result = await response.json();
-        const posts = result.data || [];
+        const newsletters = newslettersData.data || [];
+        const events = eventsData.data || [];
         
-        if (posts.length === 0) {
-            showEmpty(newsGrid, 'まだ記事がありません');
+        // 学校だよりと行事予定を結合
+        const allItems = [
+            ...newsletters.map(item => ({
+                type: 'newsletter',
+                title: item.title,
+                date: item.issue_date,
+                url: item.file_url,
+                icon: 'fa-newspaper',
+                category: '学校だより'
+            })),
+            ...events.map(item => ({
+                type: 'event',
+                title: item.title,
+                date: item.event_date,
+                url: item.file_url,
+                description: item.description,
+                icon: 'fa-calendar',
+                category: '行事予定'
+            }))
+        ];
+        
+        // 日付順にソート
+        allItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // 最新3件のみ表示
+        const latestItems = allItems.slice(0, 3);
+        
+        if (latestItems.length === 0) {
+            showEmpty(newsGrid, 'まだお知らせがありません');
             return;
         }
         
-        newsGrid.innerHTML = posts.map(post => `
+        newsGrid.innerHTML = latestItems.map(item => `
             <div class="news-card">
-                <div class="news-card-image">
-                    <img src="${escapeHtml(post.featured_image || 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800')}" 
-                         alt="${escapeHtml(post.title)}">
-                </div>
-                <div class="news-card-content">
+                <div class="news-card-content" style="padding: 30px;">
                     <div class="news-card-meta">
-                        <span class="news-card-category">${escapeHtml(post.category || 'その他')}</span>
-                        <span>${formatDate(post.publish_date)}</span>
+                        <span class="news-card-category">
+                            <i class="fas ${item.icon}"></i> ${escapeHtml(item.category)}
+                        </span>
+                        <span>${formatDate(item.date)}</span>
                     </div>
-                    <h3 class="news-card-title">${escapeHtml(post.title)}</h3>
-                    <p class="news-card-excerpt">${truncateText(escapeHtml(post.content), 100)}</p>
-                    <a href="blog-detail.html?id=${post.id}" class="btn btn-outline" style="margin-top: 15px;">続きを読む</a>
+                    <h3 class="news-card-title">${escapeHtml(item.title)}</h3>
+                    ${item.description ? `<p class="news-card-excerpt">${escapeHtml(item.description)}</p>` : ''}
+                    ${item.url ? `
+                        <a href="${item.url}" target="_blank" class="btn btn-outline" style="margin-top: 15px;">
+                            <i class="fas fa-file-pdf"></i> PDFを見る
+                        </a>
+                    ` : ''}
                 </div>
             </div>
         `).join('');
