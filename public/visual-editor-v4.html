@@ -937,8 +937,12 @@
                 
                 // Setup edit mode toggle button
                 const editModeToggle = document.getElementById('edit-mode-toggle');
+                console.log('🔘 Edit mode toggle button:', editModeToggle);
                 if (editModeToggle) {
                     editModeToggle.addEventListener('click', toggleEditMode);
+                    console.log('✅ Edit mode toggle listener added');
+                } else {
+                    console.error('❌ Edit mode toggle button not found!');
                 }
                 
                 // Setup refresh button
@@ -1022,16 +1026,20 @@
 
         // 編集モードのON/OFF切り替え
         function toggleEditMode() {
+            console.log('🎯 toggleEditMode called! Current editMode:', editMode);
             editMode = !editMode;
             const toggleBtn = document.getElementById('edit-mode-toggle');
+            console.log('📍 Toggle button:', toggleBtn, 'New editMode:', editMode);
             
             if (editMode) {
                 toggleBtn.classList.add('active');
                 toggleBtn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: ON';
+                console.log('✅ Enabling direct editing...');
                 enableDirectEditing();
             } else {
                 toggleBtn.classList.remove('active');
                 toggleBtn.innerHTML = '<i class="fas fa-edit"></i> 編集モード: OFF';
+                console.log('❌ Disabling direct editing...');
                 disableDirectEditing();
             }
         }
