@@ -1,12 +1,18 @@
 import { Hono } from 'hono'
 import api from './api'
+import auth from './auth'
 
 type Bindings = {
   DB: D1Database
   ASSETS: { fetch: typeof fetch }
+  ADMIN_USERNAME?: string
+  ADMIN_PASSWORD?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
+
+// Authentication routes
+app.route('/api/auth', auth)
 
 // API routes - these handle all database operations
 app.route('/api', api)

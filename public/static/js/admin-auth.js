@@ -50,40 +50,56 @@ async function handleLogin(e) {
         return;
     }
     
-    // デモ用の簡易認証
-    if (username === 'admin' && password === 'admin123') {
-        // ログイン成功 - 試行回数をリセット
-        clearLoginAttempts();
+    try {
+        // バックエンドAPIで認証
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
         
-        // セッション情報を保存
-        const currentTime = new Date().getTime();
-        const session = {
-            username: username,
-            loginTime: currentTime,
-            expiresAt: currentTime + SESSION_DURATION
-        };
+        const result = await response.json();
         
-        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        
-        // ダッシュボードにリダイレクト
-        window.location.href = 'admin-dashboard.html';
-    } else {
-        // ログイン失敗 - 試行回数を記録
-        recordFailedAttempt();
-        const attemptsData = getLoginAttempts();
-        const remainingAttempts = MAX_LOGIN_ATTEMPTS - attemptsData.count;
-        
-        if (remainingAttempts > 0) {
-            errorMessage.textContent = `ユーザー名またはパスワードが正しくありません。（残り${remainingAttempts}回）`;
+        if (result.success) {
+            // ログイン成功 - 試行回数をリセット
+            clearLoginAttempts();
+            
+            // セッション情報を保存
+            const currentTime = new Date().getTime();
+            const session = {
+                username: username,
+                loginTime: currentTime,
+                expiresAt: currentTime + SESSION_DURATION
+            };
+            
+            localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+            
+            // ダッシュボードにリダイレクト
+            window.location.href = 'admin-dashboard.html';
         } else {
-            errorMessage.textContent = `ログイン試行回数が上限に達しました。15分後に再試行してください。`;
+            // ログイン失敗 - 試行回数を記録
+            recordFailedAttempt();
+            const attemptsData = getLoginAttempts();
+            const remainingAttempts = MAX_LOGIN_ATTEMPTS - attemptsData.count;
+            
+            if (remainingAttempts > 0) {
+                errorMessage.textContent = `ユーザー名またはパスワードが正しくありません。（残り${remainingAttempts}回）`;
+            } else {
+                errorMessage.textContent = `ログイン試行回数が上限に達しました。15分後に再試行してください。`;
+            }
+            
+            errorMessage.classList.add('show');
+            
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
         }
-        
+    } catch (error) {
+        console.error('Login error:', error);
+        errorMessage.textContent = 'ログイン処理中にエラーが発生しました。';
         errorMessage.classList.add('show');
-        
-        setTimeout(() => {
-            errorMessage.classList.remove('show');
-        }, 5000);
     }
 }
 

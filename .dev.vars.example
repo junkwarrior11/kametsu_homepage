@@ -1,0 +1,7 @@
+# ローカル開発用の環境変数テンプレート
+# このファイルをコピーして .dev.vars を作成してください
+
+# 管理者認証情報
+# 本番環境では Cloudflare Pages の Environment Variables で設定
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change_this_password
