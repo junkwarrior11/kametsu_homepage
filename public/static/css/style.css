@@ -1493,3 +1493,25 @@ a {
         font-size: 36px;
     }
 }
+
+/* Google Map Container */
+.map-container {
+    width: 100%;
+    height: 450px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .map-container {
+        height: 300px;
+    }
+}

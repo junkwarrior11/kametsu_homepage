@@ -98,10 +98,8 @@
                 </div>
 
                 <div class="access-map">
-                    <div class="map-placeholder">
-                        <i class="fas fa-map-marked-alt"></i>
-                        <p id="access-map-text" data-setting="access_map_text">地図を表示</p>
-                        <small id="access-map-note" data-setting="access_map_note">※実際の運用時にはGoogle Mapsなどを埋め込んでください</small>
+                    <div id="map-container" class="map-container">
+                        <!-- Google Map will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -168,6 +166,7 @@
     <!-- End Content Wrapper -->
 
     <script src="/static/js/content-loader.js"></script>
+    <script src="/static/js/map-loader.js"></script>
     <script src="/static/js/main.js"></script>
     <script src="/static/js/access.js"></script>
     <script src="/static/js/access-counter.js"></script>

@@ -17,10 +17,10 @@ INSERT INTO site_settings (setting_key, setting_value, setting_group, descriptio
 ('access_email', 'kametu-es@town.tokunoshima.lg.jp', 'access_info', 'メールアドレス')
 ON CONFLICT (setting_key) DO NOTHING;
 
--- 地図プレースホルダー
+-- Google Map 埋め込みURL
+-- 学校の住所でGoogle Mapを開き、「共有」→「地図を埋め込む」でURLを取得してください
 INSERT INTO site_settings (setting_key, setting_value, setting_group, description) VALUES
-('access_map_text', '地図を表示', 'access_map', '地図プレースホルダーテキスト'),
-('access_map_note', '※実際の運用時にはGoogle Mapsなどを埋め込んでください', 'access_map', '地図の注意書き')
+('access_map_url', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3417.234!2d128.9234!3d27.7456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjfCsDQ0JzQ0LjIiTiAxMjjCsDU1JzI0LjIiRQ!5e0!3m2!1sja!2sjp!4v1234567890', 'access_map', 'Google Map埋め込みURL')
 ON CONFLICT (setting_key) DO NOTHING;
 
 -- アクセス方法（交通手段）
