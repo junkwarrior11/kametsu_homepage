@@ -47,7 +47,7 @@
         <div class="header-top">
             <div class="container">
                 <div class="header-info">
-                    <span><i class="fas fa-phone"></i> <span id="header-top-phone">0997-82-0142</span></span>
+                    <span><i class="fas fa-phone"></i> <span id="header-top-phone" data-setting="header_top_phone">0997-82-0142</span></span>
                 </div>
                 <div class="header-links">
                     <a href="admin-login.html" class="admin-link"><i class="fas fa-lock"></i> 管理者ログイン</a>
@@ -57,8 +57,8 @@
         <nav class="navbar">
             <div class="container">
                 <div class="logo">
-                    <h1 id="header-school-name">徳之島町立亀津小学校</h1>
-                    <p class="subtitle" id="header-motto">心豊かに、たくましく</p>
+                    <h1 id="header-school-name" data-setting="header_school_name">徳之島町立亀津小学校</h1>
+                    <p class="subtitle" id="header-motto" data-setting="header_motto">心豊かに、たくましく</p>
                 </div>
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
                     <span></span>
@@ -83,8 +83,8 @@
     <section class="hero" id="hero-section">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h2 class="hero-title" id="hero-title">徳之島町立亀津小学校</h2>
-            <p class="hero-subtitle" id="hero-subtitle">心豊かに、たくましく</p>
+            <h2 class="hero-title" id="hero-title" data-setting="hero_title">徳之島町立亀津小学校</h2>
+            <p class="hero-subtitle" id="hero-subtitle" data-setting="hero_subtitle">心豊かに、たくましく</p>
             <div class="hero-buttons">
                 <a href="about.html" class="btn btn-primary" id="hero-btn1">学校について</a>
             </div>
@@ -177,10 +177,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3 id="footer-school-name">徳之島町立亀津小学校</h3>
-                    <p id="footer-address">〒891-7101<br>
+                    <h3 id="footer-school-name" data-setting="footer_school_name">徳之島町立亀津小学校</h3>
+                    <p id="footer-address" data-setting="footer_address">〒891-7101<br>
                     鹿児島県大島郡徳之島町亀津2918番地</p>
-                    <p><i class="fas fa-phone"></i> <span id="footer-phone">0997-82-0142</span></p>
+                    <p><i class="fas fa-phone"></i> <span id="footer-phone" data-setting="footer_phone">0997-82-0142</span></p>
                 </div>
                 <div class="footer-section">
                     <h3>リンク</h3>
@@ -192,15 +192,15 @@
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h3 id="footer-access-title">アクセス</h3>
+                    <h3 id="footer-access-title" data-setting="footer_access_title">アクセス</h3>
                     <ul>
-                        <li id="footer-access1">徳之島空港より車で約15分</li>
-                        <li id="footer-access2">亀徳港より車で約10分</li>
+                        <li id="footer-access1" data-setting="footer_access1">徳之島空港より車で約15分</li>
+                        <li id="footer-access2" data-setting="footer_access2">亀徳港より車で約10分</li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p id="footer-copyright">&copy; 2024 徳之島町立亀津小学校. All rights reserved.</p>
+                <p id="footer-copyright" data-setting="footer_copyright">&copy; 2024 徳之島町立亀津小学校. All rights reserved.</p>
                 <div class="access-counter">
                     <p>
                         <i class="fas fa-eye"></i> 
@@ -214,6 +214,7 @@
     </div>
     <!-- End Content Wrapper -->
 
+    <script src="/static/js/content-loader.js"></script>
     <script src="/static/js/main.js"></script>
     <script src="/static/js/home.js"></script>
     <script src="/static/js/access-counter.js"></script>

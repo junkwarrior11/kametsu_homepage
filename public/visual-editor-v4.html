@@ -953,6 +953,14 @@
             }
             
             console.log('✅ Setting saved:', key);
+            
+            // Reload content in iframe
+            const iframe = document.getElementById('preview');
+            const iframeWindow = iframe.contentWindow;
+            if (iframeWindow && iframeWindow.reloadContent) {
+                console.log('🔄 Reloading content in iframe...');
+                iframeWindow.reloadContent();
+            }
         }
     </script>
 </body>
