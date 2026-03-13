@@ -38,17 +38,22 @@ webapp/
 
 ## 💾 データベース構造
 
-### Cloudflare D1 Database (9テーブル)
+### Supabase PostgreSQL Database (9テーブル)
 
 1. **blog_posts** - ブログ記事
-2. **newsletters** - 学校だより
-3. **events** - 行事予定
+2. **newsletters** - 学校だより（PDFアップロード対応）
+3. **events** - 行事予定（PDFアップロード対応）
+   - `file_url`: PDFファイルのURL
+   - `pdf_id`: uploaded_pdfsテーブルへの参照
 4. **page_contents** - ページコンテンツ
 5. **media** - メディアファイル
-6. **site_settings** - サイト設定 (34フィールド - トップページの全テキスト)
+6. **site_settings** - サイト設定 (67フィールド - 全ページのテキスト・アイコン)
 7. **access_logs** - アクセスログ
 8. **access_stats** - アクセス統計
-9. **uploaded_pdfs** - PDFライブラリ
+9. **uploaded_pdfs** - PDFライブラリ（Base64形式）
+   - `file_name`: ファイル名
+   - `file_size`: ファイルサイズ
+   - `pdf_data`: Base64エンコードされたPDFデータ
 
 ## 🚀 使い方
 
@@ -239,8 +244,9 @@ npm run git:status            # Git状態確認
 
 ## 🌐 デプロイ済みURL
 
+- **本番環境**: https://kametsu-homepage.netlify.app/
 - **GitHub**: https://github.com/junkwarrior11/kametsu_homepage
-- **本番環境**: https://kametsu-homepage.pages.dev (GitHub連携デプロイ後に自動生成)
+- **管理画面**: https://kametsu-homepage.netlify.app/admin-login.html (admin / admin123)
 
 ## 📝 サンプルデータ
 
@@ -303,9 +309,15 @@ npm run git:status            # Git状態確認
 2. ✅ ローカル動作確認完了
 3. ✅ GitHubリポジトリへプッシュ完了
 4. ✅ Phase 2機能統合完了（データテーブル、Undo/Redo、キーボードショートカット、ダークモード）
-5. ⏳ Cloudflare Pages GitHub連携デプロイ（手順書あり - 上記参照）
-6. ⏳ D1データベースバインディング設定
-7. ⏳ カスタムドメイン設定 (オプション)
+5. ✅ Cloudflare Pages デプロイ完了
+6. ✅ D1データベース設定完了
+7. ✅ Supabase データベース移行完了
+8. ✅ PDFアップロード機能完全実装（行事予定・学校だより）
+9. ✅ Visual Editor 完全実装（全ページ対応）
+10. ✅ レスポンシブデザイン最適化（PC・タブレット・スマートフォン）
+11. ✅ Google Map 埋め込み機能
+12. ✅ アクセスカウンター機能
+13. ⏳ カスタムドメイン設定 (オプション)
 
 ---
 
