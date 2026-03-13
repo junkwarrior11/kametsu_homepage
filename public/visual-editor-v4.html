@@ -194,7 +194,10 @@
         let editMode = false;
         let currentPage = 'index';
         let contentData = {};
-        let saveTimeout = null;
+        let saveQueue = [];
+        let isSaving = false;
+        let pendingChanges = new Map();
+        let debounceTimers = new Map();
         
         // Page configurations
         const pageConfigs = {
@@ -904,30 +907,74 @@
         
         
         function scheduleAutoSave(key, value) {
-            const status = document.getElementById('saveStatus');
-            status.textContent = '保存中...';
-            status.className = 'save-status saving';
+            pendingChanges.set(key, value);
             
-            if (saveTimeout) {
-                clearTimeout(saveTimeout);
+            if (debounceTimers.has(key)) {
+                clearTimeout(debounceTimers.get(key));
             }
             
-            saveTimeout = setTimeout(async function() {
-                try {
-                    await updateSetting(key, value);
-                    status.textContent = '保存済み';
-                    status.className = 'save-status saved';
+            updateSaveStatus('保存待機中...', 'saving');
+            
+            const timerId = setTimeout(async () => {
+                debounceTimers.delete(key);
+                
+                const valueToSave = pendingChanges.get(key);
+                pendingChanges.delete(key);
+                
+                console.log(`📝 Queued for save: ${key}`);
+                saveQueue.push({ key, value: valueToSave });
+                
+                processSaveQueue();
+            }, 1000);
+            
+            debounceTimers.set(key, timerId);
+        }
+        
+        async function processSaveQueue() {
+            if (isSaving || saveQueue.length === 0) {
+                return;
+            }
+            
+            isSaving = true;
+            
+            try {
+                while (saveQueue.length > 0) {
+                    const item = saveQueue.shift();
                     
-                    setTimeout(function() {
-                        status.textContent = '';
-                        status.className = 'save-status';
-                    }, 2000);
-                } catch (error) {
-                    console.error('Auto-save failed:', error);
-                    status.textContent = '保存失敗';
-                    status.className = 'save-status';
+                    updateSaveStatus(`保存中... (残り${saveQueue.length + 1}件)`, 'saving');
+                    console.log(`💾 Saving: ${item.key}`);
+                    
+                    await updateSetting(item.key, item.value);
+                    console.log(`✅ Saved: ${item.key}`);
                 }
-            }, 3000);
+                
+                updateSaveStatus('すべて保存済み', 'saved');
+                
+                setTimeout(() => {
+                    if (saveQueue.length === 0 && pendingChanges.size === 0) {
+                        updateSaveStatus('', '');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Save failed:', error);
+                updateSaveStatus('保存失敗', 'error');
+                
+                setTimeout(() => {
+                    if (saveQueue.length > 0) {
+                        isSaving = false;
+                        processSaveQueue();
+                    }
+                }, 5000);
+            } finally {
+                isSaving = false;
+            }
+        }
+        
+        function updateSaveStatus(text, className) {
+            const status = document.getElementById('saveStatus');
+            status.textContent = text;
+            status.className = 'save-status ' + className;
         }
         
         async function updateSetting(key, value) {
