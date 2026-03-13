@@ -5,87 +5,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>いじめ防止基本方針管理 - 管理システム</title>
     <link rel="stylesheet" href="/static/css/admin.css">
-    <link rel="stylesheet" href="/static/css/pdf-upload.css">
-    <link rel="stylesheet" href="/static/css/image-upload.css">
-    <link rel="stylesheet" href="/static/css/dark-mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .pdf-list {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .pdf-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pdf-info h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .pdf-info p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .pdf-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+        .btn-delete {
+            background: #f56565;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .btn-upload {
+            background: #48bb78;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+        .message {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        .note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .note p {
+            margin: 0;
+            color: #78350f;
+            font-size: 14px;
+        }
+    </style>
 </head>
-<body class="admin-page">
+<body>
     <div class="admin-container">
         <aside class="admin-sidebar">
             <div class="sidebar-header">
-                <i class="fas fa-school"></i>
-                <h2>管理システム</h2>
+                <h2><i class="fas fa-cog"></i> 管理システム</h2>
             </div>
             <nav class="sidebar-nav">
-                <a href="admin-dashboard.html" class="nav-item">
-                    <i class="fas fa-chart-line"></i> ダッシュボード
-                </a>
-                <a href="admin-blog.html" class="nav-item">
-                    <i class="fas fa-blog"></i> ブログ記事
-                </a>
-                <a href="admin-newsletter.html" class="nav-item">
-                    <i class="fas fa-newspaper"></i> 学校だより
-                </a>
-                <a href="admin-events.html" class="nav-item">
-                    <i class="fas fa-calendar"></i> 行事予定
-                </a>
-                <a href="admin-school-rules.html" class="nav-item">
-                    <i class="fas fa-hands-helping"></i> 亀津小のやくそく
-                </a>
-                <a href="admin-bullying-prevention.html" class="nav-item active">
-                    <i class="fas fa-shield-alt"></i> いじめ防止方針
-                </a>
-                <a href="visual-editor-v4" class="nav-item">
-                    <i class="fas fa-paint-brush"></i> ビジュアル編集 v4（直接編集）
-                </a>
-                <a href="index.html" class="nav-item">
-                    <i class="fas fa-external-link-alt"></i> サイトを見る
-                </a>
+                <a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> ダッシュボード</a>
+                <a href="admin-settings.html"><i class="fas fa-sliders-h"></i> サイト設定</a>
+                <a href="admin-blog.html"><i class="fas fa-blog"></i> ブログ管理</a>
+                <a href="admin-newsletters.html"><i class="fas fa-newspaper"></i> 学校だより</a>
+                <a href="admin-events.html"><i class="fas fa-calendar-alt"></i> 行事予定</a>
+                <a href="admin-bullying-prevention.html" class="active"><i class="fas fa-shield-alt"></i> いじめ防止</a>
+                <a href="admin-school-rules.html"><i class="fas fa-book"></i> 亀津小のやくそく</a>
+                <a href="visual-editor-v4.html"><i class="fas fa-edit"></i> ビジュアルエディター</a>
+                <a href="index.html"><i class="fas fa-home"></i> ホームに戻る</a>
             </nav>
-            <div class="sidebar-footer">
-                <button id="themeToggle" class="theme-toggle" aria-label="テーマ切替">
-                    <i class="fas fa-moon"></i>
-                    <span>ダークモード</span>
-                </button>
-                <button id="logoutBtn" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> ログアウト
-                </button>
-            </div>
         </aside>
 
         <main class="admin-main">
-            <header class="admin-header">
+            <div class="admin-header">
                 <h1><i class="fas fa-shield-alt"></i> いじめ防止基本方針管理</h1>
-            </header>
+            </div>
 
             <div class="admin-content">
-                <!-- PDF Upload Section -->
-                <div class="pdf-upload-section">
-                    <h3><i class="fas fa-file-pdf"></i> いじめ防止基本方針PDF</h3>
-                    <p style="color: #666; margin-bottom: 16px;">いじめ防止基本方針のPDFをアップロードすると、いじめ防止ページに表示されます。</p>
-                    <button class="pdf-upload-btn" onclick="openBullyingPreventionPDFPicker()">
-                        <i class="fas fa-upload"></i> PDFをアップロード
-                    </button>
-                    <div id="currentPDFDisplay" style="margin-top: 20px;"></div>
+                <div id="message" class="message"></div>
+
+                <div class="note">
+                    <p><i class="fas fa-info-circle"></i> <strong>注意：</strong>いじめ防止基本方針は1つのみ登録できます。新しいファイルをアップロードすると、既存のファイルは自動的に置き換えられます。</p>
+                </div>
+
+                <!-- アップロードセクション -->
+                <div class="upload-section">
+                    <h2><i class="fas fa-upload"></i> いじめ防止基本方針をアップロード</h2>
+                    <form id="uploadForm">
+                        <div class="form-group">
+                            <label for="description">説明（タイトル）<span style="color: red;">*</span></label>
+                            <input type="text" id="description" name="description" value="いじめ防止基本方針" required>
+                            <small style="color: #666; display: block; margin-top: 5px;">例：いじめ防止基本方針、令和6年度いじめ防止基本方針</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">年度<span style="color: red;">*</span></label>
+                            <input type="number" id="year" name="year" value="2024" min="2000" max="2100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pdfFile">PDFファイル<span style="color: red;">*</span></label>
+                            <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required>
+                            <small style="color: #666; display: block; margin-top: 5px;">最大サイズ: 10MB</small>
+                        </div>
+                        <button type="submit" class="btn btn-upload">
+                            <i class="fas fa-upload"></i> アップロード
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 現在登録されているPDF -->
+                <div class="upload-section">
+                    <h2><i class="fas fa-file-pdf"></i> 現在登録されているPDF</h2>
+                    <div id="pdfList" class="pdf-list">
+                        <p style="color: #666;">読み込み中...</p>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <script src="/static/js/admin-auth.js"></script>
-    <script src="/static/js/pdf-upload.js"></script>
-    <script src="/static/js/dark-mode.js"></script>
-    <script src="/static/js/keyboard-shortcuts.js"></script>
     <script src="/static/js/admin-bullying-prevention.js"></script>
-    <script>
-        // キーボードショートカット初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof KeyboardShortcuts !== 'undefined') {
-                KeyboardShortcuts.init();
-            }
-        });
-    </script>
 </body>
 </html>
