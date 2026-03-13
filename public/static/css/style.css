@@ -672,32 +672,6 @@ a {
 /* ========================================
    Principal Message
 ======================================== */
-.principal-message {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: var(--shadow-md);
-}
-
-.principal-photo img {
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: var(--shadow-md);
-}
-
-.principal-text p {
-    margin-bottom: 20px;
-    color: var(--text-light);
-    line-height: 1.8;
-}
-
-.signature {
-    text-align: right;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-top: 30px;
-}
-
 /* ========================================
    Philosophy
 ======================================== */
