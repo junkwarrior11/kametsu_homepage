@@ -38,11 +38,6 @@ body.loading {
     overflow: hidden;
 }
 
-/* ローディング中はコンテンツを完全に非表示（チラツキ完全防止） */
-body.loading .content-wrapper {
-    display: none !important;
-}
-
 .page-loading {
     position: fixed;
     top: 0;
@@ -79,9 +74,14 @@ body.loading .content-wrapper {
 
 /* コンテンツのちらつき防止 */
 .content-wrapper {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease;
+}
+
+body.loading .content-wrapper {
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 
 .content-wrapper.loaded {
