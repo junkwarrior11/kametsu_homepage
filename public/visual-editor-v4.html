@@ -215,12 +215,6 @@
             <button class="btn btn-secondary" id="backBtn">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
             </button>
-            <button class="btn btn-secondary" id="changeBackgroundBtn" title="ホームの背景画像を変更">
-                <i class="fas fa-image"></i> 背景画像
-            </button>
-            <button class="btn btn-secondary" id="changeAboutImageBtn" title="学校紹介の写真を変更">
-                <i class="fas fa-school"></i> 学校紹介
-            </button>
             <button class="btn btn-toggle" id="editModeBtn">
                 <i class="fas fa-edit"></i> 編集モード: OFF
             </button>
@@ -273,24 +267,12 @@
         function setupEventListeners() {
             const backBtn = document.getElementById('backBtn');
             const editModeBtn = document.getElementById('editModeBtn');
-            const changeBackgroundBtn = document.getElementById('changeBackgroundBtn');
-            const changeAboutImageBtn = document.getElementById('changeAboutImageBtn');
             const pageSelector = document.getElementById('pageSelector');
             
             if (backBtn) {
                 backBtn.addEventListener('click', function() {
                     window.location.href = 'admin-dashboard.html';
                 });
-            }
-            
-            if (changeBackgroundBtn) {
-                changeBackgroundBtn.addEventListener('click', showBackgroundImageDialog);
-                console.log('✅ Change background button listener added');
-            }
-            
-            if (changeAboutImageBtn) {
-                changeAboutImageBtn.addEventListener('click', showAboutImageDialog);
-                console.log('✅ Change about image button listener added');
             }
             
             if (editModeBtn) {
@@ -639,6 +621,34 @@
             });
             console.log('🎨 Mapped', iconCount, 'icon elements');
             
+            // 画像要素のマッピング
+            const imageMappings = {
+                'hero-section': {
+                    settingKey: 'hero_background_image',
+                    editableType: 'background-image',
+                    description: '背景画像'
+                },
+                'about-image': {
+                    settingKey: 'about_section_image',
+                    editableType: 'image',
+                    description: '学校紹介の画像'
+                }
+            };
+            
+            let imageCount = 0;
+            Object.entries(imageMappings).forEach(([id, config]) => {
+                const el = iframeDoc.getElementById(id);
+                if (el && !el.classList.contains('editable-hint')) {
+                    el.classList.add('editable-hint');
+                    el.dataset.editableType = config.editableType;
+                    el.dataset.settingKey = config.settingKey;
+                    el.dataset.description = config.description;
+                    el.addEventListener('click', handleElementClick);
+                    imageCount++;
+                }
+            });
+            console.log('🖼️ Mapped', imageCount, 'image elements');
+            
             // 主要なテキスト要素（data-setting属性もIDもない場合のフォールバック）
             const fallbackSelectors = [
                 '.hero-content h2',
@@ -685,6 +695,10 @@
                 editIconElement(element);
             } else if (editableType === 'feature') {
                 editFeatureCard(element);
+            } else if (editableType === 'image') {
+                editImageElement(element);
+            } else if (editableType === 'background-image') {
+                editBackgroundImageElement(element);
             }
         }
         
@@ -1340,6 +1354,136 @@
                 } catch (error) {
                     console.error('Error uploading about image:', error);
                     alert('学校紹介の画像のアップロードに失敗しました。');
+                    updateSaveStatus('', '');
+                } finally {
+                    document.body.removeChild(fileInput);
+                }
+            });
+            
+            // ファイル選択ダイアログを開く
+            fileInput.click();
+        }
+        
+        // 画像要素を編集（クリックで変更）
+        async function editImageElement(element) {
+            const settingKey = element.dataset.settingKey;
+            const description = element.dataset.description || '画像';
+            
+            console.log('🖼️ Editing image:', settingKey);
+            
+            // ファイル選択用のinput要素を作成
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/jpg';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            // ファイルが選択されたら処理
+            fileInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // ファイルサイズチェック（3MB以下）
+                if (file.size > 3 * 1024 * 1024) {
+                    alert('ファイルサイズが大きすぎます。3MB以下のファイルを選択してください。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // 画像タイプチェック
+                if (!file.type.startsWith('image/')) {
+                    alert('画像ファイルを選択してください（JPG, PNG, WebP）。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                try {
+                    updateSaveStatus('アップロード中...', 'saving');
+                    
+                    // 画像をBase64に変換
+                    const base64Data = await fileToBase64(file);
+                    
+                    // データベースに保存
+                    contentData[settingKey] = base64Data;
+                    scheduleAutoSave(settingKey, base64Data);
+                    
+                    // 画像を即座に更新
+                    element.src = base64Data;
+                    
+                    updateSaveStatus('保存完了', 'saved');
+                    
+                    console.log('✅ Image updated:', settingKey);
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                    alert('画像のアップロードに失敗しました。');
+                    updateSaveStatus('', '');
+                } finally {
+                    document.body.removeChild(fileInput);
+                }
+            });
+            
+            // ファイル選択ダイアログを開く
+            fileInput.click();
+        }
+        
+        // 背景画像要素を編集（クリックで変更）
+        async function editBackgroundImageElement(element) {
+            const settingKey = element.dataset.settingKey;
+            const description = element.dataset.description || '背景画像';
+            
+            console.log('🖼️ Editing background image:', settingKey);
+            
+            // ファイル選択用のinput要素を作成
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/jpg';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            // ファイルが選択されたら処理
+            fileInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // ファイルサイズチェック（5MB以下）
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('ファイルサイズが大きすぎます。5MB以下のファイルを選択してください。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // 画像タイプチェック
+                if (!file.type.startsWith('image/')) {
+                    alert('画像ファイルを選択してください（JPG, PNG, WebP）。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                try {
+                    updateSaveStatus('アップロード中...', 'saving');
+                    
+                    // 画像をBase64に変換
+                    const base64Data = await fileToBase64(file);
+                    
+                    // データベースに保存
+                    contentData[settingKey] = base64Data;
+                    scheduleAutoSave(settingKey, base64Data);
+                    
+                    // 背景画像を即座に更新
+                    element.style.backgroundImage = `url('${base64Data}')`;
+                    
+                    updateSaveStatus('保存完了', 'saved');
+                    
+                    console.log('✅ Background image updated:', settingKey);
+                } catch (error) {
+                    console.error('Error uploading background image:', error);
+                    alert('背景画像のアップロードに失敗しました。');
                     updateSaveStatus('', '');
                 } finally {
                     document.body.removeChild(fileInput);
