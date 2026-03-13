@@ -1220,7 +1220,7 @@
                 }
                 
                 try {
-                    showSaveStatus('アップロード中...');
+                    updateSaveStatus('アップロード中...', 'saving');
                     
                     // 画像をBase64に変換
                     const base64Data = await fileToBase64(file);
@@ -1228,7 +1228,7 @@
                     // データベースに保存
                     await updateSetting('hero_background_image', base64Data);
                     
-                    showSaveStatus('保存完了', 'saved');
+                    updateSaveStatus('保存完了', 'saved');
                     
                     // iframeを再読み込みして背景画像を更新
                     const iframe = document.getElementById('preview');
@@ -1243,7 +1243,7 @@
                 } catch (error) {
                     console.error('Error uploading background image:', error);
                     alert('背景画像のアップロードに失敗しました。');
-                    showSaveStatus('', '');
+                    updateSaveStatus('', '');
                 } finally {
                     document.body.removeChild(fileInput);
                 }
