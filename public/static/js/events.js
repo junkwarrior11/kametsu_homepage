@@ -95,13 +95,25 @@ async function loadEventsPDF() {
     const noPDFMessage = document.getElementById('noPDFMessage');
     
     try {
-        const response = await fetch('/api/tables/uploaded_pdfs?limit=1&sort=-created_at');
+        // eventsテーブルから最新の行事予定を取得
+        const response = await fetch('/api/tables/events?limit=1&sort=-created_at');
         const result = await response.json();
-        const pdfs = result.data || [];
+        const events = result.data || [];
         
-        if (pdfs.length > 0) {
-            const pdf = pdfs[0];
-            displayEventsPDF(pdf);
+        if (events.length > 0 && events[0].pdf_id) {
+            const event = events[0];
+            // PDFデータを取得
+            const pdfResponse = await fetch(`/api/tables/uploaded_pdfs/${event.pdf_id}`);
+            const pdfData = await pdfResponse.json();
+            
+            // イベント情報とPDFデータを結合
+            const pdfInfo = {
+                ...event,
+                pdf_data: pdfData.pdf_data,
+                file_name: pdfData.file_name
+            };
+            
+            displayEventsPDF(pdfInfo);
             if (noPDFMessage) noPDFMessage.style.display = 'none';
         } else {
             // PDFがない場合はメッセージを表示
@@ -118,23 +130,29 @@ async function loadEventsPDF() {
 /**
  * PDFをページに表示
  */
-function displayEventsPDF(pdf) {
+function displayEventsPDF(pdfInfo) {
     const pdfSection = document.getElementById('pdfDisplaySection');
+    
+    // Base64データをData URLに変換
+    const pdfDataUrl = pdfInfo.pdf_data.startsWith('data:') 
+        ? pdfInfo.pdf_data 
+        : `data:application/pdf;base64,${pdfInfo.pdf_data}`;
+    
     pdfSection.innerHTML = `
         <div class="pdf-viewer-container">
             <div class="pdf-viewer-header">
                 <div class="pdf-viewer-title">
                     <i class="fas fa-file-pdf"></i>
-                    <span>${escapeHtml(pdf.description)}</span>
-                    ${pdf.year ? `<small style="color: #999; margin-left: 8px;">(${pdf.year}年度${pdf.month ? ' ' + pdf.month + '月' : ''})</small>` : ''}
+                    <span>${escapeHtml(pdfInfo.title)}</span>
+                    ${pdfInfo.event_date ? `<small style="color: #999; margin-left: 8px;">(${pdfInfo.event_date})</small>` : ''}
                 </div>
                 <div class="pdf-viewer-actions">
-                    <button onclick="downloadEventsPDF('${pdf.id}', '${escapeHtml(pdf.file_name)}')" class="btn-download">
+                    <button onclick="downloadEventsPDF('${pdfInfo.pdf_id}', '${escapeHtml(pdfInfo.file_name)}')" class="btn-download">
                         <i class="fas fa-download"></i> ダウンロード
                     </button>
                 </div>
             </div>
-            <iframe class="pdf-viewer-iframe" src="${pdf.pdf_data}"></iframe>
+            <iframe class="pdf-viewer-iframe" src="${pdfDataUrl}"></iframe>
         </div>
     `;
     pdfSection.style.display = 'block';
@@ -145,11 +163,15 @@ function displayEventsPDF(pdf) {
  */
 async function downloadEventsPDF(pdfId, fileName) {
     try {
-        const response = await fetch(`tables/uploaded_pdfs/${pdfId}`);
-        const pdf = await response.json();
+        const response = await fetch(`/api/tables/uploaded_pdfs/${pdfId}`);
+        const pdfData = await response.json();
         
         // Base64データからBlobを作成
-        const byteCharacters = atob(pdf.pdf_data.split(',')[1]);
+        const base64Data = pdfData.pdf_data.startsWith('data:') 
+            ? pdfData.pdf_data.split(',')[1] 
+            : pdfData.pdf_data;
+            
+        const byteCharacters = atob(base64Data);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
             byteNumbers[i] = byteCharacters.charCodeAt(i);
