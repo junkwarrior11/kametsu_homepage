@@ -215,6 +215,9 @@
             <button class="btn btn-secondary" id="backBtn">
                 <i class="fas fa-arrow-left"></i> ダッシュボードに戻る
             </button>
+            <button class="btn btn-secondary" id="changeBackgroundBtn" title="ホームの背景画像を変更">
+                <i class="fas fa-image"></i> 背景画像
+            </button>
             <button class="btn btn-toggle" id="editModeBtn">
                 <i class="fas fa-edit"></i> 編集モード: OFF
             </button>
@@ -267,12 +270,18 @@
         function setupEventListeners() {
             const backBtn = document.getElementById('backBtn');
             const editModeBtn = document.getElementById('editModeBtn');
+            const changeBackgroundBtn = document.getElementById('changeBackgroundBtn');
             const pageSelector = document.getElementById('pageSelector');
             
             if (backBtn) {
                 backBtn.addEventListener('click', function() {
                     window.location.href = 'admin-dashboard.html';
                 });
+            }
+            
+            if (changeBackgroundBtn) {
+                changeBackgroundBtn.addEventListener('click', showBackgroundImageDialog);
+                console.log('✅ Change background button listener added');
             }
             
             if (editModeBtn) {
@@ -1163,6 +1172,57 @@
             if (iframeWindow && iframeWindow.reloadContent) {
                 console.log('🔄 Reloading content in iframe...');
                 iframeWindow.reloadContent();
+            }
+        }
+        
+        // 背景画像変更ダイアログを表示
+        async function showBackgroundImageDialog() {
+            // 現在の背景画像URLを取得
+            let currentImageUrl = '';
+            try {
+                const response = await fetch('/api/tables/site_settings');
+                const result = await response.json();
+                const bgSetting = result.data.find(item => item.setting_key === 'hero_background_image');
+                if (bgSetting) {
+                    currentImageUrl = bgSetting.setting_value;
+                }
+            } catch (error) {
+                console.error('Error loading current background:', error);
+            }
+            
+            const newImageUrl = prompt(
+                'ホームページの背景画像URLを入力してください\n\n' +
+                '推奨サイズ: 1600px以上の幅\n' +
+                '推奨形式: JPG, PNG, WebP\n\n' +
+                '無料画像サイト:\n' +
+                '• Unsplash: https://unsplash.com/\n' +
+                '• Pixabay: https://pixabay.com/\n' +
+                '• Pexels: https://www.pexels.com/\n\n' +
+                '現在の画像URL:\n' + (currentImageUrl || 'なし'),
+                currentImageUrl
+            );
+            
+            if (newImageUrl !== null && newImageUrl.trim() !== '') {
+                try {
+                    showSaveStatus('保存中...');
+                    await updateSetting('hero_background_image', newImageUrl.trim());
+                    showSaveStatus('保存完了', 'saved');
+                    
+                    // iframeを再読み込みして背景画像を更新
+                    const iframe = document.getElementById('preview');
+                    const iframeWindow = iframe.contentWindow;
+                    if (iframeWindow && iframeWindow.reloadContent) {
+                        iframeWindow.reloadContent();
+                    } else {
+                        iframe.src = iframe.src; // Fallback: iframe全体を再読み込み
+                    }
+                    
+                    alert('背景画像を更新しました。');
+                } catch (error) {
+                    console.error('Error updating background image:', error);
+                    alert('背景画像の更新に失敗しました。');
+                    showSaveStatus('', '');
+                }
             }
         }
     </script>
