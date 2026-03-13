@@ -253,36 +253,80 @@
                 return;
             }
             
+            // ファイルサイズチェック (10MB制限)
+            if (file.size > 10 * 1024 * 1024) {
+                showMessage('ファイルサイズが大きすぎます（10MB以下にしてください）', 'error');
+                return;
+            }
+            
+            // アップロード中の表示
+            showMessage('アップロード中...', 'success');
+            
             try {
-                // PDFをBase64に変換
+                // 1. まずPDFをuploaded_pdfsテーブルに保存
                 const reader = new FileReader();
                 reader.onload = async (e) => {
-                    const base64 = e.target.result.split(',')[1];
-                    
-                    // データベースに保存
-                    const response = await fetch('/api/tables/newsletters', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title,
-                            issue_date,
-                            file_url: `data:application/pdf;base64,${base64}`,
-                            file_name: file.name
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        showMessage('学校だよりをアップロードしました', 'success');
-                        document.getElementById('uploadForm').reset();
-                        loadNewsletters();
-                    } else {
-                        showMessage('アップロードに失敗しました', 'error');
+                    try {
+                        const base64 = e.target.result.split(',')[1];
+                        
+                        // PDFデータを保存
+                        const pdfResponse = await fetch('/api/tables/uploaded_pdfs', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                file_name: file.name,
+                                file_size: file.size,
+                                pdf_data: base64
+                            })
+                        });
+                        
+                        if (!pdfResponse.ok) {
+                            const errorData = await pdfResponse.json();
+                            console.error('PDF upload error:', errorData);
+                            showMessage('PDFの保存に失敗しました: ' + (errorData.message || 'サーバーエラー'), 'error');
+                            return;
+                        }
+                        
+                        const pdfData = await pdfResponse.json();
+                        console.log('PDF uploaded:', pdfData);
+                        
+                        // 2. 学校だよりレコードを作成（PDFのIDを参照）
+                        const newsletterResponse = await fetch('/api/tables/newsletters', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                title,
+                                issue_date,
+                                file_url: `/api/tables/uploaded_pdfs/${pdfData.data.id}`,
+                                file_name: file.name,
+                                pdf_id: pdfData.data.id
+                            })
+                        });
+                        
+                        if (newsletterResponse.ok) {
+                            showMessage('学校だよりをアップロードしました', 'success');
+                            document.getElementById('uploadForm').reset();
+                            loadNewsletters();
+                        } else {
+                            const errorData = await newsletterResponse.json();
+                            console.error('Newsletter creation error:', errorData);
+                            showMessage('学校だよりの登録に失敗しました: ' + (errorData.message || 'サーバーエラー'), 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error in upload process:', error);
+                        showMessage('アップロードに失敗しました: ' + error.message, 'error');
                     }
                 };
+                
+                reader.onerror = (error) => {
+                    console.error('FileReader error:', error);
+                    showMessage('ファイルの読み込みに失敗しました', 'error');
+                };
+                
                 reader.readAsDataURL(file);
             } catch (error) {
                 console.error('Error uploading:', error);
-                showMessage('アップロードに失敗しました', 'error');
+                showMessage('アップロードに失敗しました: ' + error.message, 'error');
             }
         });
 

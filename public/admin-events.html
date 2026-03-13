@@ -255,36 +255,81 @@
                 return;
             }
             
+            // ファイルサイズチェック (10MB制限)
+            if (file.size > 10 * 1024 * 1024) {
+                showMessage('ファイルサイズが大きすぎます（10MB以下にしてください）', 'error');
+                return;
+            }
+            
+            // アップロード中の表示
+            showMessage('アップロード中...', 'success');
+            
             try {
-                // PDFをBase64に変換
+                // 1. まずPDFをuploaded_pdfsテーブルに保存
                 const reader = new FileReader();
                 reader.onload = async (e) => {
-                    const base64 = e.target.result.split(',')[1];
-                    
-                    // データベースに保存
-                    const response = await fetch('/api/tables/events', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title,
-                            event_date,
-                            file_url: `data:application/pdf;base64,${base64}`,
-                            description: file.name
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        showMessage('行事予定をアップロードしました', 'success');
-                        document.getElementById('uploadForm').reset();
-                        loadEvents();
-                    } else {
-                        showMessage('アップロードに失敗しました', 'error');
+                    try {
+                        const base64 = e.target.result.split(',')[1];
+                        
+                        // PDFデータを保存
+                        const pdfResponse = await fetch('/api/tables/uploaded_pdfs', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                file_name: file.name,
+                                file_size: file.size,
+                                pdf_data: base64
+                            })
+                        });
+                        
+                        if (!pdfResponse.ok) {
+                            const errorData = await pdfResponse.json();
+                            console.error('PDF upload error:', errorData);
+                            showMessage('PDFの保存に失敗しました: ' + (errorData.message || 'サーバーエラー'), 'error');
+                            return;
+                        }
+                        
+                        const pdfData = await pdfResponse.json();
+                        console.log('PDF uploaded:', pdfData);
+                        
+                        // 2. 行事予定レコードを作成（PDFのIDを参照）
+                        const eventResponse = await fetch('/api/tables/events', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                title,
+                                event_date,
+                                category: '年間行事',
+                                description: file.name,
+                                file_url: `/api/tables/uploaded_pdfs/${pdfData.data.id}`,
+                                pdf_id: pdfData.data.id
+                            })
+                        });
+                        
+                        if (eventResponse.ok) {
+                            showMessage('行事予定をアップロードしました', 'success');
+                            document.getElementById('uploadForm').reset();
+                            loadEvents();
+                        } else {
+                            const errorData = await eventResponse.json();
+                            console.error('Event creation error:', errorData);
+                            showMessage('行事予定の登録に失敗しました: ' + (errorData.message || 'サーバーエラー'), 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error in upload process:', error);
+                        showMessage('アップロードに失敗しました: ' + error.message, 'error');
                     }
                 };
+                
+                reader.onerror = (error) => {
+                    console.error('FileReader error:', error);
+                    showMessage('ファイルの読み込みに失敗しました', 'error');
+                };
+                
                 reader.readAsDataURL(file);
             } catch (error) {
                 console.error('Error uploading:', error);
-                showMessage('アップロードに失敗しました', 'error');
+                showMessage('アップロードに失敗しました: ' + error.message, 'error');
             }
         });
 
