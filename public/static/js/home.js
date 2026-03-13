@@ -212,10 +212,10 @@ async function loadRecentNews() {
     showLoading(newsGrid);
     
     try {
-        // 学校だよりと行事予定を並行して取得
+        // 学校だよりと行事予定を並行して取得（取得件数を増やす）
         const [newslettersRes, eventsRes] = await Promise.all([
-            fetch('/api/tables/newsletters?limit=2&sort=-issue_date'),
-            fetch('/api/tables/events?limit=2&sort=-event_date')
+            fetch('/api/tables/newsletters?limit=10&sort=-issue_date'),
+            fetch('/api/tables/events?limit=10&sort=-event_date')
         ]);
         
         const newslettersData = await newslettersRes.json();
@@ -245,14 +245,24 @@ async function loadRecentNews() {
             }))
         ];
         
-        // 日付順にソート
-        allItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // 3ヶ月前の日付を計算
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
         
-        // 最新3件のみ表示
-        const latestItems = allItems.slice(0, 3);
+        // 3ヶ月以内の情報のみフィルター
+        const recentItems = allItems.filter(item => {
+            const itemDate = new Date(item.date);
+            return itemDate >= threeMonthsAgo;
+        });
+        
+        // 日付順にソート（新しい順）
+        recentItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // 最新5件のみ表示
+        const latestItems = recentItems.slice(0, 5);
         
         if (latestItems.length === 0) {
-            showEmpty(newsGrid, 'まだお知らせがありません');
+            showEmpty(newsGrid, '最近のお知らせはありません（過去3ヶ月以内）');
             return;
         }
         
@@ -275,6 +285,8 @@ async function loadRecentNews() {
                 </div>
             </div>
         `).join('');
+        
+        console.log(`✅ Loaded ${latestItems.length} news items (within 3 months)`);
     } catch (error) {
         console.error('Error loading news:', error);
         showError(newsGrid, 'お知らせの読み込みに失敗しました');
