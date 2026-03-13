@@ -218,6 +218,9 @@
             <button class="btn btn-secondary" id="changeBackgroundBtn" title="ホームの背景画像を変更">
                 <i class="fas fa-image"></i> 背景画像
             </button>
+            <button class="btn btn-secondary" id="changeAboutImageBtn" title="学校紹介の写真を変更">
+                <i class="fas fa-school"></i> 学校紹介
+            </button>
             <button class="btn btn-toggle" id="editModeBtn">
                 <i class="fas fa-edit"></i> 編集モード: OFF
             </button>
@@ -271,6 +274,7 @@
             const backBtn = document.getElementById('backBtn');
             const editModeBtn = document.getElementById('editModeBtn');
             const changeBackgroundBtn = document.getElementById('changeBackgroundBtn');
+            const changeAboutImageBtn = document.getElementById('changeAboutImageBtn');
             const pageSelector = document.getElementById('pageSelector');
             
             if (backBtn) {
@@ -282,6 +286,11 @@
             if (changeBackgroundBtn) {
                 changeBackgroundBtn.addEventListener('click', showBackgroundImageDialog);
                 console.log('✅ Change background button listener added');
+            }
+            
+            if (changeAboutImageBtn) {
+                changeAboutImageBtn.addEventListener('click', showAboutImageDialog);
+                console.log('✅ Change about image button listener added');
             }
             
             if (editModeBtn) {
@@ -1261,6 +1270,84 @@
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = error => reject(error);
             });
+        }
+        
+        // 学校紹介画像変更ダイアログを表示
+        async function showAboutImageDialog() {
+            // 現在の学校紹介画像URLを取得
+            let currentImageUrl = '';
+            try {
+                const response = await fetch('/api/tables/site_settings');
+                const result = await response.json();
+                const imgSetting = result.data.find(item => item.setting_key === 'about_section_image');
+                if (imgSetting) {
+                    currentImageUrl = imgSetting.setting_value;
+                }
+            } catch (error) {
+                console.error('Error loading current about image:', error);
+            }
+            
+            // ファイル選択用のinput要素を作成
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/jpg';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            // ファイルが選択されたら処理
+            fileInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // ファイルサイズチェック（3MB以下）
+                if (file.size > 3 * 1024 * 1024) {
+                    alert('ファイルサイズが大きすぎます。3MB以下のファイルを選択してください。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // 画像タイプチェック
+                if (!file.type.startsWith('image/')) {
+                    alert('画像ファイルを選択してください（JPG, PNG, WebP）。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                try {
+                    updateSaveStatus('アップロード中...', 'saving');
+                    
+                    // 画像をBase64に変換
+                    const base64Data = await fileToBase64(file);
+                    
+                    // データベースに保存
+                    await updateSetting('about_section_image', base64Data);
+                    
+                    updateSaveStatus('保存完了', 'saved');
+                    
+                    // iframeを再読み込みして画像を更新
+                    const iframe = document.getElementById('preview');
+                    const iframeWindow = iframe.contentWindow;
+                    if (iframeWindow && iframeWindow.reloadContent) {
+                        iframeWindow.reloadContent();
+                    } else {
+                        iframe.src = iframe.src; // Fallback: iframe全体を再読み込み
+                    }
+                    
+                    alert('学校紹介の画像をアップロードしました。');
+                } catch (error) {
+                    console.error('Error uploading about image:', error);
+                    alert('学校紹介の画像のアップロードに失敗しました。');
+                    updateSaveStatus('', '');
+                } finally {
+                    document.body.removeChild(fileInput);
+                }
+            });
+            
+            // ファイル選択ダイアログを開く
+            fileInput.click();
         }
     </script>
 </body>
