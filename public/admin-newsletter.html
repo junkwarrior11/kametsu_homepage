@@ -290,6 +290,14 @@
                         const pdfData = await pdfResponse.json();
                         console.log('PDF uploaded:', pdfData);
                         
+                        // APIレスポンスの形式を確認（.dataがあるかどうか）
+                        const pdfId = pdfData.id || pdfData.data?.id;
+                        if (!pdfId) {
+                            console.error('PDF ID not found in response:', pdfData);
+                            showMessage('PDFのIDが取得できませんでした', 'error');
+                            return;
+                        }
+                        
                         // 2. 学校だよりレコードを作成（PDFのIDを参照）
                         const newsletterResponse = await fetch('/api/tables/newsletters', {
                             method: 'POST',
@@ -297,9 +305,9 @@
                             body: JSON.stringify({
                                 title,
                                 issue_date,
-                                file_url: `/api/tables/uploaded_pdfs/${pdfData.data.id}`,
+                                file_url: `/api/tables/uploaded_pdfs/${pdfId}`,
                                 file_name: file.name,
-                                pdf_id: pdfData.data.id
+                                pdf_id: pdfId
                             })
                         });
                         

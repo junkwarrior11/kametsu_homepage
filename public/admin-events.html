@@ -292,6 +292,14 @@
                         const pdfData = await pdfResponse.json();
                         console.log('PDF uploaded:', pdfData);
                         
+                        // APIレスポンスの形式を確認（.dataがあるかどうか）
+                        const pdfId = pdfData.id || pdfData.data?.id;
+                        if (!pdfId) {
+                            console.error('PDF ID not found in response:', pdfData);
+                            showMessage('PDFのIDが取得できませんでした', 'error');
+                            return;
+                        }
+                        
                         // 2. 行事予定レコードを作成（PDFのIDを参照）
                         const eventResponse = await fetch('/api/tables/events', {
                             method: 'POST',
@@ -301,8 +309,8 @@
                                 event_date,
                                 category: '年間行事',
                                 description: file.name,
-                                file_url: `/api/tables/uploaded_pdfs/${pdfData.data.id}`,
-                                pdf_id: pdfData.data.id
+                                file_url: `/api/tables/uploaded_pdfs/${pdfId}`,
+                                pdf_id: pdfId
                             })
                         });
                         
