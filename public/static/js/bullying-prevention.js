@@ -137,6 +137,15 @@ function displayPDFSection(pdf) {
                     </button>
                 </div>
             </div>
+            
+            <!-- PDF埋め込み表示 -->
+            <div class="pdf-embed-container" style="margin-top: 30px; background: #f5f5f5; border-radius: 8px; overflow: hidden;">
+                <iframe 
+                    src="${pdf.pdf_data}" 
+                    style="width: 100%; height: 800px; border: none;"
+                    title="${escapeHtml(pdf.description || 'いじめ防止基本方針')}">
+                </iframe>
+            </div>
         </div>
     `;
 }
