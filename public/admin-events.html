@@ -301,12 +301,17 @@
                         }
                         
                         // 2. 行事予定レコードを作成（PDFのIDを参照）
+                        // event_dateを完全な日付形式に変換 (YYYY-MM → YYYY-MM-01)
+                        const fullDate = event_date.includes('-') && event_date.split('-').length === 2 
+                            ? `${event_date}-01` 
+                            : event_date;
+                        
                         const eventResponse = await fetch('/api/tables/events', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 title,
-                                event_date,
+                                event_date: fullDate,
                                 category: '年間行事',
                                 description: file.name,
                                 file_url: `/api/tables/uploaded_pdfs/${pdfId}`,
