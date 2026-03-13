@@ -113,21 +113,58 @@
             transition: all 0.2s;
             cursor: pointer;
             position: relative;
-            min-height: 20px;
-            min-width: 40px;
+            min-height: 24px;
+            min-width: 60px;
             display: inline-block;
         }
         
+        /* 空欄の視覚化 - より目立つように */
         .editable-hint:empty::before {
-            content: '（空欄）';
-            color: #999;
+            content: '✏️ 空欄（クリックして編集）';
+            color: #f59e0b;
             font-style: italic;
             font-size: 0.9em;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px dashed #f59e0b;
+            display: inline-block;
         }
         
-        .editable-hint:hover {
+        /* 空欄要素のホバー */
+        .editable-hint:empty:hover::before {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #f97316;
+            color: #f97316;
+        }
+        
+        /* 通常の編集可能要素のホバー */
+        .editable-hint:not(:empty):hover {
             outline-color: #667eea;
             background: rgba(102, 126, 234, 0.05);
+        }
+        
+        /* ホバー時のツールチップ */
+        .editable-hint:not(:empty):hover::after {
+            content: '✏️ クリックして編集';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10000;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeIn 0.2s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
         
         .editable-hint.editing {
@@ -135,7 +172,14 @@
             background: rgba(16, 185, 129, 0.1);
         }
         
-        /* Loading overlay */
+        /* 編集モード時に全要素を視覚化 */
+        body.edit-mode-active .editable-hint {
+            outline: 2px dashed rgba(102, 126, 234, 0.3);
+        }
+        
+        body.edit-mode-active .editable-hint:empty {
+            outline: 2px dashed rgba(245, 158, 11, 0.5);
+        }
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -305,7 +349,102 @@
         }
         
         function enableDirectEditing() {
+            const iframe = document.getElementById('preview');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            if (iframeDoc && iframeDoc.body) {
+                iframeDoc.body.classList.add('edit-mode-active');
+            }
+            
             setupEditableElements();
+        }
+        
+        function injectEditModeStyles(iframeDoc) {
+            // 既存のスタイルタグがあれば削除
+            const existingStyle = iframeDoc.getElementById('visual-editor-styles');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+            
+            const styleTag = iframeDoc.createElement('style');
+            styleTag.id = 'visual-editor-styles';
+            styleTag.textContent = `
+                .editable-hint {
+                    outline: 2px dashed transparent;
+                    transition: all 0.2s;
+                    cursor: pointer;
+                    position: relative;
+                    min-height: 24px;
+                    min-width: 60px;
+                    display: inline-block;
+                }
+                
+                /* 空欄の視覚化 - より目立つように */
+                .editable-hint:empty::before {
+                    content: '✏️ 空欄（クリックして編集）';
+                    color: #f59e0b;
+                    font-style: italic;
+                    font-size: 0.9em;
+                    background: rgba(245, 158, 11, 0.1);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    border: 1px dashed #f59e0b;
+                    display: inline-block;
+                }
+                
+                /* 空欄要素のホバー */
+                .editable-hint:empty:hover::before {
+                    background: rgba(245, 158, 11, 0.2);
+                    border-color: #f97316;
+                    color: #f97316;
+                }
+                
+                /* 通常の編集可能要素のホバー */
+                .editable-hint:not(:empty):hover {
+                    outline-color: #667eea;
+                    background: rgba(102, 126, 234, 0.05);
+                }
+                
+                /* ホバー時のツールチップ */
+                .editable-hint:not(:empty):hover::after {
+                    content: '✏️ クリックして編集';
+                    position: absolute;
+                    bottom: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #1f2937;
+                    color: white;
+                    padding: 4px 12px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    white-space: nowrap;
+                    z-index: 10000;
+                    margin-bottom: 8px;
+                    opacity: 0;
+                    animation: fadeIn 0.2s forwards;
+                }
+                
+                @keyframes fadeIn {
+                    to { opacity: 1; }
+                }
+                
+                .editable-hint.editing {
+                    outline-color: #10b981;
+                    background: rgba(16, 185, 129, 0.1);
+                }
+                
+                /* 編集モード時に全要素を視覚化 */
+                body.edit-mode-active .editable-hint {
+                    outline: 2px dashed rgba(102, 126, 234, 0.3);
+                }
+                
+                body.edit-mode-active .editable-hint:empty {
+                    outline: 2px dashed rgba(245, 158, 11, 0.5);
+                }
+            `;
+            
+            iframeDoc.head.appendChild(styleTag);
+            console.log('✅ Injected edit mode styles into iframe');
         }
         
         function disableDirectEditing() {
@@ -313,6 +452,10 @@
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             
             if (!iframeDoc) return;
+            
+            if (iframeDoc.body) {
+                iframeDoc.body.classList.remove('edit-mode-active');
+            }
             
             const editableElements = iframeDoc.querySelectorAll('.editable-hint');
             editableElements.forEach(el => {
@@ -333,6 +476,9 @@
             }
             
             console.log('🔧 Setting up editable elements...');
+            
+            // iframe内にスタイルを注入
+            injectEditModeStyles(iframeDoc);
             
             // 教育の特色カード
             const featureCards = iframeDoc.querySelectorAll('.features-grid .feature-card');
