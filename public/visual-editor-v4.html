@@ -1190,22 +1190,44 @@
                 console.error('Error loading current background:', error);
             }
             
-            const newImageUrl = prompt(
-                'ホームページの背景画像URLを入力してください\n\n' +
-                '推奨サイズ: 1600px以上の幅\n' +
-                '推奨形式: JPG, PNG, WebP\n\n' +
-                '無料画像サイト:\n' +
-                '• Unsplash: https://unsplash.com/\n' +
-                '• Pixabay: https://pixabay.com/\n' +
-                '• Pexels: https://www.pexels.com/\n\n' +
-                '現在の画像URL:\n' + (currentImageUrl || 'なし'),
-                currentImageUrl
-            );
+            // ファイル選択用のinput要素を作成
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/jpeg,image/png,image/webp,image/jpg';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
             
-            if (newImageUrl !== null && newImageUrl.trim() !== '') {
+            // ファイルが選択されたら処理
+            fileInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // ファイルサイズチェック（5MB以下）
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('ファイルサイズが大きすぎます。5MB以下のファイルを選択してください。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
+                // 画像タイプチェック
+                if (!file.type.startsWith('image/')) {
+                    alert('画像ファイルを選択してください（JPG, PNG, WebP）。');
+                    document.body.removeChild(fileInput);
+                    return;
+                }
+                
                 try {
-                    showSaveStatus('保存中...');
-                    await updateSetting('hero_background_image', newImageUrl.trim());
+                    showSaveStatus('アップロード中...');
+                    
+                    // 画像をBase64に変換
+                    const base64Data = await fileToBase64(file);
+                    
+                    // データベースに保存
+                    await updateSetting('hero_background_image', base64Data);
+                    
                     showSaveStatus('保存完了', 'saved');
                     
                     // iframeを再読み込みして背景画像を更新
@@ -1217,13 +1239,28 @@
                         iframe.src = iframe.src; // Fallback: iframe全体を再読み込み
                     }
                     
-                    alert('背景画像を更新しました。');
+                    alert('背景画像をアップロードしました。');
                 } catch (error) {
-                    console.error('Error updating background image:', error);
-                    alert('背景画像の更新に失敗しました。');
+                    console.error('Error uploading background image:', error);
+                    alert('背景画像のアップロードに失敗しました。');
                     showSaveStatus('', '');
+                } finally {
+                    document.body.removeChild(fileInput);
                 }
-            }
+            });
+            
+            // ファイル選択ダイアログを開く
+            fileInput.click();
+        }
+        
+        // ファイルをBase64に変換
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
         }
     </script>
 </body>
