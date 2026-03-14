@@ -617,20 +617,7 @@ a {
     color: rgba(255, 255, 255, 0.6);
 }
 
-.access-counter {
-    margin-top: 15px;
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.5);
-}
 
-.access-counter i {
-    margin-right: 5px;
-}
-
-.access-counter span {
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.8);
-}
 
 /* ========================================
    Page Header
@@ -1426,10 +1413,7 @@ a {
         margin-bottom: 10px;
     }
     
-    .access-counter {
-        margin-top: 10px;
-        font-size: 0.8rem;
-    }
+
 }
 
 @media (max-width: 480px) {
@@ -1481,20 +1465,7 @@ a {
         line-height: 1.4;
     }
     
-    .access-counter {
-        font-size: 0.75rem;
-    }
-    
-    .access-counter p {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .access-counter p i {
-        display: block;
-        margin-bottom: 5px;
-    }
+
 }
 /* Transportation Section */
 .transportation-section {

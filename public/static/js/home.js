@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         await Promise.all([
             loadDynamicContent(),
             loadRecentNews(),
-            loadUpcomingEvents(),
-            loadAccessCounter()
+            loadUpcomingEvents()
         ]);
         
         // すべてのデータ読み込み完了後にローディング画面を非表示
@@ -367,30 +366,7 @@ async function loadUpcomingEvents() {
     }
 }
 
-// アクセスカウンターを読み込む（一時的に無効化）
-async function loadAccessCounter() {
-    try {
-        // TODO: access_stats テーブルが完全に設定されたら有効化
-        console.log('ℹ️ Access counter is temporarily disabled');
-        return;
-        
-        if (typeof window.getAccessStats === 'function') {
-            const stats = await window.getAccessStats();
-            
-            const totalElement = document.getElementById('total-access');
-            const monthlyElement = document.getElementById('monthly-access');
-            
-            if (totalElement) {
-                totalElement.textContent = stats.total.toLocaleString();
-            }
-            if (monthlyElement) {
-                monthlyElement.textContent = stats.monthly.toLocaleString();
-            }
-        }
-    } catch (error) {
-        console.error('Error loading access counter:', error);
-    }
-}
+
 
 /**
  * 教育の特色グリッドを動的に更新

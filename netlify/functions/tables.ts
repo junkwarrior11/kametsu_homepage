@@ -33,8 +33,6 @@ const validTables = [
   'page_contents',
   'media',
   'site_settings',
-  'access_logs',
-  'access_stats',
   'uploaded_pdfs',
 ];
 

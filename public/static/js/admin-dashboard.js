@@ -29,42 +29,12 @@ async function loadDashboardStats() {
         
         document.getElementById('newsletterCount').textContent = newsletterData.total || 0;
         document.getElementById('eventCount').textContent = eventsData.total || 0;
-        
-        // アクセス統計を読み込む
-        await loadAccessStats();
     } catch (error) {
         console.error('Error loading stats:', error);
     }
 }
 
-/**
- * アクセス統計を読み込む
- */
-async function loadAccessStats() {
-    try {
-        const now = new Date();
-        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        
-        // 総アクセス数を取得
-        const totalResponse = await fetch('/api/tables/access_stats?stat_type=total&year_month=total&page_name=all&limit=1');
-        const totalResult = await totalResponse.json();
-        const totalCount = (totalResult.data && totalResult.data.length > 0) ? totalResult.data[0].count : 0;
-        
-        // 今月のアクセス数を取得
-        const monthlyResponse = await fetch(`/api/tables/access_stats?stat_type=monthly&year_month=${currentMonth}&page_name=all&limit=1`);
-        const monthlyResult = await monthlyResponse.json();
-        const monthlyCount = (monthlyResult.data && monthlyResult.data.length > 0) ? monthlyResult.data[0].count : 0;
-        
-        document.getElementById('totalAccessCount').textContent = totalCount.toLocaleString();
-        document.getElementById('monthlyAccessCount').textContent = monthlyCount.toLocaleString();
-        
-        console.log('✅ Access stats loaded:', { total: totalCount, monthly: monthlyCount });
-    } catch (error) {
-        console.error('Error loading access stats:', error);
-        document.getElementById('totalAccessCount').textContent = '0';
-        document.getElementById('monthlyAccessCount').textContent = '0';
-    }
-}
+
 
 // ブログステータスを読み込む
 async function loadBlogStatus() {
