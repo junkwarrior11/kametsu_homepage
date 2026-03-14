@@ -38,22 +38,21 @@ webapp/
 
 ## 💾 データベース構造
 
-### Supabase PostgreSQL Database (9テーブル)
+### Supabase PostgreSQL Database (7テーブル)
 
-1. **blog_posts** - ブログ記事
+1. **blog_posts** - ブログ記事（外部リンク対応）
 2. **newsletters** - 学校だより（PDFアップロード対応）
 3. **events** - 行事予定（PDFアップロード対応）
    - `file_url`: PDFファイルのURL
    - `pdf_id`: uploaded_pdfsテーブルへの参照
 4. **page_contents** - ページコンテンツ
 5. **media** - メディアファイル
-6. **site_settings** - サイト設定 (67フィールド - 全ページのテキスト・アイコン)
-7. **access_logs** - アクセスログ
-8. **access_stats** - アクセス統計
-9. **uploaded_pdfs** - PDFライブラリ（Base64形式）
+6. **site_settings** - サイト設定 (69フィールド - 全ページのテキスト・アイコン・画像)
+7. **uploaded_pdfs** - PDFライブラリ（Base64形式）
    - `file_name`: ファイル名
    - `file_size`: ファイルサイズ
    - `pdf_data`: Base64エンコードされたPDFデータ
+   - `description`: PDF説明（学校だより、行事予定、校則、いじめ防止方針など）
 
 ## 🚀 使い方
 
@@ -207,12 +206,34 @@ DELETE /api/tables/{table_name}/{record_id}
 ### 管理画面
 - `/admin-login.html` - 管理者ログイン (admin / admin123)
 - `/admin-dashboard.html` - ダッシュボード
-- `/admin-blog.html` - ブログ管理
-- `/admin-newsletter.html` - 学校だより管理
-- `/admin-events.html` - 行事予定管理
-- `/admin-pages-visual.html` - ビジュアルページ編集
-- `/admin-school-rules.html` - やくそく管理
-- `/admin-bullying-prevention.html` - いじめ防止方針管理
+- `/admin-blog.html` - ブログ管理（外部リンク設定）
+- `/admin-newsletter.html` - 学校だより管理（PDF管理）
+- `/admin-events.html` - 行事予定管理（PDF管理）
+- `/visual-editor-v4.html` - ビジュアルエディター（全ページ編集・画像変更）
+- `/admin-school-rules.html` - やくそく管理（PDF管理）
+- `/admin-bullying-prevention.html` - いじめ防止方針管理（PDF管理）
+
+### 主要機能
+1. **ビジュアルエディター（Visual Editor v4.0）**
+   - すべてのページのテキストをクリックで直接編集
+   - 背景画像・学校紹介画像をクリックで変更
+   - アイコン変更（Font Awesome対応）
+   - 自動保存機能
+   
+2. **PDF管理システム**
+   - 学校だより、行事予定、校則、いじめ防止方針のPDF管理
+   - Base64形式でデータベース保存
+   - PDF埋め込み表示、ダウンロード、新タブで開く
+   - 最大10MB対応
+   
+3. **新着情報システム**
+   - 最新5件の新着情報を自動表示
+   - 3ヶ月以内の記事をフィルター
+   - カテゴリー別アイコン表示
+   
+4. **レスポンシブデザイン**
+   - PC、タブレット、スマートフォン完全対応
+   - モバイルフレンドリーナビゲーション
 
 ## 🔧 開発用スクリプト
 
@@ -309,15 +330,87 @@ npm run git:status            # Git状態確認
 2. ✅ ローカル動作確認完了
 3. ✅ GitHubリポジトリへプッシュ完了
 4. ✅ Phase 2機能統合完了（データテーブル、Undo/Redo、キーボードショートカット、ダークモード）
-5. ✅ Cloudflare Pages デプロイ完了
-6. ✅ D1データベース設定完了
-7. ✅ Supabase データベース移行完了
-8. ✅ PDFアップロード機能完全実装（行事予定・学校だより）
-9. ✅ Visual Editor 完全実装（全ページ対応）
-10. ✅ レスポンシブデザイン最適化（PC・タブレット・スマートフォン）
-11. ✅ Google Map 埋め込み機能
-12. ✅ アクセスカウンター機能
-13. ⏳ カスタムドメイン設定 (オプション)
+5. ✅ Cloudflare Pages デプロイ完了（Netlify移行済み）
+6. ✅ Supabase データベース移行完了
+7. ✅ PDFアップロード機能完全実装（全種類対応）
+8. ✅ Visual Editor v4.0 完全実装（全ページ対応・画像クリック変更）
+9. ✅ レスポンシブデザイン最適化（PC・タブレット・スマートフォン）
+10. ✅ Google Map 埋め込み機能
+11. ✅ 新着情報システム（最新5件・3ヶ月フィルター）
+12. ✅ 校長挨拶削除
+13. ✅ アクセスカウンター削除
+14. ✅ いじめ防止ページ最適化（カード削除・PDF埋め込み）
+15. ✅ 全機能テスト完了
+16. ⏳ カスタムドメイン設定 (オプション)
+17. ⏳ Google Search Console 登録 (オプション)
+
+## 📈 完成済み機能一覧
+
+### フロントエンド機能
+- ✅ レスポンシブデザイン（全デバイス対応）
+- ✅ 動的コンテンツ読み込み（site_settings連動）
+- ✅ 新着情報表示（最新5件）
+- ✅ PDF埋め込み表示
+- ✅ Google Map埋め込み
+- ✅ ローディング画面
+- ✅ 背景画像カスタマイズ
+
+### 管理機能
+- ✅ ビジュアルエディター（直接編集モード）
+- ✅ PDF管理（学校だより・行事予定・校則・いじめ防止）
+- ✅ ブログ外部リンク設定
+- ✅ アイコン変更機能
+- ✅ 画像変更機能（背景・学校紹介）
+- ✅ 自動保存機能
+- ✅ リアルタイムプレビュー
+
+### データベース
+- ✅ Supabase PostgreSQL (7テーブル)
+- ✅ RESTful Table API
+- ✅ Base64 PDF保存
+- ✅ 設定値管理（69フィールド）
+
+### デプロイ
+- ✅ Netlify自動デプロイ
+- ✅ GitHub連携
+- ✅ 本番環境稼働中
+
+## 🎓 運用ガイド
+
+### 日常の更新作業
+
+1. **テキスト内容の変更**
+   - https://kametsu-homepage.netlify.app/visual-editor-v4.html にアクセス
+   - 変更したいテキストをクリックして編集
+   - 自動保存されます（Supabaseに直接保存）
+
+2. **画像の変更**
+   - ビジュアルエディターで変更したい画像をクリック
+   - 新しい画像ファイルを選択（最大3MB）
+   - 自動保存されます
+
+3. **PDFのアップロード**
+   - 管理ダッシュボード → 該当する管理ページへ
+   - 「PDFアップロード」ボタンをクリック
+   - タイトル・年度・ファイルを選択して送信
+   - 既存PDFは自動的に置換されます
+
+4. **ブログリンクの設定**
+   - 管理ダッシュボード → ブログ設定
+   - 外部ブログのURLを入力して保存
+
+### トラブルシューティング
+
+- **変更が反映されない場合**: ブラウザキャッシュをクリア（Ctrl+Shift+R / Cmd+Shift+R）
+- **ログインできない場合**: admin / admin123 で再ログイン
+- **PDFが表示されない場合**: ファイルサイズ（最大10MB）とPDF形式を確認
+
+## 📞 技術サポート情報
+
+- **本番URL**: https://kametsu-homepage.netlify.app/
+- **GitHub**: https://github.com/junkwarrior11/kametsu_homepage
+- **最終更新**: 2026年3月14日
+- **バージョン**: 3.0.0 (最終版)
 
 ---
 
