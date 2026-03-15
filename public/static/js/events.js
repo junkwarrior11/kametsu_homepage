@@ -71,20 +71,37 @@ async function loadEventsPDF() {
 function displayEventsPDF(pdfInfo) {
     const pdfSection = document.getElementById('pdfDisplaySection');
     
-    // Base64データをData URLに変換
-    let pdfDataUrl;
-    if (pdfInfo.pdf_data.startsWith('data:application/pdf')) {
-        pdfDataUrl = pdfInfo.pdf_data;
-    } else if (pdfInfo.pdf_data.startsWith('data:')) {
-        pdfDataUrl = pdfInfo.pdf_data;
-    } else {
-        // Base64文字列の場合
-        pdfDataUrl = `data:application/pdf;base64,${pdfInfo.pdf_data}`;
+    // Base64データからBlobを作成してObject URLを生成
+    let pdfUrl;
+    try {
+        let base64Data;
+        if (pdfInfo.pdf_data.startsWith('data:application/pdf;base64,')) {
+            base64Data = pdfInfo.pdf_data.split(',')[1];
+        } else if (pdfInfo.pdf_data.startsWith('data:')) {
+            base64Data = pdfInfo.pdf_data.split(',')[1];
+        } else {
+            base64Data = pdfInfo.pdf_data;
+        }
+        
+        // Base64からバイナリに変換
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        
+        // BlobからObject URLを作成
+        pdfUrl = URL.createObjectURL(blob);
+        
+        console.log('✅ PDF Blob created successfully');
+        console.log('   Blob size:', blob.size, 'bytes');
+        console.log('   Object URL:', pdfUrl);
+    } catch (error) {
+        console.error('❌ Error creating PDF Blob:', error);
+        pdfUrl = pdfInfo.pdf_data; // フォールバック
     }
-    
-    // デバッグ情報をコンソールに出力
-    console.log('PDF Data URL length:', pdfDataUrl.length);
-    console.log('PDF Data URL prefix:', pdfDataUrl.substring(0, 50));
     
     pdfSection.innerHTML = `
         <div class="pdf-viewer-container">
@@ -100,7 +117,7 @@ function displayEventsPDF(pdfInfo) {
                     </button>
                 </div>
             </div>
-            <iframe class="pdf-viewer-iframe" src="${pdfDataUrl}" type="application/pdf"></iframe>
+            <iframe class="pdf-viewer-iframe" src="${pdfUrl}" type="application/pdf"></iframe>
         </div>
     `;
     pdfSection.style.display = 'block';

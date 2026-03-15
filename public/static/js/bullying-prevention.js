@@ -58,6 +58,37 @@ function displayPDFSection(pdf) {
         }
     }
     
+    // Base64データからBlobを作成してObject URLを生成
+    let pdfUrl;
+    try {
+        let base64Data;
+        if (pdf.pdf_data.startsWith('data:application/pdf;base64,')) {
+            base64Data = pdf.pdf_data.split(',')[1];
+        } else if (pdf.pdf_data.startsWith('data:')) {
+            base64Data = pdf.pdf_data.split(',')[1];
+        } else {
+            base64Data = pdf.pdf_data;
+        }
+        
+        // Base64からバイナリに変換
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        
+        // BlobからObject URLを作成
+        pdfUrl = URL.createObjectURL(blob);
+        
+        console.log('✅ PDF Blob created successfully');
+        console.log('   Blob size:', blob.size, 'bytes');
+    } catch (error) {
+        console.error('❌ Error creating PDF Blob:', error);
+        pdfUrl = pdf.pdf_data; // フォールバック
+    }
+    
     pdfSection.innerHTML = `
         <div class="pdf-card">
             <div class="pdf-card-header">
@@ -80,7 +111,7 @@ function displayPDFSection(pdf) {
                     <button class="btn-pdf btn-download" onclick="downloadPDF('${pdf.id}', '${escapeHtml(pdf.file_name)}')">
                         <i class="fas fa-download"></i> ダウンロード
                     </button>
-                    <button class="btn-pdf btn-view" onclick="openPDF('${pdf.pdf_data}')">
+                    <button class="btn-pdf btn-view" onclick="openPDF('${pdfUrl}')">
                         <i class="fas fa-external-link-alt"></i> 新しいタブで開く
                     </button>
                 </div>
@@ -89,7 +120,7 @@ function displayPDFSection(pdf) {
             <!-- PDF埋め込み表示 -->
             <div class="pdf-embed-container" style="margin-top: 30px; background: #f5f5f5; border-radius: 8px; overflow: hidden;">
                 <iframe 
-                    src="${pdf.pdf_data}" 
+                    src="${pdfUrl}" 
                     style="width: 100%; height: 800px; border: none;"
                     title="${escapeHtml(pdf.description || 'いじめ防止基本方針')}">
                 </iframe>
