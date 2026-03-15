@@ -66,9 +66,13 @@
             
             console.log('✅ Map loaded successfully');
             
+            // ローディング画面を非表示
+            hideLoadingScreen();
+            
         } catch (error) {
             console.error('❌ Map loading error:', error);
             showDefaultMap(mapContainer);
+            hideLoadingScreen();
         }
     }
     
@@ -89,6 +93,29 @@
         container.appendChild(iframe);
         
         console.log('✅ Default map loaded');
+        
+        // ローディング画面を非表示
+        hideLoadingScreen();
+    }
+    
+    // ローディング画面を非表示にする関数
+    function hideLoadingScreen() {
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('pageLoading');
+            const contentWrapper = document.getElementById('contentWrapper');
+            
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+            
+            if (contentWrapper) {
+                contentWrapper.style.display = 'block';
+            }
+            
+            document.body.classList.remove('loading');
+            
+            console.log('✅ Loading screen hidden');
+        }, 300);
     }
     
     // Visual Editor との連携のため、グローバルに公開
