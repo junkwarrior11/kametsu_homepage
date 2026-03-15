@@ -4,13 +4,10 @@
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        // データを並行で読み込む（完了を待つ）
-        await Promise.all([
-            loadDynamicContent(),
-            loadNewsletters()
-        ]);
+        // データを読み込む
+        await loadNewsletters();
         
-        // すべてのデータ読み込み完了後にローディング画面を非表示
+        // データ読み込み完了後にローディング画面を非表示
         setTimeout(() => {
             hideLoadingScreen();
         }, 300);
@@ -23,62 +20,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }, 300);
     }
 });
-
-// 動的コンテンツを読み込む（ページヘッダー + 共通ヘッダー・フッター）
-async function loadDynamicContent() {
-    try {
-        const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5));
-        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
-        const result = await response.json();
-        
-        if (result.data) {
-            const settings = {};
-            result.data.forEach(item => {
-                settings[item.setting_key] = item.setting_value;
-            });
-            
-            // 共通ヘッダー（全ページ共通）
-            updateTextContent('header-school-name', settings.header_school_name);
-            updateTextContent('header-motto', settings.header_motto);
-            updateTextContent('header-top-phone', settings.header_top_phone);
-            updateTextContent('header-top-email', settings.header_top_email);
-            
-            // ページヘッダー
-            updateTextContent('newsletter-page-title', settings.newsletter_page_title);
-            updateTextContent('newsletter-page-subtitle', settings.newsletter_page_subtitle);
-            
-            // 共通フッター（全ページ共通）
-            updateTextContent('footer-school-name', settings.footer_school_name);
-            updateHTML('footer-address', settings.footer_address);
-            updateTextContent('footer-phone', settings.footer_phone);
-            updateTextContent('footer-email', settings.footer_email);
-            updateTextContent('footer-access-title', settings.footer_access_title);
-            updateTextContent('footer-access1', settings.footer_access1);
-            updateTextContent('footer-access2', settings.footer_access2);
-            updateTextContent('footer-copyright', settings.footer_copyright);
-        }
-    } catch (error) {
-        console.error('Failed to load dynamic content:', error);
-    }
-}
-
-// テキストコンテンツを更新するヘルパー関数
-function updateTextContent(elementId, value) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    if (value !== undefined && value !== null) {
-        element.textContent = value;
-    }
-}
-
-// HTMLコンテンツを更新するヘルパー関数
-function updateHTML(elementId, value) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    if (value !== undefined && value !== null) {
-        element.innerHTML = value;
-    }
-}
 
 // 学校だよりを読み込む
 async function loadNewsletters() {
@@ -115,14 +56,14 @@ async function loadNewsletters() {
                     <div class="newsletter-icon">
                         <i class="fas fa-file-pdf"></i>
                     </div>
-                    <h3>${escapeHtml(newsletter.title)}</h3>
+                    <h3>${newsletter.title ? escapeHtml(newsletter.title) : '学校だより'}</h3>
                     <p class="issue-info">
                         第${newsletter.issue_number}号 | ${formatDate(newsletter.issue_date)}
                     </p>
-                    <p>${escapeHtml(newsletter.description)}</p>
-                    <a href="${escapeHtml(fileUrl)}" 
+                    <p>${newsletter.description ? escapeHtml(newsletter.description) : ''}</p>
+                    <a href="${fileUrl ? escapeHtml(fileUrl) : '#'}" 
                        class="btn btn-primary" 
-                       download="${escapeHtml(fileName)}"
+                       download="${fileName ? escapeHtml(fileName) : 'newsletter.pdf'}"
                        target="_blank">
                         <i class="fas fa-download"></i> PDFをダウンロード
                     </a>
@@ -133,6 +74,36 @@ async function loadNewsletters() {
         console.error('Error loading newsletters:', error);
         showError(newsletterGrid, '学校だよりの読み込みに失敗しました');
     }
+}
+
+// エスケープHTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 日付フォーマット
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ローディング表示
+function showLoading(container) {
+    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #9ca3af;"><i class="fas fa-spinner fa-spin"></i> 読み込み中...</div>';
+}
+
+// 空メッセージ表示
+function showEmpty(container, message) {
+    container.innerHTML = `<div style="text-align: center; padding: 40px; color: #9ca3af;">${message}</div>`;
+}
+
+// エラーメッセージ表示
+function showError(container, message) {
+    container.innerHTML = `<div style="text-align: center; padding: 40px; color: #ef4444;">${message}</div>`;
 }
 
 // ローディング画面を非表示にする

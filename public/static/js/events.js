@@ -4,13 +4,10 @@
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        // データを並行で読み込む（完了を待つ）
-        await Promise.all([
-            loadDynamicContent(),
-            loadEventsPDF()
-        ]);
+        // データを読み込む
+        await loadEventsPDF();
         
-        // すべてのデータ読み込み完了後にローディング画面を非表示
+        // データ読み込み完了後にローディング画面を非表示
         setTimeout(() => {
             hideLoadingScreen();
         }, 300);
@@ -23,65 +20,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         }, 300);
     }
 });
-
-// 動的コンテンツを読み込む（ページヘッダー + 共通ヘッダー・フッター）
-async function loadDynamicContent() {
-    try {
-        const cacheTime = Math.floor(Date.now() / (1000 * 60 * 5));
-        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheTime);
-        const result = await response.json();
-        
-        if (result.data) {
-            const settings = {};
-            result.data.forEach(item => {
-                settings[item.setting_key] = item.setting_value;
-            });
-            
-            // 共通ヘッダー（全ページ共通）
-            updateTextContent('header-school-name', settings.header_school_name);
-            updateTextContent('header-motto', settings.header_motto);
-            updateTextContent('header-top-phone', settings.header_top_phone);
-            updateTextContent('header-top-email', settings.header_top_email);
-            
-            // ページヘッダー
-            updateTextContent('events-page-title', settings.events_page_title);
-            updateTextContent('events-page-subtitle', settings.events_page_subtitle);
-            
-            // 共通フッター（全ページ共通）
-            updateTextContent('footer-school-name', settings.footer_school_name);
-            updateHTML('footer-address', settings.footer_address);
-            updateTextContent('footer-phone', settings.footer_phone);
-            updateTextContent('footer-email', settings.footer_email);
-            updateTextContent('footer-access-title', settings.footer_access_title);
-            updateTextContent('footer-access1', settings.footer_access1);
-            updateTextContent('footer-access2', settings.footer_access2);
-            updateTextContent('footer-copyright', settings.footer_copyright);
-        }
-    } catch (error) {
-        console.error('Failed to load dynamic content:', error);
-    }
-}
-
-// テキストコンテンツを更新するヘルパー関数
-function updateTextContent(elementId, value) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    if (value !== undefined && value !== null) {
-        element.textContent = value;
-    }
-}
-
-// HTMLコンテンツを更新するヘルパー関数
-function updateHTML(elementId, value) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    if (value !== undefined && value !== null) {
-        element.innerHTML = value;
-    }
-}
-
-// 以下の関数は使用しないため削除またはコメントアウト
-// （PDF表示のみに変更したため、イベント一覧表示機能は不要）
 
 // ========================================
 // PDF表示機能

@@ -61,7 +61,7 @@ function setupForm() {
             let response;
             
             if (currentEditId) {
-                response = await fetch(`tables/events/${currentEditId}`, {
+                response = await fetch(`/api/tables/events/${currentEditId}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(formData)
@@ -107,7 +107,7 @@ function hideEventForm() {
 
 async function editEvent(id) {
     try {
-        const response = await fetch(`tables/events/${id}`);
+        const response = await fetch(`/api/tables/events/${id}`);
         const event = await response.json();
         
         currentEditId = id;
@@ -135,7 +135,7 @@ async function deleteEvent(id) {
     if (!confirm('本当にこの行事予定を削除しますか?')) return;
     
     try {
-        const response = await fetch(`tables/events/${id}`, { method: 'DELETE' });
+        const response = await fetch(`/api/tables/events/${id}`, { method: 'DELETE' });
         
         if (response.ok) {
             alert('行事予定を削除しました');

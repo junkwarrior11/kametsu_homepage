@@ -118,7 +118,7 @@ function setupForm() {
             let response;
             
             if (currentEditId) {
-                response = await fetch(`tables/newsletters/${currentEditId}`, {
+                response = await fetch(`/api/tables/newsletters/${currentEditId}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(formData)
@@ -163,7 +163,7 @@ function hideNewsletterForm() {
 
 async function editNewsletter(id) {
     try {
-        const response = await fetch(`tables/newsletters/${id}`);
+        const response = await fetch(`/api/tables/newsletters/${id}`);
         const newsletter = await response.json();
         
         currentEditId = id;
@@ -198,7 +198,7 @@ async function deleteNewsletter(id) {
     if (!confirm('本当にこの学校だよりを削除しますか?')) return;
     
     try {
-        const response = await fetch(`tables/newsletters/${id}`, { method: 'DELETE' });
+        const response = await fetch(`/api/tables/newsletters/${id}`, { method: 'DELETE' });
         
         if (response.ok) {
             alert('学校だよりを削除しました');
