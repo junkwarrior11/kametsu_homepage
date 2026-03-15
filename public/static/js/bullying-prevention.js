@@ -4,64 +4,12 @@
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        // データ読み込みを待つ
-        await Promise.all([
-            loadBullyingPreventionPDF(),
-            loadSiteSettings()
-        ]);
-        
-        // データ読み込み完了後にローディング画面を非表示
-        setTimeout(() => {
-            hideLoadingScreen();
-        }, 300);
+        // PDFのみ読み込む（サイト設定はcontent-loader.jsが処理）
+        await loadBullyingPreventionPDF();
     } catch (error) {
         console.error('初期読み込みエラー:', error);
-        setTimeout(() => {
-            hideLoadingScreen();
-        }, 300);
     }
 });
-
-// サイト設定を読み込む（ヘッダー・フッター）
-async function loadSiteSettings() {
-    try {
-        const response = await fetch('/api/tables/site_settings');
-        const result = await response.json();
-        const settings = {};
-        
-        if (result.data) {
-            result.data.forEach(item => {
-                settings[item.setting_key] = item.setting_value;
-            });
-            
-            // ヘッダー情報を更新
-            updateTextContent('header-top-phone', settings.header_top_phone);
-            updateTextContent('header-top-email', settings.header_top_email);
-            updateTextContent('header-school-name', settings.header_school_name);
-            updateTextContent('header-motto', settings.header_motto);
-            
-            // フッター情報を更新
-            updateTextContent('footer-school-name', settings.footer_school_name);
-            updateTextContent('footer-address', settings.footer_address);
-            updateTextContent('footer-phone', settings.footer_phone);
-            updateTextContent('footer-email', settings.footer_email);
-            updateTextContent('footer-access-title', settings.footer_access_title);
-            updateTextContent('footer-access1', settings.footer_access1);
-            updateTextContent('footer-access2', settings.footer_access2);
-            updateTextContent('footer-copyright', settings.footer_copyright);
-        }
-    } catch (error) {
-        console.error('Error loading site settings:', error);
-    }
-}
-
-// テキストコンテンツを更新する
-function updateTextContent(elementId, text) {
-    const element = document.getElementById(elementId);
-    if (element && text) {
-        element.textContent = text;
-    }
-}
 
 // いじめ防止基本方針PDFを読み込む
 async function loadBullyingPreventionPDF() {
@@ -218,27 +166,4 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-}
-
-// ローディング画面を非表示にする
-function hideLoadingScreen() {
-    const loadingScreen = document.querySelector('.page-loading');
-    if (loadingScreen) {
-        loadingScreen.style.opacity = '0';
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            document.body.classList.remove('loading');
-        }, 300);
-    }
-}
-
-// ハンバーガーメニュー
-const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-const navMenu = document.querySelector('.nav-menu');
-
-if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', function() {
-        navMenu.classList.toggle('active');
-        this.classList.toggle('active');
-    });
 }
