@@ -81,9 +81,37 @@
             
             console.log(`✅ Content loading complete: ${updatedCount} elements updated`);
             
+            // アクセスページでない場合はローディング画面を非表示
+            // （アクセスページはmap-loader.jsで非表示にする）
+            if (!window.location.pathname.includes('access.html')) {
+                hideLoadingScreen();
+            }
+            
         } catch (error) {
             console.error('❌ Content loading error:', error);
+            // エラーが発生してもローディング画面を非表示
+            hideLoadingScreen();
         }
+    }
+    
+    // ローディング画面を非表示にする関数
+    function hideLoadingScreen() {
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('pageLoading');
+            const contentWrapper = document.getElementById('contentWrapper');
+            
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+            
+            if (contentWrapper) {
+                contentWrapper.style.display = 'block';
+            }
+            
+            document.body.classList.remove('loading');
+            
+            console.log('✅ Loading screen hidden (from content-loader)');
+        }, 300);
     }
     
     // Visual Editor との連携のため、グローバルに公開
