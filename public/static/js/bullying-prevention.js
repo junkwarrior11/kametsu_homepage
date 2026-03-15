@@ -46,158 +46,34 @@ async function loadBullyingPreventionPDF() {
     }
 }
 
-// PDFセクションを表示
+// PDFセクションを表示（学校だより形式）
 function displayPDFSection(pdf) {
     const pdfSection = document.getElementById('pdfSection');
     
-    // イントロテキストを更新
-    if (pdf.description) {
-        const introElement = document.getElementById('introText');
-        if (introElement) {
-            introElement.textContent = pdf.description;
-        }
-    }
-    
-    // Base64データからBlobを作成してObject URLを生成
-    let pdfUrl;
-    try {
-        let base64Data;
-        if (pdf.pdf_data.startsWith('data:application/pdf;base64,')) {
-            base64Data = pdf.pdf_data.split(',')[1];
-        } else if (pdf.pdf_data.startsWith('data:')) {
-            base64Data = pdf.pdf_data.split(',')[1];
-        } else {
-            base64Data = pdf.pdf_data;
-        }
-        
-        // Base64からバイナリに変換
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        
-        // BlobからObject URLを作成
-        pdfUrl = URL.createObjectURL(blob);
-        
-        console.log('✅ PDF Blob created successfully');
-        console.log('   Blob size:', blob.size, 'bytes');
-    } catch (error) {
-        console.error('❌ Error creating PDF Blob:', error);
-        pdfUrl = pdf.pdf_data; // フォールバック
+    // PDFデータを適切な形式に変換
+    let pdfUrl = pdf.pdf_data;
+    if (!pdfUrl.startsWith('data:application/pdf')) {
+        pdfUrl = `data:application/pdf;base64,${pdfUrl}`;
     }
     
     pdfSection.innerHTML = `
-        <div class="pdf-card">
-            <div class="pdf-card-header">
+        <div class="newsletter-card">
+            <div class="newsletter-icon">
                 <i class="fas fa-file-pdf"></i>
-                <div>
-                    <h3>${escapeHtml(pdf.description || 'いじめ防止基本方針')}</h3>
-                    <p>${pdf.year}年度${pdf.month ? ' ' + pdf.month + '月' : ''}</p>
-                </div>
             </div>
-            <div class="pdf-card-body">
-                <p class="pdf-filename">
-                    <i class="fas fa-paperclip"></i> 
-                    ${escapeHtml(pdf.file_name)}
-                </p>
-                <p class="pdf-size">
-                    <i class="fas fa-hdd"></i> 
-                    ファイルサイズ: ${formatFileSize(pdf.file_size)}
-                </p>
-                <div class="pdf-actions">
-                    <button class="btn-pdf btn-download" onclick="downloadPDF('${pdf.id}', '${escapeHtml(pdf.file_name)}')">
-                        <i class="fas fa-download"></i> ダウンロード
-                    </button>
-                    <button class="btn-pdf btn-view" onclick="openPDF('${pdfUrl}')">
-                        <i class="fas fa-external-link-alt"></i> 新しいタブで開く
-                    </button>
-                </div>
-            </div>
-            
-            <!-- PDF埋め込み表示 -->
-            <div class="pdf-embed-container" style="margin-top: 30px; background: #f5f5f5; border-radius: 8px; overflow: hidden;">
-                <iframe 
-                    src="${pdfUrl}" 
-                    style="width: 100%; height: 800px; border: none;"
-                    title="${escapeHtml(pdf.description || 'いじめ防止基本方針')}">
-                </iframe>
-            </div>
+            <h3>${escapeHtml(pdf.description || 'いじめ防止基本方針')}</h3>
+            <p class="issue-info">
+                ${pdf.year}年度${pdf.month ? ' ' + pdf.month + '月' : ''}
+            </p>
+            <p>${escapeHtml(pdf.file_name)}</p>
+            <a href="${pdfUrl}" 
+               class="btn btn-primary" 
+               download="${escapeHtml(pdf.file_name)}"
+               target="_blank">
+                <i class="fas fa-download"></i> PDFをダウンロード
+            </a>
         </div>
     `;
-}
-
-// PDFをダウンロード
-async function downloadPDF(pdfId, fileName) {
-    try {
-        const response = await fetch(`/api/tables/uploaded_pdfs/${pdfId}`);
-        const pdf = await response.json();
-        
-        // Base64データからBlobを作成
-        let base64Data;
-        if (pdf.pdf_data.startsWith('data:application/pdf;base64,')) {
-            base64Data = pdf.pdf_data.split(',')[1];
-        } else if (pdf.pdf_data.startsWith('data:')) {
-            base64Data = pdf.pdf_data.split(',')[1];
-        } else {
-            base64Data = pdf.pdf_data;
-        }
-        
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        
-        // ダウンロード
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-    } catch (error) {
-        console.error('Error downloading PDF:', error);
-        alert('PDFのダウンロードに失敗しました。');
-    }
-}
-
-// PDFを新しいタブで開く
-function openPDF(pdfData) {
-    const newWindow = window.open();
-    if (newWindow) {
-        newWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>いじめ防止基本方針</title>
-                <style>
-                    body { margin: 0; padding: 0; }
-                    iframe { width: 100vw; height: 100vh; border: none; }
-                </style>
-            </head>
-            <body>
-                <iframe src="${pdfData}"></iframe>
-            </body>
-            </html>
-        `);
-    }
-}
-
-// ファイルサイズをフォーマット
-function formatFileSize(bytes) {
-    if (!bytes || bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
 // HTMLエスケープ

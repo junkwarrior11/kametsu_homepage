@@ -66,97 +66,45 @@ async function loadEventsPDF() {
 }
 
 /**
- * PDFをページに表示
+ * PDFをページに表示（学校だより形式）
  */
 function displayEventsPDF(pdfInfo) {
     const pdfSection = document.getElementById('pdfDisplaySection');
+    const noPDFMessage = document.getElementById('noPDFMessage');
     
-    // Base64データからBlobを作成してObject URLを生成
-    let pdfUrl;
-    try {
-        let base64Data;
-        if (pdfInfo.pdf_data.startsWith('data:application/pdf;base64,')) {
-            base64Data = pdfInfo.pdf_data.split(',')[1];
-        } else if (pdfInfo.pdf_data.startsWith('data:')) {
-            base64Data = pdfInfo.pdf_data.split(',')[1];
-        } else {
-            base64Data = pdfInfo.pdf_data;
-        }
-        
-        // Base64からバイナリに変換
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        
-        // BlobからObject URLを作成
-        pdfUrl = URL.createObjectURL(blob);
-        
-        console.log('✅ PDF Blob created successfully');
-        console.log('   Blob size:', blob.size, 'bytes');
-        console.log('   Object URL:', pdfUrl);
-    } catch (error) {
-        console.error('❌ Error creating PDF Blob:', error);
-        pdfUrl = pdfInfo.pdf_data; // フォールバック
+    // PDFデータを適切な形式に変換
+    let pdfUrl = pdfInfo.pdf_data;
+    if (!pdfUrl.startsWith('data:application/pdf')) {
+        pdfUrl = `data:application/pdf;base64,${pdfUrl}`;
     }
     
     pdfSection.innerHTML = `
-        <div class="pdf-viewer-container">
-            <div class="pdf-viewer-header">
-                <div class="pdf-viewer-title">
-                    <i class="fas fa-file-pdf"></i>
-                    <span>${pdfInfo.title ? escapeHtml(pdfInfo.title) : '行事予定'}</span>
-                    ${pdfInfo.event_date ? `<small style="color: #999; margin-left: 8px;">(${pdfInfo.event_date})</small>` : ''}
-                </div>
-                <div class="pdf-viewer-actions">
-                    <button onclick="downloadEventsPDF('${pdfInfo.pdf_id}', '${pdfInfo.file_name ? escapeHtml(pdfInfo.file_name) : 'events.pdf'}')" class="btn-download">
-                        <i class="fas fa-download"></i> ダウンロード
-                    </button>
-                </div>
+        <div class="newsletter-card">
+            <div class="newsletter-icon">
+                <i class="fas fa-file-pdf"></i>
             </div>
-            <iframe class="pdf-viewer-iframe" src="${pdfUrl}" type="application/pdf"></iframe>
+            <h3>${pdfInfo.title ? escapeHtml(pdfInfo.title) : '年間行事予定'}</h3>
+            <p class="issue-info">
+                ${pdfInfo.event_date ? formatDate(pdfInfo.event_date) : ''}
+            </p>
+            <p>${pdfInfo.description ? escapeHtml(pdfInfo.description) : ''}</p>
+            <a href="${pdfUrl}" 
+               class="btn btn-primary" 
+               download="${pdfInfo.file_name ? escapeHtml(pdfInfo.file_name) : 'events.pdf'}"
+               target="_blank">
+                <i class="fas fa-download"></i> PDFをダウンロード
+            </a>
         </div>
     `;
     pdfSection.style.display = 'block';
+    if (noPDFMessage) noPDFMessage.style.display = 'none';
 }
 
-/**
- * PDFをダウンロード
- */
-async function downloadEventsPDF(pdfId, fileName) {
-    try {
-        const response = await fetch(`/api/tables/uploaded_pdfs/${pdfId}`);
-        const pdfData = await response.json();
-        
-        // Base64データからBlobを作成
-        const base64Data = pdfData.pdf_data.startsWith('data:') 
-            ? pdfData.pdf_data.split(',')[1] 
-            : pdfData.pdf_data;
-            
-        const byteCharacters = atob(base64Data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        
-        // ダウンロード
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName || 'events.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('Error downloading PDF:', error);
-        alert('ダウンロードに失敗しました');
-    }
+// 日付フォーマット
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 /**
@@ -186,6 +134,3 @@ function hideLoadingScreen() {
     
     document.body.classList.remove('loading');
 }
-
-// グローバル関数として公開
-window.downloadEventsPDF = downloadEventsPDF;
