@@ -72,25 +72,35 @@ function displayEventsPDF(pdfInfo) {
     const pdfSection = document.getElementById('pdfDisplaySection');
     
     // Base64データをData URLに変換
-    const pdfDataUrl = pdfInfo.pdf_data.startsWith('data:') 
-        ? pdfInfo.pdf_data 
-        : `data:application/pdf;base64,${pdfInfo.pdf_data}`;
+    let pdfDataUrl;
+    if (pdfInfo.pdf_data.startsWith('data:application/pdf')) {
+        pdfDataUrl = pdfInfo.pdf_data;
+    } else if (pdfInfo.pdf_data.startsWith('data:')) {
+        pdfDataUrl = pdfInfo.pdf_data;
+    } else {
+        // Base64文字列の場合
+        pdfDataUrl = `data:application/pdf;base64,${pdfInfo.pdf_data}`;
+    }
+    
+    // デバッグ情報をコンソールに出力
+    console.log('PDF Data URL length:', pdfDataUrl.length);
+    console.log('PDF Data URL prefix:', pdfDataUrl.substring(0, 50));
     
     pdfSection.innerHTML = `
         <div class="pdf-viewer-container">
             <div class="pdf-viewer-header">
                 <div class="pdf-viewer-title">
                     <i class="fas fa-file-pdf"></i>
-                    <span>${escapeHtml(pdfInfo.title)}</span>
+                    <span>${pdfInfo.title ? escapeHtml(pdfInfo.title) : '行事予定'}</span>
                     ${pdfInfo.event_date ? `<small style="color: #999; margin-left: 8px;">(${pdfInfo.event_date})</small>` : ''}
                 </div>
                 <div class="pdf-viewer-actions">
-                    <button onclick="downloadEventsPDF('${pdfInfo.pdf_id}', '${escapeHtml(pdfInfo.file_name)}')" class="btn-download">
+                    <button onclick="downloadEventsPDF('${pdfInfo.pdf_id}', '${pdfInfo.file_name ? escapeHtml(pdfInfo.file_name) : 'events.pdf'}')" class="btn-download">
                         <i class="fas fa-download"></i> ダウンロード
                     </button>
                 </div>
             </div>
-            <iframe class="pdf-viewer-iframe" src="${pdfDataUrl}"></iframe>
+            <iframe class="pdf-viewer-iframe" src="${pdfDataUrl}" type="application/pdf"></iframe>
         </div>
     `;
     pdfSection.style.display = 'block';

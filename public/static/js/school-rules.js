@@ -128,11 +128,20 @@ function displayPDFSection(pdf, container) {
 // PDFをダウンロード
 async function downloadPDF(pdfId, fileName) {
     try {
-        const response = await fetch(`tables/uploaded_pdfs/${pdfId}`);
+        const response = await fetch(`/api/tables/uploaded_pdfs/${pdfId}`);
         const pdf = await response.json();
         
         // Base64データからBlobを作成
-        const byteCharacters = atob(pdf.pdf_data.split(',')[1]);
+        let base64Data;
+        if (pdf.pdf_data.startsWith('data:application/pdf;base64,')) {
+            base64Data = pdf.pdf_data.split(',')[1];
+        } else if (pdf.pdf_data.startsWith('data:')) {
+            base64Data = pdf.pdf_data.split(',')[1];
+        } else {
+            base64Data = pdf.pdf_data;
+        }
+        
+        const byteCharacters = atob(base64Data);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
             byteNumbers[i] = byteCharacters.charCodeAt(i);
