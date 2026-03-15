@@ -4,29 +4,18 @@
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        // データを並行で読み込む（完了を待つ）
+        // コンテンツ固有のデータのみ読み込む（サイト設定はcontent-loader.jsが処理）
         await Promise.all([
-            loadDynamicContent(),
             loadRecentNews(),
             loadUpcomingEvents()
         ]);
-        
-        // すべてのデータ読み込み完了後にローディング画面を非表示
-        // 最低0.3秒はローディング画面を表示（ちらつき防止）
-        setTimeout(() => {
-            hideLoadingScreen();
-        }, 300);
-        
     } catch (error) {
         console.error('初期読み込みエラー:', error);
-        // エラーが発生してもローディング画面は非表示にする
-        setTimeout(() => {
-            hideLoadingScreen();
-        }, 300);
     }
 });
 
 // 動的コンテンツを読み込む (すべてのセクション)
+// ※この関数は削除 - content-loader.jsが処理します
 async function loadDynamicContent() {
     try {
         // キャッシュバスター: 常に最新データを取得
