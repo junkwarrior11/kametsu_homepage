@@ -232,7 +232,7 @@ function changePDF() {
  */
 async function downloadPDF(pdfId) {
     try {
-        const response = await fetch(`tables/uploaded_pdfs/${pdfId}`);
+        const response = await fetch(`/api/tables/uploaded_pdfs/${pdfId}`);
         const pdf = await response.json();
         
         // Base64データからBlobを作成
