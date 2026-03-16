@@ -124,8 +124,9 @@ async function deletePDF(pdfId) {
 /**
  * PDF選択モーダルを表示
  * @param {Function} callback - PDFが選択されたときのコールバック関数
+ * @param {Object} presetMetadata - プリセットメタデータ（description, year, monthなど）
  */
-async function showPDFPickerModal(callback) {
+async function showPDFPickerModal(callback, presetMetadata = {}) {
     const modal = document.createElement('div');
     modal.className = 'pdf-picker-modal';
     modal.innerHTML = `
@@ -162,12 +163,12 @@ async function showPDFPickerModal(callback) {
                             <div class="pdf-metadata">
                                 <div class="form-group">
                                     <label>説明</label>
-                                    <input type="text" id="pdfDescription" placeholder="例：令和6年度年間行事予定">
+                                    <input type="text" id="pdfDescription" placeholder="例：令和6年度年間行事予定" value="${presetMetadata.description || ''}">
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>年度</label>
-                                        <input type="text" id="pdfYear" placeholder="2024" value="${new Date().getFullYear()}">
+                                        <input type="text" id="pdfYear" placeholder="2024" value="${presetMetadata.year || new Date().getFullYear()}">
                                     </div>
                                     <div class="form-group">
                                         <label>月</label>
@@ -243,7 +244,26 @@ async function showPDFPickerModal(callback) {
     function showPDFPreview(file) {
         document.getElementById('pdfFileName').textContent = file.name;
         document.getElementById('pdfFileSize').textContent = formatFileSize(file.size);
-        document.getElementById('pdfDescription').value = file.name.replace('.pdf', '');
+        
+        // プリセット値があれば使用、なければファイル名から生成
+        const descInput = document.getElementById('pdfDescription');
+        if (presetMetadata.description) {
+            descInput.value = presetMetadata.description;
+            descInput.readOnly = true; // プリセットの場合は編集不可
+            descInput.style.backgroundColor = '#f5f5f5';
+        } else {
+            descInput.value = file.name.replace('.pdf', '');
+            descInput.readOnly = false;
+            descInput.style.backgroundColor = 'white';
+        }
+        
+        // プリセット値がある場合は年度と月も設定
+        if (presetMetadata.year) {
+            document.getElementById('pdfYear').value = presetMetadata.year;
+        }
+        if (presetMetadata.month) {
+            document.getElementById('pdfMonth').value = presetMetadata.month;
+        }
         
         dropzone.style.display = 'none';
         previewArea.style.display = 'block';

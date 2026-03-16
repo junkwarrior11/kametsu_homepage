@@ -52,6 +52,9 @@ function openGoodChildRulesPDFPicker() {
         currentGoodChildPDFId = pdf.id;
         displayPDF(pdf, 'goodChildPDFDisplay', 'goodChild');
         showNotification('よいこの約束PDFをアップロードしました', 'success');
+    }, {
+        description: 'よいこの約束',
+        year: new Date().getFullYear()
     });
 }
 
@@ -100,6 +103,9 @@ function openStudyRulesPDFPicker() {
         currentStudyRulesPDFId = pdf.id;
         displayPDF(pdf, 'studyRulesPDFDisplay', 'studyRules');
         showNotification('学習の約束PDFをアップロードしました', 'success');
+    }, {
+        description: '学習の約束',
+        year: new Date().getFullYear()
     });
 }
 
