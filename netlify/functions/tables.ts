@@ -6,12 +6,6 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
 
-// デバッグ用ログ（詳細情報）
-console.log('Supabase URL exists:', !!supabaseUrl);
-console.log('Supabase URL value:', supabaseUrl);
-console.log('Supabase Key exists:', !!supabaseKey);
-console.log('Supabase Key length:', supabaseKey.length);
-
 // 環境変数が設定されていない場合はエラーを返す
 if (!supabaseUrl || !supabaseKey) {
   console.error('Missing Supabase environment variables');
@@ -87,7 +81,12 @@ export const handler: Handler = async (event) => {
         };
       } else {
         // 一覧取得
-        let query = supabase.from(tableName).select('*', { count: 'exact' });
+        // uploaded_pdfsテーブルの場合、pdf_dataを除外してサイズを削減
+        const selectFields = tableName === 'uploaded_pdfs' 
+          ? 'id,file_name,file_size,description,year,month,uploader,created_at,updated_at'
+          : '*';
+        
+        let query = supabase.from(tableName).select(selectFields, { count: 'exact' });
 
         // ページネーション
         const page = parseInt(queryParams.page || '1');
