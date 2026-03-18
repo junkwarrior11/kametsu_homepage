@@ -19,7 +19,7 @@ async function loadPosts() {
     
     try {
         loading.show('記事を読み込み中...');
-        const response = await fetch('/api/tables/blog_posts?sort=-created_at');
+        const response = await fetch('/api/tables/blog_posts?');
         const result = await response.json();
         const posts = result.data || [];
         

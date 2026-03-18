@@ -154,7 +154,7 @@ function getImageDimensions(dataUrl) {
  */
 async function getUploadedImages(limit = 50) {
     try {
-        const response = await fetch(`tables/uploaded_images?limit=${limit}&sort=-created_at`);
+        const response = await fetch(`tables/uploaded_images?limit=${limit}&`);
         
         if (!response.ok) {
             throw new Error('画像一覧の取得に失敗しました');

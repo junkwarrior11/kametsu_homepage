@@ -84,7 +84,7 @@ function fileToBase64(file) {
  */
 async function getUploadedPDFs(limit = 50) {
     try {
-        const response = await fetch(`/api/tables/uploaded_pdfs?limit=${limit}&sort=-created_at`);
+        const response = await fetch(`/api/tables/uploaded_pdfs?limit=${limit}&`);
         
         if (!response.ok) {
             throw new Error('PDF一覧の取得に失敗しました');

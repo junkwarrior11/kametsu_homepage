@@ -25,7 +25,7 @@ async function loadAllRulesPDF() {
     
     try {
         // uploaded_pdfs から全てのPDFを検索
-        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50');
         const result = await response.json();
         const pdfs = result.data || [];
         

@@ -81,7 +81,7 @@ async function loadActivityLog() {
     
     try {
         // activity_logs テーブルから最新10件を取得
-        const response = await fetch('/api/tables/activity_logs?limit=10&sort=-created_at');
+        const response = await fetch('/api/tables/activity_logs?limit=10');
         const result = await response.json();
         
         if (!result.data || result.data.length === 0) {

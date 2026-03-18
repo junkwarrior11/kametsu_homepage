@@ -31,7 +31,7 @@ async function loadAboutPageContent() {
     try {
         // キャッシュバスター付きでAPI呼び出し
         const cacheBuster = Date.now();
-        const response = await fetch(`/api/tables/site_settings?limit=100&_=${cacheBuster}`);
+        const response = await fetch(`/api/tables/site_settings?limit=100_=${cacheBuster}`);
         
         if (!response.ok) {
             throw new Error('Failed to fetch settings');

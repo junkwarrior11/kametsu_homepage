@@ -20,7 +20,7 @@ async function loadDynamicContent() {
     try {
         // キャッシュバスター: 常に最新データを取得
         const cacheBuster = Date.now();
-        const response = await fetch('/api/tables/site_settings?limit=100&_=' + cacheBuster);
+        const response = await fetch('/api/tables/site_settings?limit=100_=' + cacheBuster);
         const result = await response.json();
         
         if (result.data) {

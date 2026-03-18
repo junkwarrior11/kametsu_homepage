@@ -34,7 +34,7 @@ async function loadEventsPDF() {
     
     try {
         // eventsテーブルから最新の行事予定を取得
-        const response = await fetch('/api/tables/events?limit=1&sort=-created_at');
+        const response = await fetch('/api/tables/events?limit=1');
         const result = await response.json();
         const events = result.data || [];
         

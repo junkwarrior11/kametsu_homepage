@@ -15,9 +15,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadBullyingPreventionPDF() {
     try {
         // uploaded_pdfs テーブルから「いじめ防止」を含むPDFを検索
-        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50');
         const result = await response.json();
-        const pdfs = result.data || [];
+        let pdfs = result.data || [];
+        
+        // クライアント側でソート（新しい順）
+        pdfs.sort((a, b) => {
+            const dateA = new Date(a.created_at || 0);
+            const dateB = new Date(b.created_at || 0);
+            return dateB - dateA;
+        });
         
         // いじめ防止関連のPDFをフィルター
         const bullyingPDF = pdfs.find(pdf => 
