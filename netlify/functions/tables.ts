@@ -83,7 +83,7 @@ export const handler: Handler = async (event) => {
         // 一覧取得
         // uploaded_pdfsテーブルの場合、pdf_dataを除外してサイズを削減
         const selectFields = tableName === 'uploaded_pdfs' 
-          ? 'id,file_name,file_size,description,year,month,uploader,created_at,updated_at'
+          ? 'id,file_name,file_size,description,year,month,created_at,updated_at'
           : '*';
         
         let query = supabase.from(tableName).select(selectFields, { count: 'exact' });
