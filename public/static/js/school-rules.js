@@ -51,8 +51,15 @@ async function loadAllRulesPDF() {
             return;
         }
         
+        // 各PDFの詳細データを取得
+        const fullPDFs = await Promise.all(
+            rulePDFs.map(pdf => 
+                fetch(`/api/tables/uploaded_pdfs/${pdf.id}`).then(res => res.json())
+            )
+        );
+        
         // カード形式で表示（学校だより形式）
-        rulesGrid.innerHTML = rulePDFs.map(pdf => {
+        rulesGrid.innerHTML = fullPDFs.map(pdf => {
             let pdfUrl = pdf.pdf_data;
             if (!pdfUrl.startsWith('data:application/pdf')) {
                 pdfUrl = `data:application/pdf;base64,${pdfUrl}`;

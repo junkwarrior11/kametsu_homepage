@@ -32,7 +32,10 @@ async function loadBullyingPreventionPDF() {
         );
         
         if (bullyingPDF) {
-            displayPDFSection(bullyingPDF);
+            // 個別にPDFデータを取得（pdf_dataを含む）
+            const pdfResponse = await fetch(`/api/tables/uploaded_pdfs/${bullyingPDF.id}`);
+            const fullPDF = await pdfResponse.json();
+            displayPDFSection(fullPDF);
         } else {
             // データがない場合のメッセージ
             document.getElementById('pdfSection').innerHTML = `
