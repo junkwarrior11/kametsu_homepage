@@ -69,17 +69,12 @@
             font-weight: 500;
             color: #333;
         }
-        .form-group input,
-        .form-group textarea {
+        .form-group input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
-        }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
         }
         .btn-upload {
             background: #48bb78;
@@ -101,86 +96,91 @@
             background: #fed7d7;
             color: #742a2a;
         }
-        .note {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .note p {
-            margin: 0;
-            color: #78350f;
-            font-size: 14px;
-        }
     </style>
 </head>
-<body>
+<body class="admin-page">
     <div class="admin-container">
         <aside class="admin-sidebar">
             <div class="sidebar-header">
-                <h2><i class="fas fa-cog"></i> 管理システム</h2>
+                <i class="fas fa-school"></i>
+                <h2>管理システム</h2>
             </div>
             <nav class="sidebar-nav">
-                <a href="admin-dashboard.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> ダッシュボード</a>
-                <a href="admin-settings.html" class="nav-item"><i class="fas fa-sliders-h"></i> サイト設定</a>
-                <a href="admin-blog.html" class="nav-item"><i class="fas fa-blog"></i> ブログ管理</a>
-                <a href="admin-newsletter.html" class="nav-item"><i class="fas fa-newspaper"></i> 学校だより</a>
-                <a href="admin-events.html" class="nav-item"><i class="fas fa-calendar-alt"></i> 行事予定</a>
-                <a href="admin-bullying-prevention.html" class="nav-item active"><i class="fas fa-shield-alt"></i> いじめ防止</a>
-                <a href="admin-school-rules.html" class="nav-item"><i class="fas fa-book"></i> 亀津小のやくそく</a>
-                <a href="visual-editor-v4.html" class="nav-item"><i class="fas fa-edit"></i> ビジュアルエディター</a>
-                <a href="index.html" class="nav-item"><i class="fas fa-home"></i> ホームに戻る</a>
+                <a href="admin-dashboard.html" class="nav-item">
+                    <i class="fas fa-chart-line"></i> ダッシュボード
+                </a>
+                <a href="admin-blog.html" class="nav-item">
+                    <i class="fas fa-link"></i> ブログ設定
+                </a>
+                <a href="admin-newsletter.html" class="nav-item">
+                    <i class="fas fa-newspaper"></i> 学校だより
+                </a>
+                <a href="admin-events.html" class="nav-item">
+                    <i class="fas fa-calendar"></i> 行事予定
+                </a>
+                <a href="admin-school-rules.html" class="nav-item">
+                    <i class="fas fa-hands-helping"></i> 亀津小のやくそく
+                </a>
+                <a href="admin-bullying-prevention.html" class="nav-item active">
+                    <i class="fas fa-shield-alt"></i> いじめ防止方針
+                </a>
+                <a href="visual-editor-v4" class="nav-item">
+                    <i class="fas fa-paint-brush"></i> ビジュアル編集 v4
+                </a>
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-external-link-alt"></i> サイトを見る
+                </a>
             </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </button>
+            </div>
         </aside>
 
         <main class="admin-main">
             <div class="admin-header">
                 <h1><i class="fas fa-shield-alt"></i> いじめ防止基本方針管理</h1>
+                <p>いじめ防止基本方針のPDFファイルを管理します</p>
             </div>
 
-            <div class="admin-content">
-                <div id="message" class="message"></div>
+            <div id="message" class="message"></div>
 
-                <div class="note">
-                    <p><i class="fas fa-info-circle"></i> <strong>注意：</strong>いじめ防止基本方針は1つのみ登録できます。新しいファイルをアップロードすると、既存のファイルは自動的に置き換えられます。</p>
-                </div>
-
-                <!-- アップロードセクション -->
-                <div class="upload-section">
-                    <h2><i class="fas fa-upload"></i> いじめ防止基本方針をアップロード</h2>
-                    <form id="uploadForm">
-                        <div class="form-group">
-                            <label for="description">説明（タイトル）<span style="color: red;">*</span></label>
-                            <input type="text" id="description" name="description" value="いじめ防止基本方針" required>
-                            <small style="color: #666; display: block; margin-top: 5px;">例：いじめ防止基本方針、令和6年度いじめ防止基本方針</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="year">年度<span style="color: red;">*</span></label>
-                            <input type="number" id="year" name="year" value="2024" min="2000" max="2100" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="pdfFile">PDFファイル<span style="color: red;">*</span></label>
-                            <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required>
-                            <small style="color: #666; display: block; margin-top: 5px;">最大サイズ: 10MB</small>
-                        </div>
-                        <button type="submit" class="btn btn-upload">
-                            <i class="fas fa-upload"></i> アップロード
-                        </button>
-                    </form>
-                </div>
-
-                <!-- 現在登録されているPDF -->
-                <div class="upload-section">
-                    <h2><i class="fas fa-file-pdf"></i> 現在登録されているPDF</h2>
-                    <div id="pdfList" class="pdf-list">
-                        <p style="color: #666;">読み込み中...</p>
+            <div class="upload-section">
+                <h2>📤 いじめ防止基本方針をアップロード</h2>
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="title">説明（タイトル）*</label>
+                        <input type="text" id="title" required placeholder="いじめ防止基本方針" value="いじめ防止基本方針">
+                        <small style="color: #666; margin-top: 5px; display: block;">
+                            例: いじめ防止基本方針、令和6年度いじめ防止基本方針
+                        </small>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="year">年度*</label>
+                        <input type="number" id="year" required min="2020" max="2030" value="2026">
+                    </div>
+                    <div class="form-group">
+                        <label for="pdf_file">PDFファイル*</label>
+                        <input type="file" id="pdf_file" accept=".pdf" required>
+                        <small style="color: #666; margin-top: 5px; display: block;">
+                            最大サイズ: 10MB
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-upload">
+                        <i class="fas fa-upload"></i> アップロード
+                    </button>
+                </form>
+            </div>
+
+            <h2>📋 現在登録されているPDF</h2>
+            <div id="pdfList" class="pdf-list">
+                <p>読み込み中...</p>
             </div>
         </main>
     </div>
 
+    <script src="/static/js/admin-auth.js"></script>
     <script src="/static/js/admin-bullying-prevention.js"></script>
 </body>
 </html>
