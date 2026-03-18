@@ -84,13 +84,25 @@ function setupUploadForm() {
 // PDFリストを読み込む
 async function loadBullyingPreventionPDFs() {
     try {
-        const response = await fetch('/api/tables/uploaded_pdfs?limit=50&sort=-created_at');
+        const response = await fetch('/api/tables/uploaded_pdfs?limit=50');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
         // いじめ防止PDFのみフィルター
         const pdfs = (data.data || []).filter(pdf => 
             pdf.description && pdf.description.includes('いじめ防止')
         );
+        
+        // クライアント側で新しい順にソート
+        pdfs.sort((a, b) => {
+            const dateA = new Date(a.created_at || 0);
+            const dateB = new Date(b.created_at || 0);
+            return dateB - dateA; // 降順（新しい順）
+        });
         
         const listEl = document.getElementById('pdfList');
         
