@@ -6,9 +6,11 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
 
-// デバッグ用ログ（本番環境では環境変数の存在のみ確認）
+// デバッグ用ログ（詳細情報）
 console.log('Supabase URL exists:', !!supabaseUrl);
+console.log('Supabase URL value:', supabaseUrl);
 console.log('Supabase Key exists:', !!supabaseKey);
+console.log('Supabase Key length:', supabaseKey.length);
 
 // 環境変数が設定されていない場合はエラーを返す
 if (!supabaseUrl || !supabaseKey) {
