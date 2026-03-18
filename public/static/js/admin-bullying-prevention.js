@@ -81,8 +81,8 @@ function setupUploadForm() {
         try {
             showMessage('アップロード中...', 'success');
             
-            // 既存のいじめ防止基本方針PDFを削除
-            await deleteExistingBullyingPreventionPDFs();
+            // 既存のいじめ防止基本方針PDFを削除（一時的にコメントアウト）
+            // await deleteExistingBullyingPreventionPDFs();
             
             // PDFをBase64に変換
             const base64Data = await fileToBase64(file);
