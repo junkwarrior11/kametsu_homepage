@@ -7,11 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setupUploadForm();
 });
 
-// PDFをBase64に変換
+// PDFをBase64に変換（Data URL形式全体を返す）
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
+        reader.onload = () => {
+            // Base64部分のみを抽出
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
