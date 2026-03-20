@@ -60,6 +60,12 @@ async function loadAllRulesPDF() {
         
         // カード形式で表示（学校だより形式）
         rulesGrid.innerHTML = fullPDFs.map(pdf => {
+            // PDFデータの存在確認
+            if (!pdf || !pdf.pdf_data) {
+                console.error('PDF data is missing:', pdf);
+                return ''; // 空文字を返してスキップ
+            }
+            
             let pdfUrl = pdf.pdf_data;
             if (!pdfUrl.startsWith('data:application/pdf')) {
                 pdfUrl = `data:application/pdf;base64,${pdfUrl}`;
