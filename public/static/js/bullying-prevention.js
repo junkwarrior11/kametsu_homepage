@@ -33,8 +33,19 @@ async function loadBullyingPreventionPDF() {
         
         if (bullyingPDF) {
             // 個別にPDFデータを取得（pdf_dataを含む）
+            console.log('Fetching PDF with ID:', bullyingPDF.id);
             const pdfResponse = await fetch(`/api/tables/uploaded_pdfs/${bullyingPDF.id}`);
+            
+            if (!pdfResponse.ok) {
+                throw new Error(`HTTP error! status: ${pdfResponse.status}`);
+            }
+            
             const fullPDF = await pdfResponse.json();
+            console.log('Received PDF data:', {
+                id: fullPDF.id,
+                has_pdf_data: !!fullPDF.pdf_data,
+                pdf_data_length: fullPDF.pdf_data ? fullPDF.pdf_data.length : 0
+            });
             displayPDFSection(fullPDF);
         } else {
             // データがない場合のメッセージ
@@ -59,6 +70,18 @@ async function loadBullyingPreventionPDF() {
 // PDFセクションを表示（学校だより形式）
 function displayPDFSection(pdf) {
     const pdfSection = document.getElementById('pdfSection');
+    
+    // PDFデータの存在確認
+    if (!pdf || !pdf.pdf_data) {
+        console.error('PDF data is missing:', pdf);
+        pdfSection.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>PDFデータの読み込みに失敗しました。</p>
+            </div>
+        `;
+        return;
+    }
     
     // PDFデータを適切な形式に変換
     let pdfUrl = pdf.pdf_data;
