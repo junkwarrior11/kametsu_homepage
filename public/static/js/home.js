@@ -212,13 +212,40 @@ async function loadRecentNews() {
         const newsletters = newslettersData.data || [];
         const events = eventsData.data || [];
         
+        // PDFデータを取得してData URI化する関数
+        async function getPdfDataUri(fileUrl) {
+            if (!fileUrl) return null;
+            
+            try {
+                // file_urlがAPIエンドポイントの場合、PDFデータを取得
+                if (fileUrl.startsWith('/api/tables/uploaded_pdfs/')) {
+                    const response = await fetch(fileUrl);
+                    const pdfData = await response.json();
+                    
+                    if (pdfData.pdf_data) {
+                        // Base64データをData URI形式に変換
+                        const base64Data = pdfData.pdf_data;
+                        if (base64Data.startsWith('data:application/pdf')) {
+                            return base64Data;
+                        } else {
+                            return `data:application/pdf;base64,${base64Data}`;
+                        }
+                    }
+                }
+                return fileUrl; // それ以外はそのまま返す
+            } catch (error) {
+                console.error('Error fetching PDF data:', error);
+                return null;
+            }
+        }
+        
         // 学校だよりと行事予定を結合
         const allItems = [
             ...newsletters.map(item => ({
                 type: 'newsletter',
                 title: item.title,
                 date: item.issue_date,
-                url: item.file_url,
+                fileUrl: item.file_url,
                 icon: 'fa-newspaper',
                 category: '学校だより'
             })),
@@ -226,7 +253,7 @@ async function loadRecentNews() {
                 type: 'event',
                 title: item.title,
                 date: item.event_date,
-                url: item.file_url,
+                fileUrl: item.file_url,
                 description: item.description,
                 icon: 'fa-calendar',
                 category: '行事予定'
@@ -254,7 +281,15 @@ async function loadRecentNews() {
             return;
         }
         
-        newsGrid.innerHTML = latestItems.map(item => `
+        // PDFデータを取得してData URI化
+        const itemsWithPdfData = await Promise.all(
+            latestItems.map(async item => ({
+                ...item,
+                pdfUrl: await getPdfDataUri(item.fileUrl)
+            }))
+        );
+        
+        newsGrid.innerHTML = itemsWithPdfData.map(item => `
             <div class="news-card">
                 <div class="news-card-content" style="padding: 30px;">
                     <div class="news-card-meta">
@@ -265,8 +300,8 @@ async function loadRecentNews() {
                     </div>
                     <h3 class="news-card-title">${escapeHtml(item.title)}</h3>
                     ${item.description ? `<p class="news-card-excerpt">${escapeHtml(item.description)}</p>` : ''}
-                    ${item.url ? `
-                        <a href="${item.url}" target="_blank" class="btn btn-outline" style="margin-top: 15px;">
+                    ${item.pdfUrl ? `
+                        <a href="${item.pdfUrl}" target="_blank" download class="btn btn-outline" style="margin-top: 15px;">
                             <i class="fas fa-file-pdf"></i> PDFを見る
                         </a>
                     ` : ''}
